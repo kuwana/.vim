@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+	<style type="text/css">
+	<!--
+	
+	div.box1 {
+		width:  200px;
+		height: 200px;
+		float: left;
+		background-color: #f00;
+	}
+	div.box2 {
+		width:  200px;
+		height: 200px;
+		float: left;
+		background-color: #00f;
+	}
+	div.box3 {
+		width:  200px;
+		height: 200px;
+		background-color: #ff0;
+		float: left;
+		clear: both;
+	}
+	div.box4 {
+		width:  200px;
+		height: 200px;
+		background-color: #0ff;
+		float: left;
+	}
+	div.clear {clear:both;}
+	
+	-->
+	</style>
+</head>
+<body>
+	<div class="box1">box1</div>
+	<div class="box2">box2</div>
+	<div class="box3">box3</div>
+
+	<div style="clear:both;"></div>
+
+	<div class="box4">box4</div>
+</body>
+</html>

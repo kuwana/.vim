@@ -1,0 +1,1194 @@
+<?php
+/**
+ * @subpackage Fudousan Plugin
+ * @author y.arai
+ * @date 2013/02/11
+ */
+
+/**
+ * Index
+ * 01. サービス概要
+ * 02. 店舗概要
+ * 03. クーポン詳細
+ * 04. 店舗画像
+ * 05. 店舗説明
+ * 06. 店舗詳細
+ * 07. 飲食店舗詳細
+ * 08. メニュー/コンテンツ
+ */
+
+add_action('admin_head', 'shop_admin_css', 100);
+function shop_admin_css() {
+	echo "\n".'<link rel="stylesheet" type="text/css" href="'. get_bloginfo('url') .'/wp-content/plugins/fudou/arai.css" />'. "\n";
+}
+function store_icons($atts = '') {
+	global $post;
+	$html = '';
+	$servicetype_data = get_post_meta($post->ID, 'tatemonozentaimenseki', true);
+	$purpose_data = get_post_meta($post->ID, 'madorisu', true);
+
+	$html .= '<ul class="largeIcons">';
+	$html .= '<li>ポイント<br />貯める</li>';
+	$html .= '<li>ポイント<br />使う</li>';
+	$html .= '<li>クーポン</li>';
+	$html .= '<li>ヤマダ<br />交換券</li>';
+	$html .= '</ul>';
+	$html .= '<ul class="smallIcons">';
+	$html .= '<li>個室</li>';
+	$html .= '<li>デート</li>';
+	$html .= '<li>宴会</li>';
+	$html .= '<li>禁煙</li>';
+	$html .= '<li>食放</li>';
+	$html .= '<li>飲放</li>';
+	$html .= '<li>深夜</li>';
+	$html .= '<li>ランチ</li>';
+	$html .= '<li>接待</li>';
+	$html .= '<li>一人</li>';
+	$html .= '<li>記念</li>';
+	$html .= '<li>理髪</li>';
+	$html .= '<li>美容</li>';
+	$html .= '<li>癒し</li>';
+	$html .= '<li>遊び</li>';
+	$html .= '</ul>';
+
+	return $html;
+}
+// 01. サービス概要
+add_action('admin_menu', 'attach_service_summary');
+add_action('save_post', 'save_service_summary');
+
+function attach_service_summary() {
+  add_meta_box('service_summary_area', 'サービス概要', 'service_summary_container', 'fudo', 'advanced', 'high');
+}
+function service_summary_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+	$preopen_checked = get_post_meta($post->ID,'shozaichimeisho',true) ? 'checked="checked"' : '';
+	$point_checked = get_post_meta($post->ID,'tatemonomenseki',true) ? 'checked="checked"' : '';
+	$servicetype_data = get_post_meta($post->ID, 'tatemonozentaimenseki', true);
+	$coupontype_data = get_post_meta($post->ID, 'tatemonokentikumenseki', true);
+	$servicetype = array(
+		'EarnPoints' => 'ポイントを貯める',
+		'UserPoints' => 'ポイントを使う',
+		'Coupon' => 'クーポン',
+		'YamadaChange' => 'ヤマダ交換券'
+	);
+	$coupontype = array(
+		'another' => '料理・ドリンク・プレゼント系',
+		'discount' => '値引き・割引き・延長系',
+		'course' => '各コース系'
+	);
+
+	$html = <<<HTML
+<input type="hidden" name="service_summary_nonce" id="service_summary_nonce" value="{$nonce}" />
+
+<span style="font-weight:bold;">サービス導入</span><br />
+<span style="display:inline-block;">
+	<input type="checkbox" name="preopen" id="preopen" value="1"{$preopen_checked} />
+	<label for="preopen">OPEN前フラグ</label>
+</span>
+<span style="display:inline-block;">
+	<input type="checkbox" name="point" id="point" value="point"{$point_checked} />
+	<label for="point">ポイント導入店舗</label>
+</span>
+<br />
+HTML;
+	$html .= '<span style="font-weight:bold;">サービス種別</span><br />';
+	foreach ($servicetype as $k => $v) {
+		if (strpos($servicetype_data, $k) !== false) {
+			$checked = ' checked="checked"';
+		} else {
+			$checked = '';
+		}
+		$html .= '<span style="display:inline-block;">';
+		$html .= '<input type="checkbox" name="service_type[]" id="'.strtolower($k).'" value="'.$k.'"'.$checked.' />';
+		$html .= '<label for="'.strtolower($k).'">'.$v.'</label>';
+		$html .= '</span>';
+	}
+	$html .= '<br />';
+
+	$html .= '<span style="font-weight:bold;">クーポン種別</span><br />';
+	foreach ($coupontype as $k => $v) {
+		if (strpos($coupontype_data, $k) !== false) {
+			$checked = ' checked="checked"';
+		} else {
+			$checked = '';
+		}
+		$html .= '<span style="display:inline-block;">';
+		$html .= '<input type="checkbox" name="coupon_type[]" id="'.strtolower($k).'" value="'.$k.'"'.$checked.' />';
+		$html .= '<label for="'.strtolower($k).'">'.$v.'</label>';
+		$html .= '</span>';
+	}
+	$html .= '<br />';
+	echo $html;
+}
+function save_service_summary($post_id) {
+	if ( isset($_POST['service_summary_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['service_summary_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$preopen_flag = isset($_POST['preopen']) ? $_POST['preopen'] : '';
+		$point_flag = isset($_POST['point']) ? $_POST['point'] : 'coupon';
+		$service_type_data = isset($_POST['service_type']) ? implode(',', $_POST['service_type']) : '';
+		$coupon_type_data = isset($_POST['coupon_type']) ? implode(',', $_POST['coupon_type']) : '';
+
+		// preopen_flag
+		if ($preopen_flag != get_post_meta($post_id, 'shozaichimeisho', true))
+			update_post_meta($post_id, 'shozaichimeisho', $preopen_flag);
+		elseif ($preopen_flag == '')
+			delete_post_meta($post_id, 'shozaichimeisho', get_post_meta($post_id,'shozaichimeisho',true));
+		// point_flag
+		if ($point_flag != get_post_meta($post_id, 'tatemonomenseki', true))
+			update_post_meta($post_id, 'tatemonomenseki', $point_flag);
+		elseif ($point_flag == "")
+			delete_post_meta($post_id, 'tatemonomenseki', get_post_meta($post_id,'tatemonomenseki',true));
+		// service_type
+		if (strcmp($service_type_data, get_post_meta($post_id, 'tatemonozentaimenseki', true)) != 0 )
+			update_post_meta($post_id, 'tatemonozentaimenseki', $service_type_data);
+		elseif ($service_type_data == "")
+			delete_post_meta($post_id, 'tatemonozentaimenseki', get_post_meta($post_id,'tatemonozentaimenseki',true));
+		// coupon_type
+		if (strcmp($coupon_type_data, get_post_meta($post_id, 'tatemonokentikumenseki', true)) != 0 )
+			update_post_meta($post_id, 'tatemonokentikumenseki', $coupon_type_data);
+		elseif ($coupon_type_data == "")
+			delete_post_meta($post_id, 'tatemonokentikumenseki', get_post_meta($post_id,'tatemonokentikumenseki',true));
+	} else {
+			return $post_id;
+	}
+}
+
+// 02. 店舗概要
+add_action('admin_menu', 'attach_shop_summary');
+add_action('save_post', 'save_shop_summary');
+
+function attach_shop_summary() {
+  add_meta_box('shop_summary_area', '店舗概要', 'shop_summary_container', 'fudo', 'advanced', 'high');
+}
+function shop_summary_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+	$alias_data = get_post_meta($post->ID, 'kaiin', true);
+	$restaurant_checked = get_post_meta($post->ID,'tatemonochikunenn',true) ? 'checked="checked"' : '';
+	$purpose_data = get_post_meta($post->ID, 'madorisu', true);
+	$genre_data = get_post_meta($post->ID, 'madorisyurui', true);
+	$budget_data = get_post_meta($post->ID, 'kakakukoushin', true);
+	$purpose = array(
+		'private-room' => '個室',
+		'date' => 'デートに最適',
+		'party' => '宴会・パーティー',
+		'non-smoking' => '禁煙席あり',
+		'buffet' => '食べ放題あり',
+		'bottomless-cup' => '飲み放題あり',
+		'always-open' => '深夜営業(24時以降)',
+		'lunch' => 'ランチがある',
+		'reception' => '接待に最適',
+		'alone' => 'お一人様歓迎',
+		'memorial' => '記念日',
+		'cut-hair' => '髪を切る',
+		'cultivate' => '自分をみがく',
+		'entertainment' => 'エンターテイメント',
+		'other' => 'その他'
+	);
+	$genre = array(
+		'izakaya-daining' => '居酒屋・ダイニングバー',
+		'bar' => 'バー',
+		'japanese' => '和食',
+		'western' => '洋食',
+		'chinese' => '中華・ラーメン',
+		'asia-multinational' => 'アジア・焼肉・多国籍',
+		'gourmet' => 'カフェ・その他グルメ',
+		'hair-beauty' => 'ヘアーサロン・美容健康',
+		'relaxation' => 'リラクゼーション',
+		'leisure-amusement' => 'レジャー・アミューズメント',
+		'other' => 'その他業種'
+	);
+	$budget = array(
+		'u1000' => '1000円未満',
+		'u2000' => '1001円-2000円',
+		'u3000' => '2001円-3000円',
+		'u4000' => '3001円-4000円',
+		'u5000' => '4001円-5000円',
+		'u6000' => '5001円-6000円',
+		'u7000' => '6001円-7000円',
+		'u8000' => '7001円-8000円',
+		'u9000' => '8001円-9000円',
+		'u10000' => '9001円-10000円',
+		'a10000' => '10001円以上'
+	);
+
+	$html = <<<HTML
+<input type="hidden" name="shop_summary_nonce" id="shop_summary_nonce" value="{$nonce}" />
+
+<span style="font-weight:bold;">エイリアス</span><br />
+<input type="text" name="kaiin" id="kaiin" value="{$alias_data}" /><br />
+<span style="font-weight:bold;">店舗形態</span><br />
+<input type="checkbox" name="restaurant" id="restaurant" value="1"{$restaurant_checked} />
+<label for="restaurant">飲食店フラグ</label>
+<br />
+HTML;
+	$html .= '<span style="font-weight:bold;">利用目的</span><br />';
+	foreach ($purpose as $k => $v) {
+		if (strpos($purpose_data, $k) !== false) {
+			$checked = ' checked="checked"';
+		} else {
+			$checked = '';
+		}
+		$html .= '<span style="display:inline-block;">';
+		$html .= '	<input type="checkbox" name="purpose[]" id="'.$k.'" value="'.$k.'"'.$checked.' />';
+		$html .= '	<label for="'.$k.'">'.$v.'</label>';
+		$html .= '</span>';
+	}
+	$html .= '<br />';
+	$html .= '<span style="font-weight:bold;">店舗業種</span><br />';
+	$html .= '<select name="genre">';
+	foreach ($genre as $k => $v) {
+		if (strpos($genre_data, $k) !== false) {
+			$html .= '<option value="'.$k.'" selected="selected">'.$v.'</option>'."\n";
+		} else {
+			$html .= '<option value="'.$k.'">'.$v.'</option>'."\n";
+		}
+	}
+	$html .= '</select>';
+	$html .= '<br />';
+	$html .= '<span style="font-weight:bold;">平均予算</span><br />';
+	$html .= '<select name="budget">';
+	foreach ($budget as $k => $v) {
+		if (strpos($budget_data, $k) !== false) {
+			$html .= '<option value="'.$k.'" selected="selected">'.$v.'</option>'."\n";
+		} else {
+			$html .= '<option value="'.$k.'">'.$v.'</option>'."\n";
+		}
+	}
+	$html .= '</select>';
+	$html .= '<br />';
+	echo $html;
+}
+function save_shop_summary($post_id) {
+	if ( isset($_POST['shop_summary_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['shop_summary_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$alias = isset($_POST['kaiin']) ? $_POST['kaiin'] : '';
+		$restaurant_flag = isset($_POST['restaurant']) ? $_POST['restaurant'] : '';
+		$purpose_data = isset($_POST['purpose']) ? implode(',', $_POST['purpose']) : '';
+		$genre = isset($_POST['genre']) ? $_POST['genre'] : '';
+		$budget = isset($_POST['budget']) ? $_POST['budget'] : '';
+
+		// alias
+		if ($alias != get_post_meta($post_id, 'kaiin', true))
+			update_post_meta($post_id, 'kaiin', $alias);
+		elseif ($alias == '')
+			delete_post_meta($post_id, 'kaiin', get_post_meta($post_id,'kaiin',true));
+		// restaurant_flag
+		if ($restaurant_flag != get_post_meta($post_id, 'tatemonochikunenn', true))
+			update_post_meta($post_id, 'tatemonochikunenn', $restaurant_flag);
+		elseif ($restaurant_flag == '')
+			delete_post_meta($post_id, 'tatemonochikunenn', get_post_meta($post_id,'tatemonochikunenn',true));
+		// purpose_data
+		if (strcmp($purpose_data, get_post_meta($post_id, 'madorisu', true)) != 0)
+			update_post_meta($post_id, 'madorisu', $purpose_data);
+		elseif ($purpose_data == '')
+			delete_post_meta($post_id, 'madorusu', get_post_meta($post_id,'madorisu',true));
+		// genre
+		if (strcmp($genre ,get_post_meta($post_id, 'madorisyurui', true)) != 0)
+			update_post_meta($post_id, 'madorisyurui', $genre);
+		elseif ($genre == '')
+			delete_post_meta($post_id, 'madorisyurui', get_post_meta($post_id,'modorisyurui',true));
+		// budget
+		if (strcmp($budget ,get_post_meta($post_id, 'kakakukoushin', true)) != 0)
+			update_post_meta($post_id, 'kakakukoushin', $budget);
+		elseif ($budget == '')
+			delete_post_meta($post_id, 'kakakukoushin', get_post_meta($post_id,'modorisyurui',true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 03. クーポン詳細情報
+add_action('admin_menu', 'attach_coupon_detail');
+add_action('save_post', 'save_coupon_detail');
+
+function attach_coupon_detail() {
+	add_meta_box('coupon_detail_area', 'クーポン詳細', 'coupon_detail_container', 'fudo', 'advanced', 'high');
+}
+function coupon_detail_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	$common_content = get_post_meta($post->ID, 'kakaku', true);
+	$common_show = get_post_meta($post->ID, 'setsubi', true);
+	$common_use = get_post_meta($post->ID, 'shanaimemo', true);
+	$lunch_content = get_post_meta($post->ID, 'shikibesu', true);
+	$lunch_show = get_post_meta($post->ID, 'keisaikigenbi', true);
+	$lunch_use = get_post_meta($post->ID, 'koukaijisha', true);
+	$diner_content = get_post_meta($post->ID, 'jyoutai', true);
+	$diner_show = get_post_meta($post->ID, 'bukkenmei', true);
+	$diner_use = get_post_meta($post->ID, 'shozaichimeisho2', true);
+	$course_content = get_post_meta($post->ID, 'shozaichimeisho3', true);
+	$course_show = get_post_meta($post->ID, 'bukkenido', true);
+	$course_use = get_post_meta($post->ID, 'bukkenkeido', true);
+
+	$html = <<<HTML
+<input type="hidden" name="coupon_detail_nonce" id="coupon_detail_nonce" value="{$nonce}" />
+
+<label for="cpn_common_content">優待内容一般</label>
+<input type="text" name="cpn_common_content" id="cpn_common_content" value="{$common_content}" /><br />
+<label for="cpn_common_show">提示条件一般</label>
+<input type="text" name="cpn_common_show" id="cpn_common_show" value="{$common_show}" /><br />
+<label for="cpn_common_use">利用条件一般</label>
+<input type="text" name="cpn_common_use" id="cpn_common_use" value="{$common_use}" /><br />
+<br />
+<label for="cpn_lunch_content">優待内容ランチ</label>
+<input type="text" name="cpn_lunch_content" id="cpn_lunch_content" value="{$lunch_content}" /><br />
+<label for="cpn_lunch_show">提示条件ランチ</label>
+<input type="text" name="cpn_lunch_show" id="cpn_lunch_show" value="{$lunch_show}" /><br />
+<label for="cpn_lunch_use">利用条件ランチ</label>
+<input type="text" name="cpn_lunch_use" id="cpn_lunch_use" value="{$lunch_use}" /><br />
+<br />
+<label for="cpn_diner_content">優待内容ディナー</label>
+<input type="text" name="cpn_diner_content" id="cpn_diner_content" value="{$diner_content}" /><br />
+<label for="cpn_diner_show">提示条件ディナー</label>
+<input type="text" name="cpn_diner_show" id="cpn_diner_show" value="{$diner_show}" /><br />
+<label for="cpn_diner_use">利用条件ディナー</label>
+<input type="text" name="cpn_diner_use" id="cpn_diner_use" value="{$diner_use}" /><br />
+<br />
+<label for="cpn_course_content">優待内容宴会</label>
+<input type="text" name="cpn_course_content" id="cpn_course_content" value="{$course_content}" /><br />
+<label for="cpn_course_show">提示条件宴会</label>
+<input type="text" name="cpn_course_show" id="cpn_course_show" value="{$course_show}" /><br />
+<label for="cpn_course_use">利用条件宴会</label>
+<input type="text" name="cpn_course_use" id="cpn_course_use" value="{$course_use}" /><br />
+<br />
+HTML;
+	echo $html;
+}
+function save_coupon_detail($post_id) {
+	if ( isset($_POST['coupon_detail_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['coupon_detail_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$common_content = isset($_POST['cpn_common_content']) ? $_POST['cpn_common_content'] : '';
+		$common_show = isset($_POST['cpn_common_show']) ? $_POST['cpn_common_show'] : '';
+		$common_use = isset($_POST['cpn_common_use']) ? $_POST['cpn_common_use'] : '';
+		$lunch_content = isset($_POST['cpn_lunch_content']) ? $_POST['cpn_lunch_content'] : '';
+		$lunch_show = isset($_POST['cpn_lunch_show']) ? $_POST['cpn_lunch_show'] : '';
+		$lunch_use = isset($_POST['cpn_lunch_use']) ? $_POST['cpn_lunch_use'] : '';
+		$diner_content = isset($_POST['cpn_diner_content']) ? $_POST['cpn_diner_content'] : '';
+		$diner_show = isset($_POST['cpn_diner_show']) ? $_POST['cpn_diner_show'] : '';
+		$diner_use = isset($_POST['cpn_diner_use']) ? $_POST['cpn_diner_use'] : '';
+		$course_content = isset($_POST['cpn_course_content']) ? $_POST['cpn_course_content'] : '';
+		$course_show = isset($_POST['cpn_course_show']) ? $_POST['cpn_course_show'] : '';
+		$course_use = isset($_POST['cpn_course_use']) ? $_POST['cpn_course_use'] : '';
+
+		// common_content
+		if (strcmp($common_content, get_post_meta($post_id, 'kakaku', true)) != 0)
+			update_post_meta($post_id, 'kakaku', $common_content);
+		elseif ($common_content == '')
+			delete_post_meta($post_id, 'kakaku', get_post_meta($post_id, 'kakaku', true));
+		// common_show
+		if (strcmp($common_show, get_post_meta($post_id, 'setsubi', true)) != 0)
+			update_post_meta($post_id, 'setsubi', $common_show);
+		elseif ($common_show == '')
+			delete_post_meta($post_id, 'setsubi', get_post_meta($post_id, 'setsubi', true));
+		// common_use
+		if (strcmp($common_use, get_post_meta($post_id, 'shanaimemo', true)) != 0)
+			update_post_meta($post_id, 'shanaimemo', $common_use);
+		elseif ($common_use == '')
+			delete_post_meta($post_id, 'shanaimemo', get_post_meta($post_id, 'shanaimemo', true));
+
+		// lunch_content
+		if (strcmp($lunch_content, get_post_meta($post_id, 'shikibesu', true)) != 0)
+			update_post_meta($post_id, 'shikibesu', $lunch_content);
+		elseif ($lunch_content == '')
+			delete_post_meta($post_id, 'shikibesu', get_post_meta($post_id, 'shikibesu', true));
+		// lunch_show
+		if (strcmp($lunch_show, get_post_meta($post_id, 'keisaikigenbi', true)) != 0)
+			update_post_meta($post_id, 'keisaikigenbi', $lunch_show);
+		elseif ($lunch_show == '')
+			delete_post_meta($post_id, 'keisaikigenbi', get_post_meta($post_id, 'keisaikigenbi', true));
+		// lunch_use
+		if (strcmp($lunch_use, get_post_meta($post_id, 'koukaijisha', true)) != 0)
+			update_post_meta($post_id, 'koukaijisha', $lunch_use);
+		elseif ($lunch_use == '')
+			delete_post_meta($post_id, 'koukaijisha', get_post_meta($post_id, 'koukaijisha', true));
+
+		// diner_content
+		if (strcmp($diner_content, get_post_meta($post_id, 'jyoutai', true)) != 0)
+			update_post_meta($post_id, 'jyoutai', $diner_content);
+		elseif ($diner_content == '')
+			delete_post_meta($post_id, 'jyoutai', get_post_meta($post_id, 'jyoutai', true));
+		// diner_show
+		if (strcmp($diner_show, get_post_meta($post_id, 'bukkenmei', true)) != 0)
+			update_post_meta($post_id, 'bukkenmei', $diner_show);
+		elseif ($diner_show == '')
+			delete_post_meta($post_id, 'bukkenmei', get_post_meta($post_id, 'bukkenmei', true));
+		// diner_use
+		if (strcmp($diner_use, get_post_meta($post_id, 'shozaichimeisho2', true)) != 0)
+			update_post_meta($post_id, 'shozaichimeisho2', $diner_use);
+		elseif ($diner_use == '')
+			delete_post_meta($post_id, 'shozaichimeisho2', get_post_meta($post_id, 'shozaichimeisho2', true));
+
+		// course_content
+		if (strcmp($course_content, get_post_meta($post_id, 'shozaichimeisho3', true)) != 0)
+			update_post_meta($post_id, 'shozaichimeisho3', $course_content);
+		elseif ($course_content == '')
+			delete_post_meta($post_id, 'shozaichimeisho3', get_post_meta($post_id, 'shozaichimeisho3', true));
+		// course_show
+		if (strcmp($course_show, get_post_meta($post_id, 'bukkenido', true)) != 0)
+			update_post_meta($post_id, 'bukkenido', $course_show);
+		elseif ($course_show == '')
+			delete_post_meta($post_id, 'bukkenido', get_post_meta($post_id, 'bukkenido', true));
+		// course_use
+		if (strcmp($course_use, get_post_meta($post_id, 'bukkenkeido', true)) != 0)
+			update_post_meta($post_id, 'bukkenkeido', $course_use);
+		elseif ($course_use == '')
+			delete_post_meta($post_id, 'bukkenkeido', get_post_meta($post_id, 'bukkenkeido', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 04. 店舗画像情報
+add_action('admin_menu', 'my_custom_gazo');
+add_action('save_post', 'custom_save_gazo');
+function my_custom_gazo() {
+	add_meta_box('my_custom_gazo_area', '店舗画像', 'my_custom_gazo_in', 'fudo', 'normal', 'high' );
+}
+function my_custom_gazo_in() {
+	global $post,$work_gazo,$work_gazo2;
+
+	if( FUDOU_IMG_MAX > 10 ){
+	  $work_gazo = array_merge($work_gazo, $work_gazo2);
+	}
+	echo '<input type="hidden" name="mycustom_gazo_name" id="mycustom_gazo_name" value="' .wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+	foreach($work_gazo as $meta_box) {
+
+		$meta_box_value = get_post_meta($post->ID, $meta_box['name'], true);
+
+		//echo'<input type="hidden" name="'.$meta_box['name'].'_noncename" id="'.$meta_box['name'].'_noncename" value="'.wp_create_nonce( plugin_basename(__FILE__) ).'" />';
+		//echo'<label for="'.$meta_box['name'].'">'.$meta_box['title'].'</label>';
+
+		if('select'==$meta_box['type']){
+/*
+			echo '<select name="'.$meta_box['name'].'">';
+			echo '<option value="">選択</option>';
+
+			echo '<option value="1"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="1"){ 	 echo ' selected="selected"';	}
+			echo '">間取</option>';
+
+			echo '<option value="2"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="2"){ 	 echo ' selected="selected"';	}
+			echo '">外観</option>';
+
+			echo '<option value="3"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="3"){ 	 echo ' selected="selected"';	}
+			echo '">地図</option>';
+
+			echo '<option value="4"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="4"){ 	 echo ' selected="selected"';	}
+			echo '">周辺</option>';
+
+			echo '<option value="5"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="5"){ 	 echo ' selected="selected"';	}
+			echo '">内装</option>';
+
+			echo '<option value="9"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="9"){ 	 echo ' selected="selected"';	}
+			echo '">その他画像</option>';
+
+			echo '<option value="10"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="10"){  echo ' selected="selected"';	}
+			echo '">玄関</option>';
+
+			echo '<option value="11"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="11"){  echo ' selected="selected"';	}
+			echo '">居間</option>';
+
+			echo '<option value="12"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="12"){  echo ' selected="selected"';	}
+			echo '">キッチン</option>';
+
+			echo '<option value="13"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="13"){  echo ' selected="selected"';	}
+			echo '">寝室</option>';
+
+			echo '<option value="14"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="14"){  echo ' selected="selected"';	}
+			echo '">子供部屋</option>';
+
+			echo '<option value="15"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="15"){  echo ' selected="selected"';	}
+			echo '">風呂</option>　';
+
+			echo '</select><br />';
+ */
+		}else{
+			echo $meta_box['title'].'<input type="text" name="'.$meta_box['name'].'" value="'.$meta_box_value.'" size="25" id="'.$meta_box['name'].'" />';
+			echo ''.$meta_box['description'].'';
+			if($meta_box['std']=="1")
+				echo ' '.$meta_box['com'].'　<a href="media-upload.php?post_id='.$post->ID.'&amp;type=image&amp;img_no='.$meta_box['name'].'&amp;flash=0&amp;TB_iframe=1" class="thickbox">画像を設定</a><br />';
+		}
+	}
+
+?>
+	<script type="text/javascript">
+	/* <![CDATA[ */
+		// send html to the post editor
+		function send_to_editor2(h,i) {
+			document.forms['post'].elements[i].value = h;
+			tb_remove();
+		}
+	/* ]]> */
+	</script>
+<?php
+}
+
+add_action( 'pre-html-upload-ui', 'fudo_add_htm_upload_ui' );
+function fudo_add_htm_upload_ui() {
+
+	$img_no = isset($_GET['img_no']) ? esc_attr( stripslashes($_GET['img_no'])) : '';
+	if($img_no == '') $img_no = isset($_POST['img_no']) ? esc_attr( stripslashes($_POST['img_no'])) : '';
+	if($img_no != '')
+		echo '<input type="hidden" name="img_no" value="'.$img_no.'" />';
+}
+// attach our function to the correct hook
+add_filter("attachment_fields_to_edit", "fudo_image_attachment_fields_to_edit", null, 2);
+function fudo_image_attachment_fields_to_edit($form_fields, $post) {
+
+	$img_no = isset($_GET['img_no']) ? esc_attr( stripslashes($_GET['img_no'])) : '';
+	if($img_no == '') $img_no = isset($_POST['img_no']) ? esc_attr( stripslashes($_POST['img_no'])) : '';
+
+	if($img_no!=''){
+		$new_fields = array();
+
+		$filename = basename( $post->guid );
+		$new_fields["fudo"]["label"] = "<font color=red>店舗画像登録</font>";
+		$new_fields["fudo"]["input"] = "html";
+		$new_fields["fudo"]["html"] = "
+			<input type='hidden' name='img_no' value='{$img_no}' />
+			<input type='submit' class='button' name='send_f[{$filename}]' id='attachments[{$post->ID}][fudo]' value='画像( {$filename} )を登録する' />
+		";
+
+		$form_fields = array_merge($new_fields, $form_fields);
+	}
+	return $form_fields;
+}
+
+add_action( 'media_upload_image', 'my_bulk_insert', 1);
+add_action( 'media_upload_gallery', 'my_bulk_insert', 1);
+add_action( 'media_upload_library', 'my_bulk_insert', 1);
+function my_bulk_insert() {
+
+	if ( isset($_POST['send_f']) ) {
+		$keys = isset($_POST['send_f']) ? array_keys($_POST['send_f']) : '';
+		$img_name = array_shift($keys);
+
+		$img_no = isset($_GET['img_no']) ? esc_attr( stripslashes($_GET['img_no'])) : '';
+		if($img_no == '') $img_no = isset($_POST['img_no']) ? esc_attr( stripslashes($_POST['img_no'])) : '';
+		media_send_to_editor2($img_name,$img_no);
+	}
+}
+
+function media_send_to_editor2($img_name,$img_no) {
+?>
+<script type="text/javascript">
+/* <![CDATA[ */
+	var win = window.dialogArguments || opener || parent || top;
+	win.send_to_editor2("<?php echo addslashes($img_name); ?>","<?php echo $img_no; ?>");
+/* ]]> */
+</script>
+<?php
+	exit;
+}
+
+function custom_save_gazo( $post_id ) {
+	global $post,$work_gazo,$work_gazo2;
+
+	if( FUDOU_IMG_MAX > 10 ){
+	  $work_gazo = array_merge($work_gazo, $work_gazo2);
+	}
+	if ( isset($_POST['mycustom_gazo_name']) ){
+		if ( !wp_verify_nonce( $_POST['mycustom_gazo_name'], plugin_basename(__FILE__) )) {
+			return $post_id;
+		}
+
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id ))
+			return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id ))
+			return $post_id;
+		}
+
+		foreach($work_gazo as $meta_box) {
+
+			$data = isset($_POST[$meta_box['name']]) ? $_POST[$meta_box['name']] : '';
+			if(get_post_meta($post_id, $meta_box['name']) == "")
+				add_post_meta($post_id, $meta_box['name'], $data, true);
+			elseif($data != get_post_meta($post_id, $meta_box['name'], true))
+				update_post_meta($post_id, $meta_box['name'], $data);
+			elseif($data == "")
+				delete_post_meta($post_id, $meta_box['name'], get_post_meta($post_id, $meta_box['name'], true));
+		}
+	}else{
+			return $post_id;
+	}
+}
+// 05. 店舗説明情報
+add_action('admin_menu', 'attach_shop_description');
+add_action('save_post', 'save_shop_description');
+function attach_shop_description() {
+	add_meta_box('shop_description_area', '店舗説明', 'shop_description_container', 'fudo', 'advanced', 'high');
+}
+function shop_description_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+	$description_main = get_post_meta($post->ID,'koutsubusstei1',true);
+	$description_sub1 = get_post_meta($post->ID,'koutsubussfun1',true);
+	$description_sub2 = get_post_meta($post->ID,'koutsutohob1f',true);
+
+	$html = <<<HTML
+<input type="hidden" name="shop_description_nonce" id="shop_description_nonce" value="{$nonce}" />
+
+<label>説明文メイン</label>
+<textarea rows="3" cols="60" name="description_main" id="description_main" style="width:100%">{$description_main}</textarea><br />
+<br />
+<label>説明文サブ1</label>
+<textarea rows="3" cols="60" name="description_sub1" id="description_sub1" style="width:100%">{$description_sub1}</textarea><br />
+<br />
+<label>説明文サブ2</label>
+<textarea rows="3" cols="60" name="description_sub2" id="description_sub2" style="width:100%">{$description_sub2}</textarea><br />
+<br />
+HTML;
+	echo $html;
+}
+function save_shop_description($post_id) {
+	if ( isset($_POST['shop_description_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['shop_description_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$description_main = isset($_POST['description_main']) ? $_POST['description_main'] : '';
+		$description_sub1 = isset($_POST['description_sub1']) ? $_POST['description_sub1'] : '';
+		$description_sub2 = isset($_POST['description_sub2']) ? $_POST['description_sub2'] : '';
+
+		// description_main
+		if (strcmp($description_main, get_post_meta($post_id, 'koutsubusstei1', true)) != 0)
+			update_post_meta($post_id, 'koutsubusstei1', $description_main);
+		elseif ($description_main == '')
+			delete_post_meta($post_id, 'koutsubusstei1', get_post_meta($post_id, 'koutsubusstei1', true));
+		// description_sub1
+		if (strcmp($description_sub1, get_post_meta($post_id, 'koutsubussfun1', true)) != 0)
+			update_post_meta($post_id, 'koutsubussfun1', $description_sub1);
+		elseif ($description_sub1 == '')
+			delete_post_meta($post_id, 'koutsubussfun1', get_post_meta($post_id, 'koutsubussfun1', true));
+		// description_sub2
+		if (strcmp($description_sub2, get_post_meta($post_id, 'koutsutohob1f', true)) != 0)
+			update_post_meta($post_id, 'koutsutohob1f', $description_sub2);
+		elseif ($description_sub2 == '')
+			delete_post_meta($post_id, 'koutsutohob1f', get_post_meta($post_id, 'koutsutohob1f', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 06. 店舗詳細情報
+add_action('admin_menu', 'attach_shop_detail');
+add_action('save_post', 'save_shop_detail');
+function attach_shop_detail() {
+	add_meta_box('shop_detail_area', '店舗詳細', 'shop_detail_container', 'fudo', 'advanced', 'high');
+}
+function shop_detail_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	$furigana = get_post_meta($post->ID, 'kakakushikibiki', true);  // フリガナ
+	$zipcode = get_post_meta($post->ID, 'koutsusonota', true);  // 郵便番号
+	$lat = get_post_meta($post->ID, 'tochichimoku', true);  // 緯度
+	$lng = get_post_meta($post->ID, 'tochikukaku', true);  // 経度
+	$address1 = get_post_meta($post->ID, 'tochikenpei', true);  // 住所1
+	$address2 = get_post_meta($post->ID, 'tochiyoseki', true);  // 住所2
+	$access = get_post_meta($post->ID, 'tochisetsudomaguchi1', true);  // アクセス
+	$landmark = get_post_meta($post->ID, 'tochisetsudofukuin1', true);  // ランドマーク
+	$telnumber = get_post_meta($post->ID, 'tochisetsudomaguchi2', true);  // TEL
+	$shophours = get_post_meta($post->ID, 'tatemononobeyukamenseki', true);  // 営業時間
+	$shopholiday = get_post_meta($post->ID, 'tatemonokaisu1', true);  // 定休日
+	$contact = get_post_meta($post->ID, 'tatemonokaisu2', true);  // お問合せ可能時間
+	$hpurl = get_post_meta($post->ID, 'kanrininn', true);  // ホームページ
+	$average = get_post_meta($post->ID, 'kanrikeitai', true);  // 平均予算
+	$mobile = get_post_meta($post->ID, 'kanrikumiai', true);  // 携帯電波
+	$credit = get_post_meta($post->ID, 'kanrikaisha', true);  // クレジット
+	$seats = get_post_meta($post->ID, 'heyakaisu', true);  // 総席数
+	$impediment = get_post_meta($post->ID, 'heyabarukoni', true);  // バリアフリー
+	$notes = get_post_meta($post->ID, 'heyamuki', true);  // 備考
+
+	$html = <<<HTML
+<input type="hidden" name="shop_detail_nonce" id="shop_detail_nonce" value="{$nonce}" />
+
+<label for="furigana">フリガナ</label>
+<input type="text" name="furigana" id="furigana" value="{$furigana}" /><br />
+<label for="zipcode">郵便番号</label>
+<input type="text" name="zipcode" id="zipcode" value="{$zipcode}" /><br />
+<label for="lat">緯度</label>
+<input type="text" name="lat" id="lat" value="{$lat}" /><br />
+<label for="lng">経度</label>
+<input type="text" name="lng" id="lng" value="{$lng}" /><br />
+
+<label for="address1">住所1</label>
+<input type="text" name="address1" id="address1" value="{$address1}" /><br />
+<label for="address2">住所2</label>
+<input type="text" name="address2" id="address2" value="{$address2}" /><br />
+<label for="access">アクセス</label>
+<input type="text" name="access" id="access" value="{$access}" /><br />
+<label for="landmark">ランドマーク</label>
+<input type="text" name="landmark" id="landmark" value="{$landmark}" /><br />
+
+<label for="telnumber">TEL</label>
+<input type="text" name="telnumber" id="telnumber" value="{$telnumber}" /><br />
+<label for="shophours">営業時間</label>
+<input type="text" name="shophours" id="shophours" value="{$shophours}" /><br />
+<label for="shopholiday">定休日</label>
+<input type="text" name="shopholiday" id="shopholiday" value="{$shopholiday}" /><br />
+<label for="contact">お問合せ可能時間</label>
+
+<input type="text" name="contact" id="contact" value="{$contact}" /><br />
+<label for="hpurl">ホームページ</label>
+<input type="text" name="hpurl" id="hpurl" value="{$hpurl}" /><br />
+<label for="average">平均予算</label>
+<input type="text" name="average" id="average" value="{$average}" /><br />
+<label for="mobile">携帯電波</label>
+<input type="text" name="mobile" id="mobile" value="{$mobile}" /><br />
+<label for="credit">クレジット</label>
+<input type="text" name="credit" id="credit" value="{$credit}" /><br />
+<label for="seats">総席数</label>
+<input type="text" name="seats" id="seats" value="{$seats}" /><br />
+
+<label for="impediment">バリアフリー</label>
+<input type="text" name="impediment" id="impediment" value="{$impediment}" /><br />
+<label for="notes">備考</label>
+<textarea cols="60" rows="3" name="notes" id="notes" style="width:100%;">{$notes}</textarea><br />
+HTML;
+	echo $html;
+}
+function save_shop_detail($post_id) {
+	if ( isset($_POST['shop_detail_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['shop_detail_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$furigana = isset($_POST['furigana']) ? $_POST['furigana'] : '';
+		$zipcode = isset($_POST['zipcode']) ? $_POST['zipcode'] : '';
+		$lat = isset($_POST['lat']) ? $_POST['lat'] : '';
+		$lng = isset($_POST['lng']) ? $_POST['lng'] : '';
+		$address1 = isset($_POST['address1']) ? $_POST['address1'] : '';
+		$address2 = isset($_POST['address2']) ? $_POST['address2'] : '';
+		$access = isset($_POST['access']) ? $_POST['access'] : '';
+		$landmark = isset($_POST['landmark']) ? $_POST['landmark'] : '';
+		$telnumber = isset($_POST['telnumber']) ? $_POST['telnumber'] : '';
+		$shophours = isset($_POST['shophours']) ? $_POST['shophours'] : '';
+		$shopholiday = isset($_POST['shopholiday']) ? $_POST['shopholiday'] : '';
+		$contact = isset($_POST['contact']) ? $_POST['contact'] : '';
+		$hpurl = isset($_POST['hpurl']) ? $_POST['hpurl'] : '';
+		$average = isset($_POST['average']) ? $_POST['average'] : '';
+		$mobile = isset($_POST['mobile']) ? $_POST['mobile'] : '';
+		$credit = isset($_POST['credit']) ? $_POST['credit'] : '';
+		$seats = isset($_POST['seats']) ? $_POST['seats'] : '';
+		$impediment = isset($_POST['impediment']) ? $_POST['impediment'] : '';
+		$notes = isset($_POST['notes']) ? $_POST['notes'] : '';
+
+		// furigana
+		if (strcmp($furigana, get_post_meta($post_id, 'kakakushikibiki', true)) != 0)
+			update_post_meta($post_id, 'kakakushikibiki', $furigana);
+		elseif ($furigana == '')
+			delete_post_meta($post_id, 'kakakushikibiki', get_post_meta($post_id, 'kakakushikibiki', true));
+		// zipcode
+		if (strcmp($zipcode, get_post_meta($post_id, 'koutsusonota', true)) != 0)
+			update_post_meta($post_id, 'koutsusonota', $zipcode);
+		elseif ($zipcode == '')
+			delete_post_meta($post_id, 'koutsusonota', get_post_meta($post_id, 'koutsusonota', true));
+		// lat
+		if (strcmp($lat, get_post_meta($post_id, 'tochichimoku', true)) != 0)
+			update_post_meta($post_id, 'tochichimoku', $lat);
+		elseif ($lat == '')
+			delete_post_meta($post_id, 'tochichimoku', get_post_meta($post_id, 'tochichimoku', true));
+		// lng
+		if (strcmp($lng, get_post_meta($post_id, 'tochikukaku', true)) != 0)
+			update_post_meta($post_id, 'tochikukaku', $lng);
+		elseif ($lng == '')
+			delete_post_meta($post_id, 'tochikukaku', get_post_meta($post_id, 'tochikukaku', true));
+		// address1
+		if (strcmp($address1, get_post_meta($post_id, 'tochikenpei', true)) != 0)
+			update_post_meta($post_id, 'tochikenpei', $address1);
+		elseif ($address1 == '')
+			delete_post_meta($post_id, 'tochikenpei', get_post_meta($post_id, 'tochikenpei', true));
+		// address2
+		if (strcmp($address2, get_post_meta($post_id, 'tochiyoseki', true)) != 0)
+			update_post_meta($post_id, 'tochiyoseki', $address2);
+		elseif ($address2 == '')
+			delete_post_meta($post_id, 'tochiyoseki', get_post_meta($post_id, 'tochiyoseki', true));
+		// access
+		if (strcmp($access, get_post_meta($post_id, 'tochisetsudomaguchi1', true)) != 0)
+			update_post_meta($post_id, 'tochisetsudomaguchi1', $access);
+		elseif ($access == '')
+			delete_post_meta($post_id, 'tochisetsudomaguchi1', get_post_meta($post_id, 'tochisetsudomaguchi1', true));
+		// landmark
+		if (strcmp($landmark, get_post_meta($post_id, 'tochisetsudofukuin1', true)) != 0)
+			update_post_meta($post_id, 'tochisetsudofukuin1', $landmark);
+		elseif ($landmark == '')
+			delete_post_meta($post_id, 'tochisetsudofukuin1', get_post_meta($post_id, 'tochisetsudofukuin1', true));
+		// telnumber
+		if (strcmp($telnumber, get_post_meta($post_id, 'tochisetsudomaguchi2', true)) != 0)
+			update_post_meta($post_id, 'tochisetsudomaguchi2', $telnumber);
+		elseif ($telnumber == '')
+			delete_post_meta($post_id, 'tochisetsudomaguchi2', get_post_meta($post_id, 'tochisetsudomaguchi2', true));
+		// shophours
+		if (strcmp($shophours, get_post_meta($post_id, 'tatemononobeyukamenseki', true)) != 0)
+			update_post_meta($post_id, 'tatemononobeyukamenseki', $shophours);
+		elseif ($shophours == '')
+			delete_post_meta($post_id, 'tatemononobeyukamenseki', get_post_meta($post_id, 'tatemononobeyukamenseki', true));
+		// shopholiday
+		if (strcmp($shopholiday, get_post_meta($post_id, 'tatemonokaisu1', true)) != 0)
+			update_post_meta($post_id, 'tatemonokaisu1', $shopholiday);
+		elseif ($shopholiday == '')
+			delete_post_meta($post_id, 'tatemonokaisu1', get_post_meta($post_id, 'tatemonokaisu1', true));
+		// contact
+		if (strcmp($contact, get_post_meta($post_id, 'tatemonokaisu2', true)) != 0)
+			update_post_meta($post_id, 'tatemonokaisu2', $contact);
+		elseif ($contact == '')
+			delete_post_meta($post_id, 'tatemonokaisu2', get_post_meta($post_id, 'tatemonokaisu2', true));
+		// hpurl
+		if (strcmp($hpurl, get_post_meta($post_id, 'kanrininn', true)) != 0)
+			update_post_meta($post_id, 'kanrininn', $hpurl);
+		elseif ($hpurl == '')
+			delete_post_meta($post_id, 'kanrininn', get_post_meta($post_id, 'kanrininn', true));
+		// average
+		if (strcmp($average, get_post_meta($post_id, 'kanrikeitai', true)) != 0)
+			update_post_meta($post_id, 'kanrikeitai', $average);
+		elseif ($average == '')
+			delete_post_meta($post_id, 'kanrikeitai', get_post_meta($post_id, 'kanrikeitai', true));
+		// mobile
+		if (strcmp($mobile, get_post_meta($post_id, 'kanrikumiai', true)) != 0)
+			update_post_meta($post_id, 'kanrikumiai', $mobile);
+		elseif ($mobile == '')
+			delete_post_meta($post_id, 'kanrikumiai', get_post_meta($post_id, 'kanrikumiai', true));
+		// credit
+		if (strcmp($credit, get_post_meta($post_id, 'kanrikaisha', true)) != 0)
+			update_post_meta($post_id, 'kanrikaisha', $credit);
+		elseif ($credit == '')
+			delete_post_meta($post_id, 'kanrikaisha', get_post_meta($post_id, 'kanrikaisha', true));
+		// seats
+		if (strcmp($seats, get_post_meta($post_id, 'heyakaisu', true)) != 0)
+			update_post_meta($post_id, 'heyakaisu', $seats);
+		elseif ($seats == '')
+			delete_post_meta($post_id, 'heyakaisu', get_post_meta($post_id, 'heyakaisu', true));
+		// impediment
+		if (strcmp($impediment, get_post_meta($post_id, 'heyabarukoni', true)) != 0)
+			update_post_meta($post_id, 'heyabarukoni', $impediment);
+		elseif ($impediment == '')
+			delete_post_meta($post_id, 'heyabarukoni', get_post_meta($post_id, 'heyabarukoni', true));
+		// notes
+		if (strcmp($notes, get_post_meta($post_id, 'heyamuki', true)) != 0)
+			update_post_meta($post_id, 'heyamuki', $notes);
+		elseif ($notes == '')
+			delete_post_meta($post_id, 'heyamuki', get_post_meta($post_id, 'heyamuki', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 07. 飲食店舗詳細情報
+add_action('admin_menu', 'attach_restaurant_detail');
+add_action('save_post', 'save_restaurant_detail');
+function attach_restaurant_detail() {
+	add_meta_box('restaurant_detail_area', '飲食店舗詳細', 'restaurant_detail_container', 'fudo', 'advanced', 'high');
+}
+function restaurant_detail_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	$single = get_post_meta($post->ID, 'madoribiko', true);  // 個室
+	$nonsmoking = get_post_meta($post->ID, 'madorisyurui1', true);  // 禁煙席
+	$capacity = get_post_meta($post->ID, 'madorijyousu1', true);  // 最大宴会名数
+	$ayce = get_post_meta($post->ID, 'madorikai1', true);  // 食べ放題
+	$aycd = get_post_meta($post->ID, 'madorishitsu1', true);  // 飲み放題
+	$reserved = get_post_meta($post->ID, 'madorisyurui2', true);  // 貸切
+	$horigotatsu = get_post_meta($post->ID, 'madorijyousu2', true);  // 掘りごたつ
+	$tatami = get_post_meta($post->ID, 'madorikai2', true);  // 座敷
+	$family = get_post_meta($post->ID, 'madorishitsu2', true);  // お子様連れ
+	$wedding = get_post_meta($post->ID, 'targeturl', true);  // ウェディング
+	$afterparty = get_post_meta($post->ID, 'kakakukoukai', true);  // 二次会
+
+	$html = <<<HTML
+<input type="hidden" name="restaurant_detail_nonce" id="restaurant_detail_nonce" value="{$nonce}" />
+
+<label for="single">個室</label>
+<input type="text" name="single" id="single" value="{$single}" /><br />
+<label for="nonsmoking">禁煙席</label>
+<input type="text" name="nonsmoking" id="nonsmoking" value="{$nonsmoking}" /><br />
+<label for="capacity">最大宴会名数</label>
+<input type="text" name="capacity" id="capacity" value="{$capacity}" /><br />
+<label for="ayce">食べ放題</label>
+<input type="text" name="ayce" id="ayce" value="{$ayce}" /><br />
+<label for="aycd">飲み放題</label>
+<input type="text" name="aycd" id="aycd" value="{$aycd}" /><br />
+<label for="reserved">貸切</label>
+<input type="text" name="reserved" id="reserved" value="{$reserved}" /><br />
+<label for="family">お子様連れ</label>
+<input type="text" name="family" id="family" value="{$family}" /><br />
+<label for="tatami">座敷</label>
+<input type="text" name="tatami" id="tatami" value="{$tatami}" /><br />
+<label for="horigotatsu">掘りごたつ</label>
+<input type="text" name="horigotatsu" id="horigotatsu" value="{$horigotatsu}" /><br />
+<label for="wedding">ウェディング</label>
+<input type="text" name="wedding" id="wedding" value="{$wedding}" /><br />
+<label for="afterparty">二次会</label>
+<input type="text" name="afterparty" id="afterparty" value="{$afterparty}" /><br />
+HTML;
+	echo $html;
+}
+function save_restaurant_detail($post_id) {
+	if ( isset($_POST['restaurant_detail_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['restaurant_detail_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$single = isset($_POST['single']) ? $_POST['single'] : '';
+		$nonsmoking = isset($_POST['nonsmoking']) ? $_POST['nonsmoking'] : '';
+		$capacity = isset($_POST['capacity']) ? $_POST['capacity'] : '';
+		$ayce = isset($_POST['ayce']) ? $_POST['ayce'] : '';
+		$aycd = isset($_POST['aycd']) ? $_POST['aycd'] : '';
+		$reserved = isset($_POST['reserved']) ? $_POST['reserved'] : '';
+		$horigotatsu = isset($_POST['horigotatsu']) ? $_POST['horigotatsu'] : '';
+		$tatami = isset($_POST['tatami']) ? $_POST['tatami'] : '';
+		$family = isset($_POST['family']) ? $_POST['family'] : '';
+		$wedding = isset($_POST['wedding']) ? $_POST['wedding'] : '';
+		$afterparty = isset($_POST['afterparty']) ? $_POST['afterparty'] : '';
+
+		// single
+		if (strcmp($single, get_post_meta($post_id, 'madoribiko', true)) != 0)
+			update_post_meta($post_id, 'madoribiko', $single);
+		elseif ($single == '')
+			delete_post_meta($post_id, 'madoribiko', get_post_meta($post_id, 'madoribiko', true));
+		// nonsmoking
+		if (strcmp($nonsmoking, get_post_meta($post_id, 'madorisyurui1', true)) != 0)
+			update_post_meta($post_id, 'madorisyurui1', $nonsmoking);
+		elseif ($nonsmoking == '')
+			delete_post_meta($post_id, 'madorisyurui1', get_post_meta($post_id, 'madorisyurui1', true));
+		// capacity
+		if (strcmp($capacity, get_post_meta($post_id, 'madorijyousu1', true)) != 0)
+			update_post_meta($post_id, 'madorijyousu1', $capacity);
+		elseif ($capacity == '')
+			delete_post_meta($post_id, 'madorijyousu1', get_post_meta($post_id, 'madorijyousu1', true));
+		// ayce
+		if (strcmp($ayce, get_post_meta($post_id, 'madorikai1', true)) != 0)
+			update_post_meta($post_id, 'madorikai1', $ayce);
+		elseif ($ayce == '')
+			delete_post_meta($post_id, 'madorikai1', get_post_meta($post_id, 'madorikai1', true));
+		// aycd
+		if (strcmp($aycd, get_post_meta($post_id, 'madorishitsu1', true)) != 0)
+			update_post_meta($post_id, 'madorishitsu1', $aycd);
+		elseif ($aycd == '')
+			delete_post_meta($post_id, 'madorishitsu1', get_post_meta($post_id, 'madorishitsu1', true));
+		// reserved
+		if (strcmp($reserved, get_post_meta($post_id, 'madorisyurui2', true)) != 0)
+			update_post_meta($post_id, 'madorisyurui2', $reserved);
+		elseif ($reserved == '')
+			delete_post_meta($post_id, 'madorisyurui2', get_post_meta($post_id, 'madorisyurui2', true));
+		// horigotatsu
+		if (strcmp($horigotatsu, get_post_meta($post_id, 'madorijyousu2', true)) != 0)
+			update_post_meta($post_id, 'madorijyousu2', $horigotatsu);
+		elseif ($horigotatsu == '')
+			delete_post_meta($post_id, 'madorijyousu2', get_post_meta($post_id, 'madorijyousu2', true));
+		// tatami
+		if (strcmp($tatami, get_post_meta($post_id, 'madorikai2', true)) != 0)
+			update_post_meta($post_id, 'madorikai2', $horigotatsu);
+		elseif ($horigotatsu == '')
+			delete_post_meta($post_id, 'madorikai2', get_post_meta($post_id, 'madorikai2', true));
+		// family
+		if (strcmp($family, get_post_meta($post_id, 'madorishitsu2', true)) != 0)
+			update_post_meta($post_id, 'madorishitsu2', $family);
+		elseif ($family == '')
+			delete_post_meta($post_id, 'madorishitsu', get_post_meta($post_id, 'madorishitsu2', true));
+		// wedding
+		if (strcmp($wedding, get_post_meta($post_id, 'targeturl', true)) != 0)
+			update_post_meta($post_id, 'targeturl', $wedding);
+		elseif ($wedding == '')
+			delete_post_meta($post_id, 'targeturl', get_post_meta($post_id, 'targeturl', true));
+		// afterparty
+		if (strcmp($afterparty, get_post_meta($post_id, 'kakakukoukai', true)) != 0)
+			update_post_meta($post_id, 'kakakukoukai', $afterparty);
+		elseif ($afterparty == '')
+			delete_post_meta($post_id, 'kakakukoukai', get_post_meta($post_id, 'kakakukoukai', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 08. メニュー/コンテンツ
+add_action('admin_menu', 'attach_menu_contents');
+add_action('save_post', 'save_menu_contents');
+function attach_menu_contents() {
+	add_meta_box('menu_contents_area', 'その他店舗情報', 'menu_contents_container', 'fudo', 'advanced', 'high');
+}
+function menu_contents_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	$party_menu = get_post_meta($post->ID, 'kakakuzei', true);  // 宴会メニュー
+	$drink_menu = get_post_meta($post->ID, 'kakakutsubo', true);  // ドリンクメニュー
+	$food_menu = get_post_meta($post->ID, 'kakakukyouekihi', true);  // フードメニュー
+	$free1_title = get_post_meta($post->ID, 'kakakureikin', true);  // フリー1タイトル
+	$free1_content = get_post_meta($post->ID, 'kakakushikikin', true);  // フリー1コンテンツ
+	$free2_title = get_post_meta($post->ID, 'kakakuhoshoukin', true);  // フリー2タイトル
+	$free2_content = get_post_meta($post->ID, 'kakakukenrikin', true);  // フリー2コンテンツ
+
+	$html = <<<HTML
+<input type="hidden" name="menu_contents_nonce" id="menu_contents_nonce" value="{$nonce}" />
+
+<label for="party_menu">宴会メニュー</label><br />
+<textarea cols="60" rows="20" name="party_menu" id="party_menu" style="width:100%;">{$party_menu}</textarea><br />
+<br />
+
+<label for="">ドリンクメニュー</label><br />
+<textarea cols="60" rows="20" name="drink_menu" id="drink_menu" style="width:100%;">{$drink_menu}</textarea><br />
+<br />
+
+<label for="">フードメニュー</label><br />
+<textarea cols="60" rows="20" name="food_menu" id="food_menu" style="width:100%;">{$food_menu}</textarea><br />
+<br />
+
+<label for="free1_title">フリー1タイトル</label><br />
+<input type="text" name="free1_title" id="free1_title" value="{$free1_title}" /><br />
+<label for="">フリー1コンテンツ</label><br />
+<textarea cols="60" rows="20" name="free1_content" id="free1_content" style="width:100%;">{$free1_content}</textarea><br />
+<br />
+
+<label for="free2_title">フリー2タイトル</label>
+<input type="text" name="free2_title" id="free2_title" value="{$free2_title}" /><br />
+<label for="">フリー2コンテンツ</label><br />
+<textarea cols="60" rows="20" name="free2_content" id="free2_content" style="width:100%;">{$free2_content}</textarea><br />
+<br />
+HTML;
+	echo $html;
+}
+
+function save_menu_contents($post_id) {
+	if ( isset($_POST['menu_contents_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['menu_contents_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$party_menu = isset($_POST['party_menu']) ? $_POST['party_menu'] : '';
+		$drink_menu = isset($_POST['drink_menu']) ? $_POST['drink_menu'] : '';
+		$food_menu = isset($_POST['food_menu']) ? $_POST['food_menu'] : '';
+		$free1_title = isset($_POST['free1_title']) ? $_POST['free1_title'] : '';
+		$free1_content = isset($_POST['free1_content']) ? $_POST['free1_content'] : '';
+		$free2_title = isset($_POST['free2_title']) ? $_POST['free2_title'] : '';
+		$free2_content = isset($_POST['free2_content']) ? $_POST['free2_content'] : '';
+
+		// party_menu
+		if (strcmp($party_menu, get_post_meta($post_id, 'kakakuzei', true)) != 0)
+			update_post_meta($post_id, 'kakakuzei', $party_menu);
+		elseif ($party_menu == '')
+			delete_post_meta($post_id, 'kakakuzei', get_post_meta($post_id, 'kakakuzei', true));
+		// drink_menu
+		if (strcmp($drink_menu, get_post_meta($post_id, 'kakakutsubo', true)) != 0)
+			update_post_meta($post_id, 'kakakutsubo', $drink_menu);
+		elseif ($drink_menu == '')
+			delete_post_meta($post_id, 'kakakutsubo', get_post_meta($post_id, 'kakakutsubo', true));
+		// food_menu
+		if (strcmp($food_menu, get_post_meta($post_id, 'kakakukyouekihi', true)) != 0)
+			update_post_meta($post_id, 'kakakukyouekihi', $food_menu);
+		elseif ($food_menu == '')
+			delete_post_meta($post_id, 'kakakukyouekihi', get_post_meta($post_id, 'kakakukyouekihi', true));
+		// free1_title
+		if (strcmp($free1_title, get_post_meta($post_id, 'kakakureikin', true)) != 0)
+			update_post_meta($post_id, 'kakakureikin', $free1_title);
+		elseif ($free1_title == '')
+			delete_post_meta($post_id, 'kakakureikin', get_post_meta($post_id, 'kakakureikin', true));
+		// free1_content
+		if (strcmp($free1_content, get_post_meta($post_id, 'kakakushikikin', true)) != 0)
+			update_post_meta($post_id, 'kakakushikikin', $free1_content);
+		elseif ($free1_content == '')
+			delete_post_meta($post_id, 'kakakushikikin', get_post_meta($post_id, 'kakakushikikin', true));
+		// free2_title
+		if (strcmp($free2_title, get_post_meta($post_id, 'kakakuhoshoukin', true)) != 0)
+			update_post_meta($post_id, 'kakakuhoshoukin', $free2_title);
+		elseif ($free2_title == '')
+			delete_post_meta($post_id, 'kakakuhoshoukin', get_post_meta($post_id, 'kakakuhoshoukin', true));
+		// free2_content
+		if (strcmp($free2_content, get_post_meta($post_id, 'kakakukenrikin', true)) != 0)
+			update_post_meta($post_id, 'kakakukenrikin', $free2_content);
+		elseif ($free2_content == '')
+			delete_post_meta($post_id, 'kakakukenrikin', get_post_meta($post_id, 'kakakukenrikin', true));
+	} else {
+		return $post_id;
+	}
+}
+// Left関数//左からn文字取得して返す
+function myLeft($str,$n){
+	if(mb_strlen($str,"utf-8") <= $n){
+		return $str;
+	}else{
+		return mb_substr($str,0,(mb_strlen($str,"utf-8")-$n)*-1,"utf-8");
+	}
+}
+
+
+// Right関数//右からn文字取得して返す
+function myRight($str,$n){
+	return mb_substr($str,($n)*-1);
+}
+
+add_action('init', 'myposttype_rewrite');
+function myposttype_rewrite() {
+    global $wp_rewrite;
+
+    $wp_rewrite->add_rewrite_tag('%pid%', '([^/]+)', 'post_type=fudo&p=');
+    $wp_rewrite->add_permastruct('fudo', '/%pid%.html', false);
+
+}
+
+add_filter('post_type_link', 'myposttype_permalink', 1, 3);
+function myposttype_permalink($post_link, $id = 0, $leavename) {
+    global $wp_rewrite;
+	global $wpdb;
+    $post = &get_post($id);
+    if ( is_wp_error( $post ) )
+        return $post;
+	$sql = "SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $post->ID AND meta_key = 'kaiin'";
+	$alias = $wpdb->get_row($sql);
+    $newlink = $wp_rewrite->get_extra_permastruct($post->post_type);
+    //$newlink = str_replace('%pid%', $post->ID, $newlink);
+    $newlink = str_replace('%pid%', $alias->meta_value, $newlink);
+    $newlink = home_url(user_trailingslashit($newlink));
+	var_dump($newlink);
+    return $newlink;
+}

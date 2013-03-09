@@ -1,0 +1,35 @@
+<?php
+
+class JSON_API_Ekptgftradeitem {
+
+	var $seq_no;      // integer
+	var $mem_id;      // integer
+	var $item_id;      // integer
+	var $created;     // date
+	var $modified;    // date
+	var $status;      // string
+	var $comment;      // string
+
+	function JSON_API_Ekptgftradeitem($wp_ekptgftradeitem = null) {
+		if ($wp_ekptgftradeitem) {
+			$this->import_wp_object($wp_ekptgftradeitem);
+		}
+	}
+
+	function import_wp_object($wp_ekptgftradeitem) {
+		global $json_api;
+		$date_format = $json_api->query->date_format;
+
+		$this->seq_no      = $wp_ekptgftradeitem->seq_no;
+		$this->trade_no    = $wp_ekptgftradeitem->trade_no;
+		$this->mem_id      = $wp_ekptgftradeitem->mem_id;
+		$this->status      = $wp_ekptgftradeitem->status;
+		$this->trade_title = $wp_ekptgftradeitem->trade_title;
+		$this->trade_desc  = $wp_ekptgftradeitem->trade_desc;
+		$this->created     =  $wp_ekptgftradeitem->created;
+		$this->modified     =  $wp_ekptgftradeitem->modified;
+	}
+
+}
+
+?>

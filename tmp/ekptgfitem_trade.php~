@@ -1,0 +1,2194 @@
+<?php
+/* プラグイン情報
+Plugin Name: ekptgfitem_trade
+Plugin URI: -
+Description: ekptgfitem_trade
+Version: 1.0
+Author: Smartec Inc.
+Author URI: http://www.smartec.co.jp/
+*/
+
+// 交換関係のモジュール用ファイル
+
+/**
+ * スクリプトとスタイルをキューに入れる
+ */
+// 交換所
+add_shortcode("contents_tradeitem_index", "contents_tradeitem_index");
+add_shortcode("contents_tradeitem_ownlist", "contents_tradeitem_ownlist");
+add_shortcode("contents_tradeitem_sendlist", "contents_tradeitem_sendlist");
+add_shortcode("ekptcom_change_contents_sendlist", "ekptcom_change_contents_sendlist");
+add_shortcode("ekptcom_contents_item_box_sendlist", "ekptcom_contents_item_box_sendlist");
+add_shortcode("ekptcom_change_contents_applylist", "ekptcom_change_contents_applylist");
+add_shortcode("ekptcom_contents_item_box_applylist", "ekptcom_contents_item_box_applylist");
+add_shortcode("contents_tradeitem_applylist", "contents_tradeitem_applylist");
+add_shortcode("contents_tradeitem_sendconfirm", "contents_tradeitem_sendconfirm");
+add_shortcode("contents_tradeitem_applyconfirm", "contents_tradeitem_applyconfirm");
+add_shortcode("contents_tradeitem_sendfinish", "contents_tradeitem_sendfinish");
+add_shortcode("contents_tradeitem_applyfinish", "contents_tradeitem_applyfinish");
+add_shortcode("contents_tradeitembox_replylist", "contents_tradeitembox_replylist");
+add_shortcode("contents_tradeitem_reply", "contents_tradeitem_reply");
+add_shortcode("contents_tradeitem_done", "contents_tradeitem_done");
+add_shortcode("ekptcom_change_contents_trade", "ekptcom_change_contents_trade");
+add_shortcode("ekptcom_contents_trade_item_box", "ekptcom_contents_trade_item_box");
+add_shortcode("contents_tradeitem_apply_detail", "contents_tradeitem_apply_detail");
+
+/**
+ * 交換所 他ユーザーのアイテム出品一覧
+ */
+function contents_tradeitem_index() {
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+    // 基本設定
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl  = ekpt_get_opt('EKPTGFHOME'); 
+    $type     = 'homeitemtrade';
+	$list     = '/sendlist';
+	$ownlist  = '/tradeownlist';
+	$html     = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+	// 出品アイテム一覧取得
+	$param = array('startrec' => '1', 'limitofrec' => '300'); // sql側でlimit切ってあります
+	$arrdata = ekpt_trade_get_json('get_trade_item_list', $param);
+	$vdatas = $arrdata['trade_item_list'];
+	$GLOBALS['EKPT_ITEM_OWNS'] = $vdatas;
+	$opturl = ekpt_get_link_param();
+	$html .= do_shortcode('[button align="center" color="lightgreen" link="' . esc_html($baseurl.$type.$list.$opturl) . '"]アイテムを交換所に出品する[/button]');
+	$html .= do_shortcode('[callout] 交換所の出品一覧です[/callout]');
+	//
+	$html .= '<ul class="list-items">' ;
+	$html .= '<li class="list-three"><div class="list-three-outer">' ;
+	$html .= '<div class="list-three-left" >出品者</div>';
+	$html .= '<div class="list-three-center" style="height:30px;">出品情報</div>' ;
+	$html .= '<div class="list-three-right" style="height:30px;">操作</div>' ;
+	$html .= '</div>&nbsp;</li></ul>' ;
+	foreach ($vdatas as $vdata) {
+		// ユーザー情報取得
+		$param = array('mem_id' => $vdata['mem_id']);
+		$arrdata2 = ekpt_get_json('get_memitemown_index', $param);
+		$opturl = ekpt_get_link_param($param);
+		$ownitems = $arrdata2['memitemowns'];
+		$trade_no = explode(',', $vdata['trade_no']);
+		$count = count($trade_no);
+		// 画像生成
+		$img = ''; // 画像を連結していく
+		$i   =  0; // 表示制限の為のincrement変数
+		foreach ($ownitems as $item) {
+			if ($item['status'] == 's') {
+				$img .= '<img class="alignnone size-thumbnail wp-image-136" width="60" height="60"';
+				$img .= ' title="' . $item['image_url01'] . '"';
+				$img .= ' style="margin: auto 5px;"';
+				$img .= ' src="' . $baseurl . 'wp-content/uploads/2012/08/' . $item['image_url01'] . '"';
+				$img .= ' alt="'.$item['item_title'] . '" />';
+
+				$i++; // 表示制限
+				if ($i > 2) {
+					$img .= '<span style="color: #999;">+' . ($count - 3) . '</span>';
+					break;
+				}
+			}
+		}
+		// レンダリング
+		$html .= '<ul class="list-items">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left style="width:25%"">';
+		$html .= '名前：'.$meminfo['mem_name'].'('.$item['rare_label'].')<br><p>ユーザー画像</p></div>';
+		$html .= '<div class="list-two-right"> . $img .<a href="' . esc_html($baseurl.$type.$ownlist.$opturl) . '">交換を申込む></a></div>' ;
+		$html .= '</div>&nbsp;</li></ul>' ;
+	}
+
+    return $html ;
+	
+}
+
+/**
+ * 交換所 個人の交換品リスト
+ */
+function contents_tradeitem_ownlist() {
+
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = 'homeitemtrade' ; // form だからスラッシュ要らない
+	$apply = '/applylist';
+	$reply = '/reply';
+	$done = '/done';
+	$finish = '/tradeownlist';
+	$html = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	// 交換情報を取得
+	$wqSeqnoArray = $vdatas = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+	if ( $bParams['trade_item_seq_no'] == 0 ) {
+		if ( $bParams['trade_item_d_seq_nos'] <> '' ) {
+			// 既存指定分
+			$wqSeqnoArray = explode(',',$bParams['trade_item_d_seq_nos']) ;
+		} else {
+			trigger_error('不正なアクセスです。', E_USER_ERROR);
+		}
+	} else {
+		$paramList = array('seq_no' => $bParams['trade_item_seq_no']) ;
+		$arrdata = ekpt_trade_get_json('get_trade_item_byseq', $paramList);
+		$basedata = $arrdata['trade_item_list'];
+		$d_sdatas = _contents_sendlist_info( $basedata[0] ) ;
+		$itemdetails = $arrdata['trade_item_detail_list'];
+		foreach ( $itemdetails as $itemdetail ) {
+			$wqSeqnoArray[] = $itemdetail['mem_item_own_seq_no'];
+		}
+	}
+	foreach ($wqSeqnoArray as $seq_no) {
+		$param2 = array( 'seq_no' => $seq_no );
+		$arrdata2 = ekpt_get_json('get_memitemown_by_seqno', $param2);
+		$vdatas[] = $arrdata2['memitemown'][0];
+	}
+	$GLOBALS['EKPT_ITEM_OWNS'] = $vdatas;
+	// 交換に関する情報
+	$html .= '<div id="misc-title" class="title-bar">' . '出品情報：';
+	if ( $bParams['tradetype'] == 'market' ) {
+		$html .= '交換申込可能な出品です';
+	} else {
+		$html .= 'あなたの出品です';
+	}
+	$html .= '</div>';
+	$html .= '<ul class="item-list">' ;
+	$html .= '<li class="list-two"><div class="list-two-outer">' ;
+	$html .= '<div class="list-two-left">' ;
+	$html .= $d_sdatas['mem_data']['image'] ;
+	$html .= '</div>' ;
+	$html .= '<div class="list-two-right">' ;
+	$html .= '<ul style="margin:0px; padding:0px; font-size:90%;">' ;
+	$html .= '<li>出品日時:'.$d_sdatas['created'].'</li>' ;
+	$html .= '<li>出品番号:'.$d_sdatas['seq_no'].'</li>' ;
+	$html .= '<li>出品者:'.$d_sdatas['mem_data']['nickname'].' <br>ｽﾃｰﾀｽ='. $d_sdatas['disp_status'] .'</li>' ;
+	$html .= '<li>説明:'. $d_sdatas['trade_desc'] .'</li>' ;
+	$html .= '</ul>' ;
+	$html .= '</div>' ;
+	$html .= '</div></li>' ;
+	$html .= '</ul>' ;
+	// 選択したアイテム
+	// 交換に関する情報
+	$html .= '<br><div id="misc-title" class="title-bar">' . 'ｱｲﾃﾑ情報：'.count($vdatas).' ｱｲﾃﾑ';
+	$html .= '</div>';
+	foreach ($vdatas as $keys => $vdata) {
+        // print_r($vdata);
+        $display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		if ($vdata['type_label'] == 'ベース') {
+			$html .= ekpt_get_item_display_html($vdata, $display_vdata);
+		} else if ($mainTypeK == '素材') {
+           	$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+            if ( $vdata['category_label'] == 'エクポチケット' ) {
+               $html .= '<li>所有個数:'.$mem_info['numof_ticket'].'枚'.'</li>' ;               
+            } else {
+               $html .= '<li>所有個数:'.$vdata['num_of_item'].'個'.'</li>' ;               
+            };
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+ 	$qs = _ekptcom_qshfItemTrade() ;
+	if ( (int)$mem_id <> (int)$basedata[0]['mem_id']) {
+		//交換申請
+		$applybParams = $bParams ;
+		$applybParams['recOffsetApply'] = 0 ;
+		$applybParams['apply_item_seq_no'] = 0 ;
+		$applybParams['apply_item_d_seq_nos'] = '' ;
+		$applybParams['new_apply_item_d_seq_no'] = 0 ;
+		$applybParams['del_apply_item_d_seq_no'] = 0 ;
+		$qsApply = _ekptcom_qshfItemTrade($applybParams) ;
+	 	$html .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html .= '[button align="center" color="lightgreen" size="large" link="'.$bParams['base_url'].$bParams['home_url'].$apply.$qsApply.'"]交換を申請します[/button]' ;
+		$html .= '<div class="clear"></div>' ;
+		$html .= '</div></div>' ;	
+	} else {
+		//自分の出品
+		//キャンセル申請
+		$param3 = array( 'trade_seq_no' => $bParams['trade_item_seq_no'] );
+		$arrdata3 = ekpt_trade_get_json('get_apply_item_list_by_trade', $param3);
+		$vdatas3 = $arrdata3['apply_item_list'];
+		if ( count($vdatas3) == 0 ) {
+			$html .= '[callout]交換申込一覧<br>交換申込はまだありません。' ;
+		} else {
+			$html .= '[callout]交換申込一覧 '.count($vdatas3).'件' ;
+		}
+		foreach ( $vdatas3 as $vdata3 ) {
+			$updbParams = $bParams ;
+			$updbParams['apply_item_seq_no'] = $vdata3['seq_no'];
+			$qsIn = _ekptcom_qshfItemTrade($updbParams) ;
+			$linkin = $bParams['base_url'].$bParams['home_url'].$reply.$qsIn ;
+            $d_vdata3 = _contents_applylist_info($vdata3);
+            // print_r($d_vdata3);
+			$descTextApply =  $vdata3['created'] . 'に、'. $d_vdata3['mem_data']['nickname'] . ' さんから、交換申込がありました。' ;
+			$html .= '<br><a href="' . $linkin . '">'.$descTextApply.'</a>' ;
+		}
+		$html .= '[/callout]';
+		
+		// 交換キャンセルボタン
+		$nobParams = $bParams ;
+		$nobParams['trade_apply_reply'] = 'no' ;
+		$opturlNo = _ekptcom_qshfItemTrade($nobParams) ;
+	 	$html .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html .= '[button align="center" color="lightgreen" size="large" link="'.$bParams['base_url'].$bParams['home_url'].$done.$opturlNo.'"]出品をキャンセルする[/button]' ;
+		$html .= '<div class="clear"></div>' ;
+		$html .= '</div></div>' ;		
+	}
+	//
+	$html .= _ekptcom_returnItemTrade();
+    return do_shortcode($html) ;
+}
+
+/**
+ * 交換所 出品アイテム選択
+ */
+function contents_tradeitem_sendlist() {
+
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl  = ekpt_get_opt('EKPTGFHOME'); 
+    $type     = '/homeitemtrade';
+	$list     = '/sendlist';
+	$confirm  = '/sendconfirm';
+	$html = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+	// 検索対象を取得
+	$qSendItemArray = array() ;
+	$qSeqnoArray = array() ;
+	if ( $bParams['new_trade_item_d_seq_no'] <> 0 ) {
+		// 追加アイテム有
+		$qSeqnoArray[] = $bParams['new_trade_item_d_seq_no'] ;
+	}
+	if ( $bParams['trade_item_d_seq_nos'] <> '' ) {
+		// 既存指定分
+		$wqSeqnoArray = explode(',',$bParams['trade_item_d_seq_nos']) ;
+		foreach ( $wqSeqnoArray as $wqSeqno ) {
+			if ( (int) $bParams['new_trade_item_d_seq_no'] <> (int)$wqSeqno ) {
+				if (  (int) $bParams['del_trade_item_d_seq_no'] <> (int)$wqSeqno  ) {
+					$qSeqnoArray[] = $wqSeqno ;			
+				}
+			}
+
+		}
+	}
+	$bParams['del_trade_item_d_seq_no'] = 0 ;
+	$bParams['new_trade_item_d_seq_no'] = 0 ;
+	$bParams['trade_item_d_seq_nos'] = implode(',', $qSeqnoArray) ;
+	$GLOBALS['EKPT_PARAM_ITEMTRADE'] = $bParams ;
+	$vdatas = array() ;
+	// データベースからデータを取得する
+	foreach ( $qSeqnoArray as $qSeqno ) {
+		$params = array( 'seq_no' => $qSeqno ) ;
+		$arrdata = ekpt_get_json('get_memitemown_by_seqno', $params);
+		$vdatas[] = $arrdata['memitemown'][0] ;
+	}
+	
+	// タイトル部
+	$html .= '<div id="misc-title" class="title-bar">' . '選ばれている出品ｱｲﾃﾑ</div>';
+    // print_r($vdatas);
+	foreach ($vdatas as $keys => $vdata) {
+		$bUpdParams = $bParams ;
+		$bUpdParams['del_trade_item_d_seq_no'] = $vdata['seq_no'] ;
+		$addUrl = _ekptcom_qshfItemTrade( $bUpdParams, 0 ) ;
+		//
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		//
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center"><ul>' ;
+		if ( $vdata['type_label']  == 'ベース' ) {
+			$html .= ekpt_get_item_display_html($vdata, $display_vdata);
+		} else if ( $vdata['type_label']  == '素材') {
+           	$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+            if ( $vdata['category_label'] == 'エクポチケット' ) {
+               $html .= '<li>所有個数:'.$mem_info['numof_ticket'].'枚'.'</li>' ;               
+            } else {
+               $html .= '<li>所有個数:'.$vdata['num_of_item'].'個'.'</li>' ;               
+            }
+		}
+		// ボタン部の設定
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-right">';
+		$html .= '<a href="' . esc_html($baseurl.$bParams['current_uri'].'/'.$addUrl) . '">やめる</a><br>';
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul><br>' ;
+
+	}
+	//
+	$addUrl = _ekptcom_qshfItemTrade( $bParams, 0 ) ;
+	if (count($vdatas) > 0) $html .= '[button align="center" color="lightgreen" link="'.esc_html($baseurl.$type.$confirm.$addUrl).'"]上のｱｲﾃﾑで出品を申請する[/button]<br>';
+    return do_shortcode($html) ;
+}
+
+/**
+ * 交換所 申請アイテム選択
+ */
+function contents_tradeitem_applylist() {
+
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl  = ekpt_get_opt('EKPTGFHOME'); 
+    $type     = '/homeitemtrade';
+	$list     = '/applylist';
+	$confirm  = '/applyconfirm';
+	$html = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+	// 検索対象を取得
+	$qApplyItemArray = array() ;
+	$qSeqnoArray = array() ;
+	if ( $bParams['new_apply_item_d_seq_no'] <> 0 ) {
+		// 追加アイテム有
+		$qSeqnoArray[] = $bParams['new_apply_item_d_seq_no'] ;
+	}
+	if ( $bParams['apply_item_d_seq_nos'] <> '' ) {
+		// 既存指定分
+		$wqSeqnoArray = explode(',',$bParams['apply_item_d_seq_nos']) ;
+		foreach ( $wqSeqnoArray as $wqSeqno ) {
+			if ( (int) $bParams['new_apply_item_d_seq_no'] <> (int)$wqSeqno ) {
+				if (  (int) $bParams['del_apply_item_d_seq_no'] <> (int)$wqSeqno  ) {
+					$qSeqnoArray[] = $wqSeqno ;			
+				}
+			}
+		}
+	}
+	$bParams['del_apply_item_d_seq_no'] = 0 ;
+	$bParams['new_apply_item_d_seq_no'] = 0 ;
+	$bParams['apply_item_d_seq_nos'] = implode(',', $qSeqnoArray) ;
+	$GLOBALS['EKPT_PARAM_ITEMTRADE'] = $bParams ;
+	$vdatas = array() ;
+
+	// データベースからデータを取得する
+	foreach ( $qSeqnoArray as $qSeqno ) {
+		$params = array( 'seq_no' => $qSeqno ) ;
+		$arrdata = ekpt_get_json('get_memitemown_by_seqno', $params);
+		$vdatas[] = $arrdata['memitemown'][0] ;
+	}
+
+    // 選択したアイテム
+	$html .= '[callout]選ばれている交換アイテム[/callout]';
+	foreach ($vdatas as $vdata) {
+		$bUpdParams = $bParams ;
+		$bUpdParams['del_apply_item_d_seq_no'] = $vdata['seq_no'] ;
+		$addUrl = _ekptcom_qshfItemTrade( $bUpdParams, 0 ) ;
+		// 表示データ作成
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		//
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center"><ul>' ;
+		// 出力内容の出し分け
+        // echo 'mainTypeK='.$mainTypeK ;
+		if ( $vdata['type_label'] ) {
+            // print_r($vdata);
+			$html .= ekpt_get_item_display_html($vdata, $display_vdata);
+		} else if ($mainTypeK == '素材') {
+           	$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+            if ( $vdata['category_label'] == 'エクポチケット' ) {
+               $html .= '<li>所有個数:'.$mem_info['numof_ticket'].'枚'.'</li>' ;
+            } else {
+               $html .= '<li>所有個数:'.$vdata['num_of_item'].'個'.'</li>' ;
+            };
+		}
+		// ボタン部の設定
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-right">';
+		$html .= '<a href="' . esc_html($baseurl.$bParams['current_uri'].'/'.$addUrl) . '">やめる</a><br>';
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul><br>' ;
+	}
+	//
+	$addUrl = _ekptcom_qshfItemTrade( $bParams, 0 ) ;
+	if (count($vdatas) > 0) $html .= '[button align="center" color="lightgreen" link="'.esc_html($baseurl.$type.$confirm.$addUrl).'"]交換を申請する[/button]<br>';
+    return do_shortcode($html) ;
+}
+
+function ekptcom_change_contents_applylist($atts = array()) {
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$pasgeUrl = get_page_uri($post->ID) ;
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	$gid = $_REQUEST['tid']; // ディフォルト=0
+	// 表示対象制御
+	$mainType = 'base' ; // =base =sozai =coupon
+	$subType = "head" ; // =head(default) body leg acc
+	$reqMaintype = $_REQUEST['maintype'];
+	$reqSubttype = $_REQUEST['subtype'];
+    $activeBase = 'base' ;
+    $activeSozai = 'sozai' ;
+    $activeCoupon = 'coupon' ;
+    $imageDummyCate = 'btn_cate_dummy.gif' ;
+    $imageBase = 'btn_base.gif' ;
+    $imageSozai = 'btn_sozai.gif' ;
+    $imageCoupon = 'btn_coupon.gif' ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'base' ) {
+			$mainType  = 'base' ;
+			$button_color_base = 'white' ;
+            $activeBase = 'baseactive' ;
+            $imageBase = 'btn_base_s.gif' ;
+		} else if ( $reqMaintype == 'sozai' ) {
+			$mainType = 'sozai' ;
+			$button_color_sozai = 'white' ;
+            $activeSozai = 'sozaiactive' ;
+            $imageSozai = 'btn_sozai_s.gif' ;
+		} else if ( $reqMaintype == 'coupon' ) {
+			$mainType = 'coupon' ;
+			$button_color_coupon = 'white' ;
+            $activeCoupon = 'couponactive' ;
+            $imageCoupon = 'btn_coupon_s.gif' ;
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'base' ;
+		$button_color_base = 'white' ;
+        $activeBase = 'baseactive' ;
+        $imageBase = 'btn_base_s.gif' ;
+	}
+	// 種類設定
+	$button_color_head = $button_color_body = $button_color_leg = $button_color_acc = 'green' ;
+	$activeHead = 'head' ;;
+    $activeBody = 'body' ;
+    $activeLeg = 'leg' ;
+    $activeAcc ;
+    $imageHead = 'btn_head.gif' ;
+    $imageBody = 'btn_body.gif' ;
+    $imageLeg = 'btn_leg.gif' ;
+    $imageDummyBase = 'btn_base_dummy.gif' ;
+	if (strlen($reqSubttype) <> 0) {
+		if ( $reqSubttype == 'head' ) {
+			$subType  = 'head' ;
+			$activeHead = 'headactive';
+			$button_color_head = 'white' ;
+            $imageHead = 'btn_head_s.gif' ;
+		} else if ( $reqSubttype == 'body' ) {
+			$subType = 'body' ;
+			$activeBody = 'bodyactive';
+			$button_color_body = 'white' ;
+            $imageBody = 'btn_body_s.gif' ;
+		} else if ( $reqSubttype == 'leg' ) {
+			$subType = 'leg' ;
+			$activeLeg = 'legactive';
+			$button_color_leg = 'white' ;
+            $imageLeg = 'btn_leg_s.gif' ;
+		} else if ( $reqSubttype == 'acc' ) {
+			$subType = 'acc' ;
+			$activeAcc = 'accactive';
+			$button_color_acc = 'white' ;
+		} else {
+			$html = 'Error: Invalid Parameter. subtype='.$reqSubtype ;
+			return $html ;
+		}
+	} else {
+		$subType  = 'head' ;
+		$button_color_head = 'white' ;
+		$activeHead = 'headactive';
+        $imageHead = 'btn_head_s.gif' ;
+	}
+	// 種類決定
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$addUrl = _ekptcom_qshfItemTrade( $bParams, 0 ) ;
+    // 種別切替部
+	$linkPage = $baseurl . $pasgeUrl;
+	$linkBase = esc_html($linkPage.$addUrl.'&maintype=base&recOffsetApply=0') ;
+	$linkSozai = esc_html($linkPage.$addUrl.'&maintype=sozai&recOffsetApply=0') ;
+	$linkCoupon = esc_html($linkPage.$addUrl.'&maintype=coupon&recOffsetApply=0') ;
+	// タイトル部
+	$html .= '<div id="misc-title" class="title-bar">' . '交換ｱｲﾃﾑの選択</div>';
+    // 出力部
+	$style = ' style="font-weight:bold; font-size:110%;"' ;
+	$html_sc .= '<ul id="item-catebar" class="hlist">' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyCate . '" alt="" /></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkBase .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageBase . '" alt="" /></a></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkSozai .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageSozai . '" alt="" /></a></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyCate . '" alt="" /></li>' ;
+	$html_sc .= '</ul>' ;
+	$html .= do_shortcode($html_sc) ;
+	if ( $mainType  == 'base' ) {
+    // ベースアイテム切替部
+		$linkPage = $baseurl . $pasgeUrl . $addUrl . '&maintype=base';
+		$linkHead = esc_html($linkPage.'&subtype=head&recOffsetApply=0') ;
+		$linkBody = esc_html($linkPage.'&subtype=body&recOffsetApply=0') ;
+		$linkLeg = esc_html($linkPage.'&subtype=leg&recOffsetApply=0') ;
+		$linkAcc = esc_html($linkPage.'&subtype=acc&recOffsetApply=0') ;
+		// 出力部
+		// 出力部
+         $style = ' style="font-weight:bold; font-size:110%;"' ;
+         $html .= '<ul id="item-basebar" class="hlist">' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkHead .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageHead . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkBody .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageBody . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkLeg .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageLeg . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyBase . '" alt="" /></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyBase . '" alt="" /></li>' ;
+         $html .= '</ul>' ;
+	}
+	if ($mainType == 'base') {
+		if ( $subType == 'head' ) {
+			$buf .= '[ekptcom_contents_item_box_applylist limit=10 tid=0 cid=0 maintype="base" subtype="head" link="homeitemtrade"]';
+		} else if  ( $subType == 'body' ) {
+			$buf .= '[ekptcom_contents_item_box_applylist limit=10 tid=0 cid=1 maintype="base" subtype="body" link="homeitemtrade"]';
+		} else if  ( $subType == 'leg' ) {
+			$buf .= '[ekptcom_contents_item_box_applylist limit=10 tid=0 cid=2 maintype="base" subtype="leg"  link="homeitemtrade"]';
+		} else if  ( $subType == 'acc' ) {
+			$buf .= '[ekptcom_contents_item_box_applylist limit=10 tid=0 cid=3 maintype="base" subtype="acc"  link="homeitemtrade"]';
+		}
+		$html .= do_shortcode($buf);
+		$html .= '</div>';
+	} else if ($mainType == 'sozai') {
+		$html .= do_shortcode('[ekptcom_contents_item_box_applylist limit=5 tid=1 maintype="sozai" link="homeitemtrade"]');
+	}
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+// 合成用アイテム一覧
+// 利用固定ページ：　/itemfusionhome/
+// 					/itemfusionhome/changebaseitem
+function ekptcom_contents_item_box_applylist($atts = array()) {
+	// Initialized.
+    extract(shortcode_atts(array(
+		'limit' => 10,
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 4,
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = $bParams['mem_id'];
+    $mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeitemtrade' ;
+    $func = '/sendlist' ;
+	$pageUri = $bParams['current_uri'];
+	// 画面内制御データのみ設定
+	$limit = $bParams['recLimit'];
+	$offset = $bParams['recOffsetApply'];
+	$mainType = $bParams['maintype'];
+	$mainTypeK = $bParams['maintypeK'];
+	// サブタイプ設定
+	$subType = $bParams['subtype'];
+	$subTypeK = $bParams['subtypeK'];
+	if ( $subType == 'head' ) {
+		$subTypeK  = 'ヘッド' ;
+		$button_color_head = 'white' ;
+	} else if ( $subType == 'body' ) {
+		$subTypeK = 'ボディ' ;
+		$button_color_body = 'white' ;
+	} else if ( $subType == 'leg' ) {
+		$subTypeK = 'レッグ' ;
+		$button_color_leg = 'white' ;
+	/* アクセサリーには合成用データ無し
+	} else if ( $subType == 'acc' ) {
+		$subTypeK = 'アクセサリー' ;
+		$button_color_acc = 'white' ;
+	*/
+	}
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$status = "U" ;
+	$params = array(
+		'mem_id' => $mem_id,
+		'item_type' => $mainTypeK,
+		'item_cate' => $subTypeK,
+		'offset' => $offset,
+		'limit' => $limit,
+		'status' => $status,
+		'comp_status' => $comp_status
+	);
+	// 表示データ取得
+	$jdatas = ekpt_get_json('get_memitemboxown_index', $params);
+	if ( $jdatas['status'] == 'error' ) {
+		print_r($jdatas) ;
+		trigger_error('get_memitemboxown_index', E_USER_ERROR);
+	}
+	$vdatas = $jdatas['memitemboxowns'];
+	$applyItems = explode(",",$bParams['apply_item_d_seq_nos']) ;
+    // ページャー
+    $countRe = $jdatas['allcount'] ;
+      // Pager
+       $html_pager = ekpt_pager( 'pageid', $countRe, $limit, 2, "recOffsetItem" ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	// 画面出力作成
+	$html .= '<form action="' . esc_html($baseurl.$type.$func) . '" method="POST">';
+	$html .= '<ul class="item-list">' ;
+	$applylistItems = explode(",",$bParams['apply_item_d_seq_nos']) ;
+	foreach($vdatas as $vdata) {
+		// 交換登録用呼出
+		$paramChange = $paramDef = $bParams ;
+		$paramChange['new_apply_item_d_seq_no'] = $vdata['seq_no'];
+		$optTradeUrl = _ekptcom_qshfItemTrade($paramChange) ;
+		// 表示データ作成
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center"><ul>' ;
+
+		// 出力内容の出し分け
+		if ($mainTypeK == 'ベース') {
+			$html .= ekpt_get_item_display_html($vdata, $display_vdata);
+		} else if ($mainTypeK == '素材') {
+           	$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+            if ( $vdata['category_label'] == 'エクポチケット' ) {
+               $html .= '<li>所有個数:'.$mem_info['numof_ticket'].'枚'.'</li>' ;               
+            } else {
+               $html .= '<li>所有個数:'.$vdata['num_of_item'].'個'.'</li>' ;               
+            }
+		}
+		// ボタン部の設定
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-right" style="text-align:center;">' ;
+		// ベースが先か、素材が先かで出し分け
+		if ( $pageUri == 'homeitemtrade/applylist' ) {
+			if ( in_array( $vdata['seq_no'], $applylistItems ) ) {
+				$html .= '<p style="color:red;"">登録済<br>です</p>' ;
+			} else {
+				$html .= '<a href="' . esc_html( $baseurl.$bParams['current_uri'] . '/' .$optTradeUrl) . '">交換品へ<br>追加</a>' ;
+			}
+		}
+		$html .= '</div>' ; //
+		$html .= '<div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '</ul>' ;
+	// 交換申請ボタンを作成
+	if ( $pageUri == 'itemfusionhome' and $bParams['current_b_seq_no'] <> 0 ) {
+		$html .= '<div class="hbtn" style="margin-top:10px"><div class="hbtn-inner style="text-align:center"">';
+		$html .= '<input style="width:300px; height:60px; font-size:18px;" type="submit" value="交換を申請する">';
+		$html .= '<div class="clear"></div>';
+		$html .= '</div></div>';
+	}
+	$html .= '</form>';
+	if ( $offset == 0 and count($vdatas) == 0 ) {
+		$html .= do_shortcode('[callout]現在、交換できるアイテムがありません。[/callout]') ;
+	} else {
+         if ( $html_pager <> '' ) {
+            $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+         } 
+	}
+	// Pager End
+	// 戻りボタン制御
+	if ( $pageUri <> 'homeitemtrade' ) {
+		$html .= _ekptcom_returnItemTrade();
+	}
+	return $html;
+}
+function ekptcom_change_contents_sendlist($atts = array()) {
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$pasgeUrl = get_page_uri($post->ID) ;
+	$html = '';
+	$buf = '';
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	$gid = $_REQUEST['tid']; // ディフォルト=0
+	// 表示対象制御
+	$mainType = 'base' ; // =base =sozai =coupon
+	$subType = "head" ; // =head(default) body leg acc
+	$reqMaintype = $_REQUEST['maintype'];
+	$reqSubttype = $_REQUEST['subtype'];
+    $activeBase = 'base' ;
+    $activeSozai = 'sozai' ;
+    $activeCoupon = 'coupon' ;
+    $imageDummyCate = 'btn_cate_dummy.gif' ;
+    $imageBase = 'btn_base.gif' ;
+    $imageSozai = 'btn_sozai.gif' ;
+    $imageCoupon = 'btn_coupon.gif' ;
+    if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'base' ) {
+			$mainType  = 'base' ;
+			$button_color_base = 'white' ;
+            $activeBase = 'baseactive' ;
+            $imageBase = 'btn_base_s.gif' ;
+		} else if ( $reqMaintype == 'sozai' ) {
+			$mainType = 'sozai' ;
+			$button_color_sozai = 'white' ;
+            $activeSozai = 'sozaiactive' ;
+            $imageSozai = 'btn_sozai_s.gif' ;
+		} else if ( $reqMaintype == 'coupon' ) {
+			$mainType = 'coupon' ;
+			$button_color_coupon = 'white' ;
+            $activeCoupon = 'couponactive' ;
+            $imageBase = 'btn_coupon_s.gif' ;
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'base' ;
+		$button_color_base = 'white' ;
+        $activeBase = 'baseactive' ;
+        $imageBase = 'btn_base_s.gif' ;
+	}
+	// 種類設定
+	$button_color_head = $button_color_body = $button_color_leg = $button_color_acc = 'green' ;
+    $activeHead = 'head' ;
+    $activeBody = 'body' ;
+    $activeLeg = 'leg' ;
+    $activeAcc ;
+    $imageHead = 'btn_head.gif' ;
+    $imageBody = 'btn_body.gif' ;
+    $imageLeg = 'btn_leg.gif' ;
+    $imageDummyBase = 'btn_base_dummy.gif' ;
+	if (strlen($reqSubttype) <> 0) {
+		if ( $reqSubttype == 'head' ) {
+			$subType  = 'head' ;
+			$activeHead = 'headactive';
+			$button_color_head = 'white' ;
+            $imageHead = 'btn_head_s.gif' ;
+		} else if ( $reqSubttype == 'body' ) {
+			$subType = 'body' ;
+			$activeBody = 'bodyactive';
+			$button_color_body = 'white' ;
+            $imageBody = 'btn_body_s.gif' ;
+		} else if ( $reqSubttype == 'leg' ) {
+			$subType = 'leg' ;
+			$activeLeg = 'legactive';
+			$button_color_leg = 'white' ;
+            $imageLeg = 'btn_leg_s.gif' ;
+		} else if ( $reqSubttype == 'acc' ) {
+			$subType = 'acc' ;
+			$activeAcc = 'accactive';
+			$button_color_acc = 'white' ;
+		} else {
+			$html = 'Error: Invalid Parameter. subtype='.$reqSubtype ;
+			return $html ;
+		}
+	} else {
+		$subType  = 'head' ;
+		$button_color_head = 'white' ;
+		$activeHead = 'headactive';
+        $imageHead = 'btn_head_s.gif' ;
+	}
+	// 種類決定
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$addUrl = _ekptcom_qshfItemTrade( $bParams, 0 ) ;
+    // 種別切替部
+	$linkPage = $baseurl . $pasgeUrl;
+	$linkBase = esc_html($linkPage.$addUrl.'&maintype=base&recOffsetItem=0') ;
+	$linkSozai = esc_html($linkPage.$addUrl.'&maintype=sozai&recOffsetItem=0') ;
+	$linkCoupon = esc_html($linkPage.$addUrl.'&maintype=coupon&recOffsetItem=0') ;
+	// タイトル部
+	$html_sc .= '<div id="misc-title" class="title-bar">出品アイテムの選択</div>';
+    // 出力部
+	$style = ' style="font-weight:bold; font-size:110%;"' ;
+	$html_sc .= '<ul id="item-catebar" class="hlist">' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyCate . '" alt="" /></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkBase .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageBase . '" alt="" /></a></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkSozai .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageSozai . '" alt="" /></a></li>' ;
+	$html_sc .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyCate . '" alt="" /></li>' ;
+	$html_sc .= '</ul>' ;
+	$html .= do_shortcode($html_sc) ;
+	if ( $mainType  == 'base' ) {
+    // ベースアイテム切替部
+		$linkPage = $baseurl . $pasgeUrl . $addUrl . '&maintype=base';
+		$linkHead = esc_html($linkPage.'&subtype=head&recOffsetItem=0') ;
+		$linkBody = esc_html($linkPage.'&subtype=body&recOffsetItem=0') ;
+		$linkLeg = esc_html($linkPage.'&subtype=leg&recOffsetItem=0') ;
+		$linkAcc = esc_html($linkPage.'&subtype=acc&recOffsetItem=0') ;
+		// 出力部
+         $style = ' style="font-weight:bold; font-size:110%;"' ;
+         $html .= '<ul id="item-basebar" class="hlist">' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkHead .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageHead . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkBody .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageBody . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><a href="'. $linkLeg .'"><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageLeg . '" alt="" /></a></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyBase . '" alt="" /></li>' ;
+         $html .= '<li class="hlistitem-mid" ' . $style . '><img src="' . $baseurl . EKPTDEF_ICONHOME . $imageDummyBase . '" alt="" /></li>' ;
+         $html .= '</ul>' ;
+	}
+	if ($mainType == 'base') {
+		if ( $subType == 'head' ) {
+			$buf .= '[ekptcom_contents_item_box_sendlist limit=10 tid=0 cid=0 maintype="base" subtype="head" link="homeitemtrade"]';
+		} else if  ( $subType == 'body' ) {
+			$buf .= '[ekptcom_contents_item_box_sendlist limit=10 tid=0 cid=1 maintype="base" subtype="body" link="homeitemtrade"]';
+		} else if  ( $subType == 'leg' ) {
+			$buf .= '[ekptcom_contents_item_box_sendlist limit=10 tid=0 cid=2 maintype="base" subtype="leg"  link="homeitemtrade"]';
+		} else if  ( $subType == 'acc' ) {
+			$buf .= '[ekptcom_contents_item_box_sendlist limit=10 tid=0 cid=3 maintype="base" subtype="acc"  link="homeitemtrade"]';
+		}
+		$html .= do_shortcode($buf);
+		$html .= '</div>';
+	} else if ($mainType == 'sozai') {
+       $html .= do_shortcode("[callout]素材アイテムの交換は準備中です。もう少々お待ちください。[/callout]");
+		// $html .= do_shortcode('[ekptcom_contents_item_box_sendlist limit=10 tid=1 maintype="sozai" link="homeitemtrade"]');
+	} else  {
+       $html .= do_shortcode("[callout]これらの交換は準備中です。もう少々お待ちください。[/callout]");
+		// $html .= do_shortcode('[ekptcom_contents_item_box_sendlist limit=10 tid=1 maintype="sozai" link="homeitemtrade"]');
+	}
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+// 合成用アイテム一覧
+// 利用固定ページ：　/itemfusionhome/
+// 					/itemfusionhome/changebaseitem
+function ekptcom_contents_item_box_sendlist($atts = array()) {
+	// Initialized.
+    extract(shortcode_atts(array(
+		'limit' => 10,
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 4,
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = $bParams['mem_id'];
+    $mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeitemtrade' ;
+    $func = '/sendlist' ;
+	$pageUri = $bParams['current_uri'];
+	// 画面内制御データのみ設定
+	$limit = $bParams['recLimit'];
+	$offset = $bParams['recOffsetItem'];
+	$mainType = $bParams['maintype'];
+	$mainTypeK = $bParams['maintypeK'];
+	// サブタイプ設定
+	$subType = $bParams['subtype'];
+	$subTypeK = $bParams['subtypeK'];
+	if ( $subType == 'head' ) {
+		$subTypeK  = 'ヘッド' ;
+		$button_color_head = 'white' ;
+	} else if ( $subType == 'body' ) {
+		$subTypeK = 'ボディ' ;
+		$button_color_body = 'white' ;
+	} else if ( $subType == 'leg' ) {
+		$subTypeK = 'レッグ' ;
+		$button_color_leg = 'white' ;
+	/* アクセサリーには合成用データ無し
+	} else if ( $subType == 'acc' ) {
+		$subTypeK = 'アクセサリー' ;
+		$button_color_acc = 'white' ;
+	*/
+	}
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$status = "U" ;
+	if ($bParams['home_url'] == 'itemfusionhome') { $comp_status = '' ; } else {  $comp_status = "'B'" ;  } ;
+	$params = array(
+		'mem_id' => $mem_id,
+		'item_type' => $mainTypeK,
+		'item_cate' => $subTypeK,
+		'offset' => $offset,
+		'limit' => $limit,
+		'status' => $status,
+		'comp_status' => $comp_status
+	);
+	// 表示データ取得
+	$jdatas = ekpt_get_json('get_memitemboxown_index', $params);
+	if ( $jdatas['status'] == 'error' ) {
+		print_r($jdatas) ;
+		trigger_error('get_memitemboxown_index', E_USER_ERROR);
+	}
+	$vdatas = $jdatas['memitemboxowns'];
+    $countRe = $jdatas['allcount'] ;
+      // Pager
+       $html_pager = ekpt_pager( 'pageid', $countRe, $limit, 2, "recOffsetItem" ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	// 画面出力作成
+	$html .= '<form action="' . esc_html($baseurl.$type.$func) . '" method="POST">';
+	$html .= '<ul class="item-list">' ;
+	$sendlistItems = explode(",",$bParams['trade_item_d_seq_nos']) ;
+	foreach($vdatas as $vdata) {
+		// 表示データ作成
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		// 交換登録用呼出
+		$paramChange = $paramDef = $bParams ;
+		$paramChange['new_trade_item_d_seq_no'] = $vdata['seq_no'];
+		$optTradeUrl = _ekptcom_qshfItemTrade($paramChange) ;
+		//
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left">' ;
+		$html .= '<img style="width:70px; height:70px;" src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center"><ul>' ;
+		// 出力内容の出し分け
+		if ($mainTypeK == 'ベース') {
+			$html .= ekpt_get_item_display_html($vdata, $display_vdata);
+		} else if ($mainTypeK == '素材') {
+           	$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+            if ( $vdata['category_label'] == 'エクポチケット' ) {
+               $html .= '<li>所有個数:'.$mem_info['numof_ticket'].'枚'.'</li>' ;               
+            } else {
+               $html .= '<li>所有個数:'.$vdata['num_of_item'].'個'.'</li>' ;               
+            };
+		}
+		// ボタン部の設定
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-right" style="text-align:center;">' ;
+		// ベースが先か、素材が先かで出し分け
+		if ( $pageUri == 'homeitemtrade/sendlist' ) {
+			if ( in_array( $vdata['seq_no'], $sendlistItems ) ) {
+				$html .= '<p style="color:red;"">登録済<br>です</p>' ;
+			} else {
+				$html .= '<a href="' . esc_html( $baseurl.$bParams['current_uri'] . '/' .$optTradeUrl) . '">出品へ<br>追加</a>' ;
+			}
+		}
+		$html .= '</div>' ; //
+		$html .= '<div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '</ul>' ;
+	// 交換申請ボタンを作成
+	if ( $pageUri == 'itemfusionhome' and $bParams['current_b_seq_no'] <> 0 ) {
+		$html .= '<div class="hbtn" style="margin-top:10px"><div class="hbtn-inner style="text-align:center"">';
+		$html .= '<input style="width:300px; height:60px; font-size:18px;" type="submit" value="出品を申請する">';
+		$html .= '<div class="clear"></div>';
+		$html .= '</div></div>';
+	}
+	$html .= '</form>';
+	if ( $offset == 0 and count($vdatas) == 0 ) {
+		$html .= do_shortcode('[callout]現在、出品できるアイテムがありません。[/callout]') ;
+	} else {
+		// Pager
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	}
+	// Pager End
+	// 戻りボタン制御
+	if ( $pageUri <> 'homeitemtrade' ) {
+		$html .= _ekptcom_returnItemTrade();
+	}
+	return $html;
+}
+
+
+// 交換所 出品アイテム確認
+function contents_tradeitem_sendconfirm() {
+
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = 'homeitemtrade' ; // form だからスラッシュ要らない
+	$finish = '/sendfinish';
+	$html = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+	if ( $bParams['trade_item_d_seq_nos'] <> '' ) {
+		// 既存指定分
+		$wqSeqnoArray = explode(',',$bParams['trade_item_d_seq_nos']) ;
+	} else {
+		trigger_error('不正なアクセスです。', E_USER_ERROR);
+	}
+	foreach ($wqSeqnoArray as $seq_no) {
+		$param = array( 'seq_no' => $seq_no );
+		$arrdata = ekpt_get_json('get_memitemown_by_seqno', $param);
+		$vdatas[] = $arrdata['memitemown'][0];
+	}
+	$GLOBALS['EKPT_ITEM_OWNS'] = $vdatas;
+	// 交換に関する情報
+	$html .= '[callout]出品情報';
+	$html .= '<p>こちらのアイテムが交換所に出品するために選ばれました。確認してください。</p>';
+    $html .= '[/callout]' ;
+    // 選択したアイテム
+	$html .= '[callout]出品するアイテム情報[/callout]';
+	foreach ($vdatas as $keys => $vdata) {
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata['disply_merit_id'].'GET力:'.$display_vdata['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul><br>' ;
+	}
+	$opturl = ekpt_get_link_param();
+	$html .= '[callout]出品の実行';
+	$html .= '<form action="'.esc_html($baseurl.$type.$finish.$opturl).'" method="POST">';
+	$html .= _ekptcom_qshfItemTrade( $bParams, 1 ) ;
+	$html .= '<input type="hidden" name="seq_no" value="'.$item_seq_nos.'">';
+	$html .= '<p style="text-align:center;">あなたからのﾒｯｾｰｼﾞも一緒に送りましょう！：<input type="text" style="font-size:100%; height:30px; width:300px;" size="60" maxlength="60" name="trade_desc"><p>';
+	$html .= '<br><p style="text-align:center;"><input type="submit" value="出品を申請する" style="font-size:150%; height:60px; width:300px;" onClick="return showConfMsg(\''. $confMsg . '\',\'' . $confUrl . '\')"></p></form>' ;
+	$html .= '<p><span style="color: #F00;">※交換に関する注意事項はこちらからお読み下さい。</span></p>';
+	$html .= '<p><span style="color: #F00;">※個人情報や個人を特定するに足りる情報は入力しないで下さい。</span></p>';
+	$html .= '</form>';
+    $html .= '[/callout]' ;
+	$html .= _ekptcom_returnItemTrade();
+
+    return do_shortcode($html) ;
+
+}
+
+
+// 交換所 申請アイテム確認
+function contents_tradeitem_applyconfirm() {
+
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'item_type' => 1,
+    ), $atts));
+
+	parr($bParams);
+
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = 'homeitemtrade' ; // form だからスラッシュ要らない
+	$finish = '/applyfinish';
+	$html = '';
+
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+
+	if ( $bParams['apply_item_d_seq_nos'] <> '' ) {
+		// 既存指定分
+		$wqSeqnoArray = explode(',',$bParams['apply_item_d_seq_nos']) ;
+	} else {
+		trigger_error('不正なアクセスです。', E_USER_ERROR);
+	}
+
+	foreach ($wqSeqnoArray as $seq_no) {
+		$param = array( 'seq_no' => $seq_no );
+		$arrdata = ekpt_get_json('get_memitemown_by_seqno', $param);
+		$vdatas[] = $arrdata['memitemown'][0];
+	}
+	$GLOBALS['EKPT_ITEM_OWNS'] = $vdatas;
+
+	// 交換に関する情報
+	$html .= '[callout]交換情報';
+	$html .= '<p>出品番号=' . $bParams['trade_item_seq_no'] . ' に交換申請します。</p>';
+	$html .= '<p>こちらのアイテムを交換するために選んでいます。確認してください。</p>';
+    $html .= '[/callout]' ;
+
+    // 選択したアイテム
+	$html .= '[callout]交換するアイテム情報[/callout]';
+	foreach ($vdatas as $keys => $vdata) {
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata['disply_merit_id'].'GET力:'.$display_vdata['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul><br>' ;
+	}
+	$opturl = ekpt_get_link_param();
+	$html .= '[callout]交換申請の実行';
+	$html .= '<form action="'.esc_html($baseurl.$type.$finish.$opturl).'" method="POST">';
+	echo '<交換申請の実行>'.$baseurl.$type.$finish.$opturl;
+	$html .= _ekptcom_qshfItemTrade( $bParams, 1 ) ;
+	$html .= '<input type="hidden" name="seq_no" value="'.$item_seq_nos.'">';
+	$html .= '<p style="text-align:center;">メッセージも一緒に送りましょう！：<input type="text" style="font-size:100%; height:30px; width:300px;" size="60" maxlength="60" name="apply_comment"><p>';
+	$html .= '<br><p style="text-align:center;"><input type="submit" value="交換を申請する" style="font-size:150%; height:60px; width:300px;" onClick="return showConfMsg(\''. $confMsg . '\',\'' . $confUrl . '\')"></p></form>' ;
+	$html .= '<p><span style="color: #F00;">※交換に関する注意事項はこちらからお読み下さい。</span></p>';
+	$html .= '<p><span style="color: #F00;">※個人情報や個人を特定するに足りる情報は入力しないで下さい。</span></p>';
+	$html .= '</form>';
+    $html .= '[/callout]' ;
+	$html .= _ekptcom_returnItemTrade();
+
+    return do_shortcode($html) ;
+	
+}
+/**
+ * 交換所 出品完了
+ */
+function contents_tradeitem_sendfinish($atts = array()) {
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$item_seq_nos = $bParams['trade_item_d_seq_nos'];
+	$item_title = isset($_POST['item_title']) ? $_POST['item_title'] : '';
+	$item_desc = isset($_POST['trade_desc']) ? $_POST['trade_desc'] : '';
+    $item_seq_nos_array = explode(",", $item_seq_nos) ;
+    //
+    if (strlen($item_title) == 0 ) {
+       $item_title = 'エクポタウン交換所 出品' ;
+    }
+	// Set paramaters.
+	$html = '';
+	$opturl = 'homeitemtrade/' ;
+	$btn_link = ekpt_get_link_param();
+	$btn = _ekptcom_returnItemTrade();
+	$params = array(
+		'item_seq_nos' => $item_seq_nos,
+		'item_title' => $item_title,
+		'item_desc' => $item_desc
+	);
+	// 交換申請を行う
+	if ($item_seq_nos) {
+		$jdatas = ekpt_trade_get_json('send_trade_item', $params);
+		$sdatas = $jdatas['trade_item_list'];
+		$d_sdatas = _contents_sendlist_info( $sdatas[0] ) ;
+	} else {
+		$jdatas = array('status'=>'ng', 'message'=>'出品するアイテムが指定されていません。') ;
+	}
+    // print_r($params) ;
+    // print_r($jdatas) ;
+	$html .= '[callout]';
+	// 交換申請完了メッセージ
+	if ( $jdatas['status'] == 'ok' ) {
+		$html .= '【交換所への出品が完了しました。】';	
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= $d_sdatas['mem_data']['image'] ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right">' ;
+		$html .= '<ul style="margin:0px; padding:0px;">' ;
+		$html .= '<li>出品日時:'.$d_sdatas['created'].'</li>' ;
+		$html .= '<li>出品番号:'.$d_sdatas['seq_no'].'</li>' ;
+		$html .= '<li>出品者:'.htmlspecialchars ($d_sdatas['mem_data']['nickname'],ENT_QUOTES).' <br>ｽﾃｰﾀｽ='. $d_sdatas['disp_status'] .'</li>' ;
+		$html .= '<li>コメント:'. htmlspecialchars ( $d_sdatas['trade_desc'], ENT_QUOTES) .'</li>' ;
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	} else {
+		$html .= '交換所への出品が完了しませんでした。';
+		$html .= '<br>理由=' . $jdatas['error'] ;
+	}
+	$html .= '[/callout]';
+	$html .= $btn;
+	return do_shortcode($html);
+}
+
+function _contents_sendlist_info( $sdatas ) {
+	//
+	$d_sdatas = array(
+						'seq_no' => 0,
+						'trade_no' => 0,
+						'mem_id' => 0 ,
+						'status' =>  '',
+						'trade_title' =>  '',
+						'trade_desc' =>  '',
+						'created' => '' ,
+						'modified' => '' ,
+						'mem_data' => '' ,
+						'dummy' => 0
+						) ;
+	//
+	$d_sdatas['seq_no'] = $sdatas['seq_no'] ;
+	$d_sdatas['trade_no'] = $sdatas['trade_no'] ;
+	$d_sdatas['mem_id'] = $sdatas['mem_id'] ;
+	$d_sdatas['status'] = $sdatas['status'] ;
+	$d_sdatas['trade_title'] = $sdatas['trade_title'] ;
+	$d_sdatas['trade_desc'] = $sdatas['trade_desc'] ;
+	$d_sdatas['created'] = $sdatas['created'] ;
+	$d_sdatas['modified'] = $sdatas['modified'] ;
+	//
+	$d_sdatas['disp_status'] = $sdatas['status'] ;
+	$d_sdatas['mem_data'] = ekpt_get_mem_info( $sdatas['mem_id'] ) ;
+	return $d_sdatas ;
+}
+
+function _contents_applylist_info( $sdatas ) {
+	//
+	$d_sdatas = array(
+						'seq_no' => 0,
+						'trade_no' => 0,
+						'mem_id' => 0 ,
+						'status' =>  '',
+						'trade_comment' =>  '',
+						'trade_desc' =>  '',
+						'created' => '' ,
+						'modified' => '' ,
+						'mem_data' => '' ,
+						'dummy' => 0
+						) ;
+	//
+	$d_sdatas['seq_no'] = $sdatas['seq_no'] ;
+	$d_sdatas['trade_no'] = $sdatas['trade_no'] ;
+	$d_sdatas['mem_id'] = $sdatas['mem_id'] ;
+	$d_sdatas['status'] = $sdatas['status'] ;
+	$d_sdatas['trade_comment'] = $sdatas['trade_comment'] ;
+	$d_sdatas['created'] = $sdatas['created'] ;
+	$d_sdatas['modified'] = $sdatas['modified'] ;
+	//
+	$d_sdatas['disp_status'] = $sdatas['status'] ;
+	$d_sdatas['mem_data'] = ekpt_get_mem_info( $sdatas['mem_id'] ) ;
+	return $d_sdatas ;
+}
+
+/**
+ * 交換所 申請完了
+ */
+function contents_tradeitem_applyfinish($atts = array()) {
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$trade_item_seq_no = $bParams['trade_item_seq_no'];
+	$item_seq_nos = $bParams['apply_item_d_seq_nos'];
+	$apply_comment = isset($_POST['apply_comment']) ? $_POST['apply_comment'] : '';
+	// Set paramaters.
+	$html = '';
+	$opturl = 'homeitemtrade/' ;
+	$btn = _ekptcom_returnItemTrade() ;
+	$params = array(
+		'trade_item_seq_no' => $trade_item_seq_no,
+		'item_seq_nos' => $item_seq_nos,
+		'apply_comment' => $apply_comment
+	);
+	if ($item_seq_nos) {
+		$jdatas = ekpt_trade_get_json('apply_trade_item', $params);
+		$sdatas = $jdatas['apply_trade_list'];
+		$d_sdatas = _contents_applylist_info( $sdatas[0] ) ;
+	}
+	$html .= '[callout]';
+	// 交換申請完了メッセージ
+	if ( $jdatas['status'] == 'ok' ) {
+		$html .= '【交換申請が完了しました。】';	
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= $d_sdatas['mem_data']['image'] ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right">' ;
+		$html .= '<ul style="margin:0px; padding:0px;">' ;
+		$html .= '<li>申請日時:'.$d_sdatas['created'].'</li>' ;
+		$html .= '<li>申請番号:'.$d_sdatas['seq_no'].'</li>' ;
+		$html .= '<li>申請者:'.  htmlspecialchars( $d_sdatas['mem_data']['nickname'], ENT_QUOTES) .' <br>ｽﾃｰﾀｽ='. $d_sdatas['disp_status'] .'</li>' ;
+		$html .= '<li>コメント:'. htmlspecialchars( $d_sdatas['trade_comment'], ENT_QUOTES)  .'</li>' ;
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	} else {
+		$html .= '交換申請が完了しませんでした。';
+		$html .= '理由=' . $jdatas['error'] ;
+	}
+	$html .= '[/callout]';
+	$html .= $btn;
+
+	return do_shortcode($html);
+
+}
+
+/**
+ * 交換所 交換承諾、交換キャンセル
+ */
+function contents_tradeitem_reply($atts = array()) {
+   
+	// Initialized.
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$trade_seq_no = $bParams['trade_item_seq_no'] ;
+	$apply_seq_no = $bParams['apply_item_seq_no'] ;
+	$reply = $bParams['trade_apply_reply'] ;
+	// Set paramaters.
+	$html = '';
+	$jdatas = array();
+	$vdatas = array();
+	// 交換承諾ボタン
+	$type = '/homeitemtrade';
+	$done = '/done';
+	$yesbParams = $nobParams = $bParams ;
+	$yesbParams['trade_apply_reply'] = 'yes' ;
+	$opturlYes = _ekptcom_qshfItemTrade($yesbParams) ;
+	$accept = '[button align="center" color="lightgreen" size="large" link="'. esc_html($baseurl.$type.$done.$opturlYes).'"]交換をOKする[/button]';
+	// 交換キャンセルボタン
+	$nobParams['trade_apply_reply'] = 'applyreject' ;
+	$opturlNo = _ekptcom_qshfItemTrade($nobParams) ;
+	$cancel = '[button align="center" color="lightgreen" size="large" link="'. esc_html($baseurl.$type.$done.$opturlNo).'"]交換を断る[/button]';
+	// 出品情報の取得
+	$paramList = array('seq_no' => $bParams['trade_item_seq_no']) ;
+	$arrdata = ekpt_trade_get_json('get_trade_item_byseq', $paramList);
+	$basedata = $arrdata['trade_item_list'];
+	$itemdetails = $arrdata['trade_item_detail_list'];
+	foreach ( $itemdetails as $itemdetail ) {
+		$wqSeqnoArray[] = $itemdetail['mem_item_own_seq_no'];
+	}
+	foreach ($wqSeqnoArray as $seq_no) {
+		$param2 = array( 'seq_no' => $seq_no );
+		$arrdata2 = ekpt_get_json('get_memitemown_by_seqno', $param2);
+		$vdatas[] = $arrdata2['memitemown'][0];
+	}
+	$btn_home = _ekptcom_returnItemTrade() ;
+	// 出品に関する情報
+	$html .= '[callout]出品情報';
+	$html .= '<p>交換所に出品しています</p>';
+    $html .= '[/callout]' ;
+	// 選択したアイテム
+	$html .= '[callout]出品しているアイテム情報[/callout]';
+	foreach ($vdatas as $keys => $vdata) {
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata['disply_merit_id'].'GET力:'.$display_vdata['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+
+	// 出品情報の取得
+	$paramList2 = array('seq_no' => $bParams['apply_item_seq_no']) ;
+	$arrdata2 = ekpt_trade_get_json('get_apply_item_byseq', $paramList2);
+	$basedata2 = $arrdata2['apply_item_list'];
+	$itemdetails2 = $arrdata2['apply_item_detail_list'];
+	foreach ( $itemdetails2 as $itemdetail2 ) {
+		$wqSeqnoArray2[] = $itemdetail2['mem_item_own_seq_no'];
+	}
+	foreach ($wqSeqnoArray2 as $seq_no2) {
+		$param2 = array( 'seq_no' => $seq_no2 );
+		$arrdata2 = ekpt_get_json('get_memitemown_by_seqno', $param2);
+		$vdatas2[] = $arrdata2['memitemown'][0];
+	}
+	// 出品に関する情報
+	$html .= '[callout]交換情報';
+	$html .= '<p>交換申込です</p>';
+    $html .= '[/callout]' ;
+	// 選択したアイテム
+    $d_basedata2 = _contents_applylist_info($basedata2[0]);
+	$html .= '[callout]' . $d_basedata2['mem_data']['nickname'] . 'が、交換を希望しているアイテム[/callout]';
+	foreach ($vdatas2 as $keys2 => $vdata2) {
+		$display_vdata2 = ekpt_get_item_info($vdata2) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata2['display_image_url01'].'" alt="'.$display_vdata2['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata2['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata2['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata2['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata2['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata2['disply_merit_id'].'GET力:'.$display_vdata2['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata2['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}	
+	$html .= '[callout]OKする？断る?' ;
+	$html .= $accept;
+	$html .= $cancel;
+	$html .= '[/callout]';
+	$html .= $btn_home ;
+
+	return do_shortcode($html);
+
+}
+/*
+ * 
+ */
+/**
+ * 交換所 交換申請詳細・キャンセル
+ */
+function contents_tradeitem_apply_detail($atts = array()) {
+	// Initialized.
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$trade_seq_no = $bParams['trade_item_seq_no'] ;
+	$apply_seq_no = $bParams['apply_item_seq_no'] ;
+	$reply = $bParams['trade_apply_reply'] ;
+    // print_r($bParams);
+    // Set paramaters.
+	$html = '';
+	$jdatas = array();
+	$vdatas = array();
+	// 出品情報の取得
+	$paramList = array('seq_no' => $bParams['trade_item_seq_no']) ;
+	$arrdata = ekpt_trade_get_json('get_trade_item_byseq', $paramList);
+	$basedata = $arrdata['trade_item_list'];
+	$itemdetails = $arrdata['trade_item_detail_list'];
+	foreach ( $itemdetails as $itemdetail ) {
+		$wqSeqnoArray[] = $itemdetail['mem_item_own_seq_no'];
+	}
+	foreach ($wqSeqnoArray as $seq_no) {
+		$param2 = array( 'seq_no' => $seq_no );
+		$arrdata2 = ekpt_get_json('get_memitemown_by_seqno', $param2);
+		$vdatas[] = $arrdata2['memitemown'][0];
+	}
+    // 交換申請情報の取得
+	$paramList2 = array('seq_no' => $bParams['apply_item_seq_no']) ;
+	$arrdata2 = ekpt_trade_get_json('get_apply_item_byseq', $paramList2);
+	$basedata2 = $arrdata2['apply_item_list'];
+	$itemdetails2 = $arrdata2['apply_item_detail_list'];
+	foreach ( $itemdetails2 as $itemdetail2 ) {
+		$wqSeqnoArray2[] = $itemdetail2['mem_item_own_seq_no'];
+	}
+	foreach ($wqSeqnoArray2 as $seq_no21) {
+		$param21 = array( 'seq_no' => $seq_no21 );
+		$arrdata21 = ekpt_get_json('get_memitemown_by_seqno', $param21);
+		$vdatas2[] = $arrdata21['memitemown'][0];
+	}
+    // 戻るボタン
+	$btn_home = _ekptcom_returnItemTrade() ;
+	// 交換申請キャンセルボタン
+	$type = '/homeitemtrade';
+	$done = '/done';
+	$yesbParams = $nobParams = $bParams ;
+	$yesbParams['trade_apply_reply'] = 'applycancel' ;
+    $yesbParams['apply_item_seq_no'] = $bParams['apply_item_seq_no'];
+	$opturlYes = _ekptcom_qshfItemTrade($yesbParams) ;
+	$cancel = '[button align="center" color="lightgreen" size="large" link="'. esc_html($baseurl.$type.$done.$opturlYes).'"]交換申請を取りやめる[/button]';
+	// 交換に関する情報
+	$html .= '[callout]交換情報';
+	$html .= '<p>交換申請です</p>';
+    $html .= '[/callout]' ;
+	// 選択したアイテム
+    $d_basedata2 = _contents_applylist_info($basedata2[0]);
+	$html .= '[callout]' . '私が、交換申請しているアイテム[/callout]';
+	foreach ($vdatas2 as $keys2 => $vdata2) {
+		$display_vdata2 = ekpt_get_item_info($vdata2) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata2['display_image_url01'].'" alt="'.$display_vdata2['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata2['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata2['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata2['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata2['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata2['disply_merit_id'].'GET力:'.$display_vdata2['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata2['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}	
+
+	// 出品に関する情報
+	$html .= '[callout]出品情報';
+	$html .= '<p>交換所に出品されています</p>';
+    $html .= '[/callout]' ;
+	// 選択したアイテム
+    $d_basedata = _contents_sendlist_info($basedata[0]);
+	$html .= '[callout]' . $d_basedata['mem_data']['nickname'] . 'さんが出品しているアイテム情報[/callout]';
+	foreach ($vdatas as $keys => $vdata) {
+		$display_vdata = ekpt_get_item_info($vdata) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-two"><div class="list-two-outer">' ;
+		$html .= '<div class="list-two-left">' ;
+		$html .= '<img src="'.$display_vdata['display_image_url01'].'" alt="'.$display_vdata['display_item_title'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-two-right"><ul>' ;
+		$html .= '<li>'.$display_vdata['display_item_title'].'</li>' ;
+		$html .= '<li>Lv:'.$display_vdata['item_level'].'</li>' ;
+		// 出力内容の出し分け
+		if ($display_vdata['type_label'] == 'ベース') {
+			$html .= '<li>必要コスト:'.$display_vdata['item_cost'].'</li>' ;
+			$html .= '<li>'.$display_vdata['disply_merit_id'].'GET力:'.$display_vdata['display_up'].'</li>' ;
+		} else if ($mainTypeK == '素材') {
+			$html .= '<li>個数:'.$display_vdata['item_num'].'</li>' ;
+		}
+		$html .= '</ul>' ;
+		$html .= '</div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+
+	$html .= '[callout]交換申請を取りやめますか？' ;
+	$html .= $cancel;
+	$html .= '[/callout]';
+	$html .= $btn_home ;
+
+	return do_shortcode($html);
+
+}
+
+/**
+ * 交換所 成立・破棄
+ */
+function contents_tradeitem_done($atts = array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$html = '';
+	$jdatas = array();
+	$vdatas = array();
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$trade_item_seq_no = $bParams['trade_item_seq_no'] ;
+	$apply_item_seq_no = $bParams['apply_item_seq_no'] ;
+	$reply = $bParams['trade_apply_reply'] ;
+	// Set paramaters.
+	$btn_home = _ekptcom_returnItemTrade() ;
+	// 交換の実行orキャンセル
+	if ($reply == 'yes') {
+		$paramsYes = array(
+			'trade_item_seq_no' => $trade_item_seq_no,
+			'apply_item_seq_no' => $apply_item_seq_no,
+			'reply' => $reply
+		);
+		$jdatas = ekpt_trade_get_json('exec_trade_item', $paramsYes);
+		$vdatas = $jdatas['tradeitems'];
+		if ( $jdatas['status'] == 'ok' ) {
+			$html .= '[callout]交換が完了しました。[/callout]';
+		} else {
+			$html .= '[callout]交換が完了できませんでした。'.$jdatas['error'].'[/callout]';
+		}
+	} else if ($reply == 'no') {
+		$paramsNo = array(
+			'cancel_trade_seq_no' => $trade_item_seq_no
+		);
+		$jdatas = ekpt_trade_get_json('cancel_trade_item', $paramsNo);
+		$vdatas = $jdatas['trade_item_list'];
+		if ( $jdatas['status'] == 'ok' ) {
+			$html .= '[callout]出品をキャンセルしました。[/callout]';
+		} else {
+			// print_r($jdatas) ;
+			$html .= '[callout]出品をキャンセルできませんでした。'.$jdatas['error'].'[/callout]';
+		}
+	} else if ($reply == 'applyreject') {
+		$paramsNo = array(
+			'reject_apply_seq_nos' => $apply_item_seq_no
+		);
+		$jdatas = ekpt_trade_get_json('reject_apply_trade', $paramsNo);
+		$vdatas = $jdatas['trade_item_list'];
+		if ( $jdatas['status'] == 'ok' ) {
+			$html .= '[callout]交換申請を断りました。[/callout]';
+		} else {
+			// print_r($jdatas) ;
+			$html .= '[callout]交換申請を断ることができませんでした。'.$jdatas['error'].'[/callout]';
+		}
+	} else if ($reply == 'applycancel') {
+		$paramsNo = array(
+			'cancel_apply_seq_nos' => $apply_item_seq_no
+		);
+		$jdatas = ekpt_trade_get_json('cancel_apply_trade', $paramsNo);
+		$vdatas = $jdatas['trade_item_list'];
+		if ( $jdatas['status'] == 'ok' ) {
+			$html .= '[callout]交換申請をキャンセルしました。[/callout]';
+		} else {
+			// print_r($jdatas) ;
+			$html .= '[callout]交換申請をキャンセルできませんでした。'.$jdatas['error'].'[/callout]';
+		}
+	}
+	$html .= $btn_home ;
+	return do_shortcode($html);
+}
+// 内部関数：　homeitemfusion 用： ホームに戻るボタンを作る
+function ekptcom_contents_trade_item_box($atts = array()) {
+	// Initialized.
+    extract(shortcode_atts(array(
+		'limit' => 10,
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 0,
+		'link' => ''
+	), $atts));
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl  = ekpt_get_opt('EKPTGFHOME'); 
+    $type     = 'homeitemtrade';
+	$list     = '/sendlist';
+	$ownlist  = '/tradeownlist';
+	$ownlistapply  = '/applydetail';
+	$reply  = '/reply';
+	$html     = '';
+	// パラメタ設定
+	$GLOBALS['EKPT_ITEM_OWNS'] = array() ;
+	$mem_id = ekpt_get_opt("EKPTUSER") ;
+      // Set paramaters.
+      $vdatas = array();
+      $imgurl .= $baseurl.EKPTDEF_IMAGEHOME ;
+      $opturl = 'itemdetail/' ;
+      $trade_type = $bParams['tradetype'];
+      $offset = $bParams['recOffsetTrade'];
+      $limit = $bParams['recLimit'];
+	// 出品アイテム一覧取得
+    $countRe = 0 ;
+    if ( $bParams['tradetype'] == 'market' or $bParams['tradetype'] == 'own' ) {
+       // 出品系データを取得する
+//      $param = array('startrec' => '1', 'limitofrec' => '300'); // sql側でlimit切ってあります
+//      $arrdata = ekpt_trade_get_json('get_trade_item_list', $param);
+//      $vdatas = $arrdata['trade_item_list']['items'];
+//      $GLOBALS['EKPT_ITEM_TRADE'] = $vdatas;
+      $params = array(
+          'mem_id' => $mem_id,
+          'trade_type' => $trade_type,
+          'offset' => $offset,
+          'limit' => $limit,
+          'seq_no' => 0
+      );
+      $jdatas = ekpt_trade_get_json('get_trade_item_list', $params);
+      // print_r($jdatas);
+      $vdatas = $jdatas['trade_item_list']['items'];
+      $countRe = $jdatas['trade_item_list']['allcount'] ;
+    } else {
+       // 交換申請系データを取得する
+      $param = array('mem_id' => $mem_id,); // sql側でlimit切ってあります
+      $arrdata = ekpt_trade_get_json('get_mem_apply_trade_list', $param);
+      // print_r($param);
+      // print_r($arrdata);
+      $vdatas = $arrdata['apply_trade_list'];
+      $GLOBALS['EKPT_ITEM_TRADE'] = $vdatas;
+    }
+	print_r($bParams);
+
+	if ( $bParams['tradetype'] == 'market' ) {
+		$html .= '<div id="misc-title" class="title-bar">' . '交換可能な出品一覧です' . '</div>';
+              // Pager
+       $html_pager = ekpt_pager( 'pageid', $countRe, $limit, 2, "recOffsetTrade" ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+         //
+         $html .= '<ul class="list-items">' ;
+         $html .= '<li class="list-two" style="margin-bottom:0px; height:30px;"><div class="list-two-outer" style="height:100%;">' ;
+         $html .= '<div class="list-two-left" style="text-align:center; height:100%; margin-bottom:0px;" >出品者</div>';
+         $html .= '<div class="list-two-right" style="text-align:center; height:100%; margin-bottom:0px;">出品情報</div>' ;
+         $html .= '</div>&nbsp;</li></ul>' ;
+	} else if ( $bParams['tradetype'] == 'own' ) {
+		$html .= '<div id="misc-title" class="title-bar">' . 'あなたが出品した一覧です' . '</div>';
+              // Pager
+       $html_pager = ekpt_pager( 'pageid', $countRe, $limit, 2, "recOffsetTrade" ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+         //
+         $html .= '<ul class="list-items">' ;
+         $html .= '<li class="list-two" style="margin-bottom:0px; height:30px;"><div class="list-two-outer" style="height:100%;">' ;
+         $html .= '<div class="list-two-left" style="text-align:center; height:100%; margin-bottom:0px;" >あなた</div>';
+         $html .= '<div class="list-two-right" style="text-align:center; height:100%; margin-bottom:0px;">出品情報</div>' ;
+         $html .= '</div>&nbsp;</li></ul>' ;
+	} else if ( $bParams['tradetype'] == 'apply' ) {
+		$html .= '<div id="misc-title" class="title-bar">' . 'あなたが交換申請した一覧です' . '</div>';
+         //
+         $html .= '<ul class="list-items">' ;
+         $html .= '<li class="list-two" style="margin-bottom:0px; height:30px;"><div class="list-two-outer" style="height:100%;">' ;
+         $html .= '<div class="list-two-left" style="text-align:center; height:100%; margin-bottom:0px;" >あなた</div>';
+         $html .= '<div class="list-two-right" style="text-align:center; height:100%; margin-bottom:0px;">交換申請情報</div>' ;
+         $html .= '</div>&nbsp;</li></ul>' ;
+	}
+    if ( $trade_type == 'apply' ) {
+          // 交換申請一覧
+       foreach ($vdatas as $vdata) {
+          // print_r($vdata);
+          $wqSeqnoArray = array() ;
+          $nowbParams = $bParams ;
+          $nowbParams['trade_item_seq_no'] =  $vdata['trade_item_seq_no'] ;
+          $nowbParams['apply_item_seq_no'] =  $vdata['seq_no'] ;
+          $tradeSeqNoUrl = _ekptcom_qshfItemTrade( $nowbParams ) ;
+          $d_sdatas = _contents_sendlist_info( $vdata ) ;
+          // 画像生成
+          $img = ''; // 画像を連結していく
+          $i =  0; // 表示制限の為のincrement変数
+          $paramListin = array('seq_no' => $vdata['seq_no']) ;
+          $arrdata2 = ekpt_trade_get_json('get_apply_item_byseq', $paramListin);
+          $basedata = $arrdata2['apply_item_list'];
+          $itemdetails = $arrdata2['apply_item_detail_list'];
+          foreach ( $itemdetails as $itemdetail ) {
+              $wqSeqnoArray[] = $itemdetail['mem_item_own_seq_no'];			
+          }
+          //
+          $ownitems = array() ;
+          foreach ($wqSeqnoArray as $seq_no2) {
+              $paramInOwn = array( 'seq_no' => $seq_no2 );
+              $arrdata3 = ekpt_get_json('get_memitemown_by_seqno', $paramInOwn);
+              $ownitems[] = $arrdata3['memitemown'][0];
+          }
+          //
+           $count = count($ownitems) ;
+          foreach ($ownitems as $item) {
+              $img .= '<img class="alignnone size-thumbnail wp-image-136" width="45px" height="45px"';
+              $img .= ' title="' . $item['image_url01'] . '"';
+              $img .= ' style="margin: auto 5px;"';
+              $img .= ' src="' . $baseurl . EKPTDEF_IMAGEHOME . $item['image_url01'] . '"';
+              $img .= ' alt="'.$item['item_title'] . '" />';
+
+              $i++; // 表示制限
+              if ($i >= 3) {
+                  if ( $i == 3 ) {
+                     if ( $count > 3 ) {
+                        $img .= '<span style="color: #999;">+' . ($count - 3) . '個</span>';                        
+                     }
+                     break;                     
+                  }
+              }
+          }
+          $html .= '<ul class="list-items" style="height:160px;">' ;
+          $html .= '<li class="list-two" style="height:100%;"><div class="list-two-outer" style="height:100%;">' ;
+          $html .= '<div class="list-two-left" style="height:100%;">'; 
+          $html .= $d_sdatas['mem_data']['image'];
+          $html .= '</div>';
+          //
+         $html .= '<div class="list-two-right" style="font-size:80%; height:100%;">';
+         $html .= '<span style="color:red; height:100%;">出品番号:'. $d_sdatas['seq_no'] . ' あなたが交換申請中</span> <br>申請日：' . $d_sdatas['created'] . '<br>' . $img ;
+         $html .= '<br>' . htmlspecialchars($d_sdatas['trade_desc'], ENT_QUOTES) ;
+         $html .= '<a href="' . esc_html($baseurl.$type.$ownlistapply.'/'.$tradeSeqNoUrl) . '">詳細を見る></a>' ;
+         //
+         $html .= '</div>';
+         $html .= '</div></li></ul>' ;
+      }
+    } else {
+       // 出品関係一覧
+      foreach ($vdatas as $vdata) {
+          // レンダリング
+          $wqSeqnoArray = array() ;
+          $nowbParams = $bParams ;
+          $nowbParams['trade_item_seq_no'] =  $vdata['seq_no'] ;
+          $tradeSeqNoUrl = _ekptcom_qshfItemTrade( $nowbParams ) ;
+          $d_sdatas = _contents_sendlist_info( $vdata ) ;
+          // 画像生成
+          $img = ''; // 画像を連結していく
+          $i =  0; // 表示制限の為のincrement変数
+          $paramListin = array('seq_no' => $vdata['seq_no']) ;
+          $arrdata2 = ekpt_trade_get_json('get_trade_item_byseq', $paramListin);
+          $basedata = $arrdata2['trade_item_list'];
+          $itemdetails = $arrdata2['trade_item_detail_list'];
+          foreach ( $itemdetails as $itemdetail ) {
+              $wqSeqnoArray[] = $itemdetail['mem_item_own_seq_no'];			
+          }
+          //
+          $ownitems = array() ;
+          foreach ($wqSeqnoArray as $seq_no2) {
+              $paramInOwn = array( 'seq_no' => $seq_no2 );
+              $arrdata3 = ekpt_get_json('get_memitemown_by_seqno', $paramInOwn);
+              $ownitems[] = $arrdata3['memitemown'][0];
+          }
+          //
+          $count = count($ownitems) ;
+          foreach ($ownitems as $item) {
+              $img .= '<img class="alignnone size-thumbnail wp-image-136" width="45px" height="45px"';
+              $img .= ' title="' . $item['image_url01'] . '"';
+              $img .= ' style="margin: auto 5px;"';
+              $img .= ' src="' . $baseurl . EKPTDEF_IMAGEHOME . $item['image_url01'] . '"';
+              $img .= ' alt="'.$item['item_title'] . '" />';
+              $i++; // 表示制限
+              if ($i >= 3) {
+                  if ( $i == 3 ) {
+                     if ( $count > 3 ) {
+                        $img .= '<span style="color: #999;">+' . ($count - 3) . '個</span>';                        
+                     }
+                     break;                     
+                  }
+              }
+          }
+          //
+          $html .= '<ul class="list-items" style="height:160px;">' ;
+          $html .= '<li class="list-two" style="height:100%;"><div class="list-two-outer" style="height:100%;">' ;
+          $html .= '<div class="list-two-left" style="height:100%;">'; 
+          $html .= $d_sdatas['mem_data']['image'];
+          $html .= '</div>';
+          $html .= '<div class="list-two-right" style="font-size:90%; height:100%;">';
+          if ( $trade_type == 'market' ) {
+              $html .= '出品番号:'. $d_sdatas['seq_no'] . ' 出品者：'.htmlspecialchars($d_sdatas['mem_data']['nickname'],ENT_QUOTES).'さん<br>出品日：' . $d_sdatas['created'] . '<br>' . $img ;
+              $html .= '<br><span style="font-size:90%;">' .htmlspecialchars($d_sdatas['trade_desc'], ENT_QUOTES) . '</span>';
+              $html .= '<a href="' . esc_html($baseurl.$type.$ownlist.'/'.$tradeSeqNoUrl) . '">詳細を見る></a>' ;
+          } else if ( $trade_type == 'own' ) {
+              $html .= '<span style="color:red; font-size:90%;">出品番号:'. $d_sdatas['seq_no'] . ' あなたが出品</span> <br>出品日：' . $d_sdatas['created'] . '<br>' . $img ;
+              $html .= '<br><span style="font-size:90%;">' . htmlspecialchars($d_sdatas['trade_desc'], ENT_QUOTES) . '</span>' ;
+              $html .= '<a href="' . esc_html($baseurl.$type.$ownlist.'/'.$tradeSeqNoUrl) . '">詳細を見る></a>' ;
+          }
+          $html .= '</div>';
+          $html .= '</div></li></ul>' ;
+      }
+      $html .= $submit;       
+    }
+    $html .= '<div class="clear"></div>';
+	// Pager
+	if ( $offset == 0 and count($vdatas) == 0 ) {
+		if ( $trade_type == 'market' ) {
+			$html .= do_shortcode('[callout]現在、交換所に出品が、ありません。[/callout]') ;
+		} else if ( $trade_type == 'own' ) {
+			$html .= do_shortcode('[callout]現在、自分が出品しているものは、ありません。[/callout]') ;
+		} else if ( $trade_type == 'apply' ) {
+			$html .= do_shortcode('[callout]現在、自分が交換申請しているものは、ありません。[/callout]') ;
+		}
+	} else {
+         if ( $html_pager <> '' ) {
+            $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+         } 
+		// $html .= '<div class="clear"></div>';
+	}
+
+	return $html;
+}
+function ekptcom_change_contents_trade($atts = array()) {
+	//
+	// Get paramaters.
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$pageUrl = get_page_uri($post->ID) ;
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	$gid = $_REQUEST['tid']; // ディフォルト=0
+	// 表示対象制御
+	$tradeType = 'market' ; // =base =sozai =coupon
+	$reqTradetype = $_REQUEST['tradetype'];
+	$button_color_market = $button_color_own = $button_color_apply = 'red' ;
+	if (strlen($reqTradetype) <> 0) {
+		if ( $reqTradetype == 'market' ) {
+			$tradeType  = 'market' ;
+			$button_color_market = 'white' ;
+		} else if ( $reqTradetype == 'own' ) {
+			$tradeType = 'own' ;
+			$button_color_own = 'white' ;
+		} else if ( $reqTradetype == 'apply' ) {
+			$tradeType = 'apply' ;
+			$button_color_apply = 'white' ;
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqTradetype ;
+			return $html ;
+		}
+	} else {
+		$tradeType  = 'market' ;
+		$button_color_market = 'white' ;
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$marketbParams = $ownbParams = $applybParams = $bParams ;
+	$marketbParams['tradetype'] = 'market' ;
+    $marketbParams['recOffsetTrade'] = 0 ; 
+    $marketbParams['recOffsetApply'] = 0 ; 
+	$ownbParams['tradetype'] = 'own' ;
+    $ownbParams['recOffsetTrade'] = 0 ; 
+    $ownbParams['recOffsetApply'] = 0 ; 
+	$applybParams['tradetype'] = 'apply' ;
+    $applybParams['recOffsetTrade'] = 0 ; 
+    $applybParams['recOffsetApply'] = 0 ; 
+    // 種別切替部
+	$linkPage = $baseurl . $pageUrl;
+	$linkMarket = esc_html($linkPage._ekptcom_qshfItemTrade($marketbParams)) ;
+	$linkOwn = esc_html($linkPage._ekptcom_qshfItemTrade($ownbParams)) ;
+	$linkApply = esc_html($linkPage._ekptcom_qshfItemTrade($applybParams)) ;
+	//
+    $type     = 'homeitemtrade';
+	$list     = '/sendlist';
+	// 各種変数を初期化
+	$html .= do_shortcode('[callout][button align="center" color="lightgreen" link="' . esc_html($baseurl.$type.$list.ekpt_get_link_param()) . '"]アイテムを交換所に出品する[/button][/callout]');
+    // 出力部
+	$html_sc .= '<div class="hbtn">' ;
+	$html_sc .= '<div class="hbtn-inner">' ;
+    $html_sc .= '[button align="center" color="' . $button_color_market . '" size="medium" link="'.$linkMarket.'&'.'"]交換可能リスト[/button]';
+	$html_sc .= '[button align="center" color="' . $button_color_own . '" size="medium" link="'.$linkOwn.'"]自分の出品[/button]';
+	$html_sc .= '[button align="center" color="' . $button_color_apply . '" size="medium" link="'.$linkApply.'"]自分が交換申請[/button]';
+    $html_sc .= '<div class="clear"></div>' ;
+	$html_sc .= '</div>' ;
+	$html_sc .= '</div>' ;
+	$html .= do_shortcode($html_sc) ;
+	if ( $tradeType == 'market' ) {
+		$buf .= '[ekptcom_contents_trade_item_box limit=10 tid=0 cid=0 tradetype="market"]';
+	} else if  ( $tradeType == 'own' ) {
+		$buf .= '[ekptcom_contents_trade_item_box limit=10 tid=0 cid=1 tradetype="own"]';
+	} else if  ( $tradeType == 'apply' ) {
+		$buf .= '[ekptcom_contents_trade_item_box limit=10 tid=0 cid=1 tradetype="apply"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+function _ekptcom_returnItemTrade() {
+	$bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'] ;
+	$qs = _ekptcom_qsItemFusion( $bParams ) ;
+	$html_sc = '';
+	$html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+	$html_sc .= '[button align="center" color="white" size="large" link="'.$bParams['base_url'].$bParams['home_url'].$qs.'"]アイテム交換所ホームに戻る[/button]' ;
+	$html_sc .= '<div class="clear"></div>' ;
+	$html_sc .= '</div></div>' ;
+	$html .= do_shortcode($html_sc) ;
+	return $html ;
+}
+
+// 内部関数：　homeitemfusion 用： http用クエリ文字列を作る
+function _ekptcom_qshfItemTrade( $bParams, $mktype = 0 ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_ITEMTRADE'] ; }
+	$qs = '' ;
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	if ( $mktype == 1 ) {
+		foreach ( $bParams as $vk => $vv ) {
+			$qs .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	} else {
+		$qs = '?' . http_build_query($bParams) ;
+	}
+	return $qs ;
+}
+// 内部関数：　homeitemfusion 用： パラメタを定義
+function _ekptcom_paramItemTrade() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'tradetype' => 'market' ,
+						'tradetypeK' => '出品' ,
+						'subtypeK' => 'ヘッド' ,
+						'maintype' => 'base' ,
+						'subtype' => 'head' ,
+						'maintypeK' => 'ベース' ,
+						'subtypeK' => 'ヘッド' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffsetTrade' => 0,
+						'recOffsetItem' => 0,
+						'recOffsetApply' => 0,
+						'recLimit' => 10,
+						'recTotal' => 0,
+						'trade_apply_reply' => 'yes',
+						'trade_item_seq_no' => 0,
+						'trade_item_d_seq_nos' => '',
+						'new_trade_item_d_seq_no' => 0,
+						'del_trade_item_d_seq_no' => 0,
+						'apply_item_seq_no' => 0,
+						'apply_item_d_seq_nos' => '',
+						'new_apply_item_d_seq_no' => 0,
+						'del_apply_item_d_seq_no' => 0,
+						'comp_type' => 1,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeitemtrade/',
+						'current_uri' => 'homeitemtrade/'// get_page_uri()
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_ITEMTRADE']) ? $GLOBALS['EKPT_PARAM_ITEMTRADE'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffsetTrade'] = isset($_REQUEST['recOffsetTrade']) ? $_REQUEST['recOffsetTrade'] : $bParams['recOffsetTrade'];	
+	$bParams['recOffsetItem'] = isset($_REQUEST['recOffsetItem']) ? $_REQUEST['recOffsetItem'] : $bParams['recOffsetItem'];	
+	$bParams['recOffsetApply'] = isset($_REQUEST['recOffsetApply']) ? $_REQUEST['recOffsetApply'] : $bParams['recOffsetApply'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	//
+	$bParams['trade_apply_reply'] = isset($_REQUEST['trade_apply_reply']) ? $_REQUEST['trade_apply_reply'] : $bParams['trade_apply_reply'];
+	$bParams['trade_item_seq_no'] = isset($_REQUEST['trade_item_seq_no']) ? $_REQUEST['trade_item_seq_no'] : $bParams['trade_item_seq_no'];
+	$bParams['trade_item_d_seq_nos'] = isset($_REQUEST['trade_item_d_seq_nos']) ? $_REQUEST['trade_item_d_seq_nos'] : $bParams['trade_item_d_seq_nos'];
+	$bParams['new_trade_item_d_seq_no'] = isset($_REQUEST['new_trade_item_d_seq_no']) ? $_REQUEST['new_trade_item_d_seq_no'] : $bParams['new_trade_item_d_seq_no'];
+	$bParams['del_trade_item_d_seq_no'] = isset($_REQUEST['del_trade_item_d_seq_no']) ? $_REQUEST['del_trade_item_d_seq_no'] : $bParams['del_trade_item_d_seq_no'];
+	$bParams['apply_item_seq_no'] = isset($_REQUEST['apply_item_seq_no']) ? $_REQUEST['apply_item_seq_no'] : $bParams['apply_item_seq_no'];
+	$bParams['apply_item_d_seq_nos'] = isset($_REQUEST['apply_item_d_seq_nos']) ? $_REQUEST['apply_item_d_seq_nos'] : $bParams['apply_item_d_seq_nos'];
+	$bParams['new_apply_item_d_seq_no'] = isset($_REQUEST['new_apply_item_d_seq_no']) ? $_REQUEST['new_apply_item_d_seq_no'] : $bParams['new_apply_item_d_seq_no'];
+	$bParams['del_apply_item_d_seq_no'] = isset($_REQUEST['del_apply_item_d_seq_no']) ? $_REQUEST['del_apply_item_d_seq_no'] : $bParams['del_apply_item_d_seq_no'];
+	// 条件による設定の場合
+	if ( isset($_REQUEST['tradetype']) ) {
+		$bParams['tradetype'] = $_REQUEST['tradetype'] ;
+		if ( $bParams['tradetype'] == 'market' ) {
+			$bParams['tradetypeK'] = '交換所' ;
+		} else if ( $bParams['tradetype'] == 'own' ) {
+			$bParams['tradetypeK'] = '自分' ;
+		} else if ( $bParams['tradetype'] == 'apply' ) {
+			$bParams['tradetypeK'] = '交換申請' ;
+		} else {
+			$bParams['tradetype'] = 'market';
+			trigger_error('_ekptcom_paramItemTrade:Invalid tradetype = '. $_REQUEST['tradetype'], E_USER_ERROR);
+		}
+	}
+	// 条件による設定の場合
+	if ( isset($_REQUEST['maintype']) ) {
+		$bParams['maintype'] = $_REQUEST['maintype'] ;
+		if ( $bParams['maintype'] == 'base' ) {
+			$bParams['maintypeK'] = 'ベース' ;
+		} else if ( $bParams['maintype'] == 'sozai' ) {
+			$bParams['maintypeK'] = '素材' ;
+		} else if ( $bParams['maintype'] == 'coupon' ) {
+			$bParams['maintypeK'] = 'クーポン' ;
+		} else {
+			$bParams['maintype'] = 'base';
+			trigger_error('_ekptcom_paramItemTrade:Invalid maintype = '. $_REQUEST['maintype'], E_USER_ERROR);
+		}
+	}
+	// 条件による設定の場合
+	if ( isset($_REQUEST['subtype']) ) {
+		$bParams['subtype'] = $_REQUEST['subtype'] ;
+		if ( $bParams['subtype'] == 'head' ) {
+			$bParams['subtypeK'] = 'ヘッド' ;
+		} else if ( $bParams['subtype'] == 'body' ) {
+			$bParams['subtypeK'] = 'ボディ' ;
+		} else if ( $bParams['subtype'] == 'leg' ) {
+			$bParams['subtypeK'] = 'レッグ' ;
+		} else if ( $bParams['subtype'] == 'acc' ) {
+			$bParams['subtypeK'] = 'アクセサリ' ;
+		} else {
+			$bParams['mainType'] = 'base';
+			trigger_error('_ekptcom_paramItemTrade:Invalid subtype = '.$bParams['subtype'], E_USER_ERROR);
+		}
+	}
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_ITEMTRADE'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+function _ekptcom_paramItemTradeInit() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'tradetype' => 'market' ,
+						'tradetypeK' => '出品' ,
+						'subtypeK' => 'ヘッド' ,
+						'maintype' => 'base' ,
+						'subtype' => 'head' ,
+						'maintypeK' => 'ベース' ,
+						'subtypeK' => 'ヘッド' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffsetTrade' => 0,
+						'recOffsetItem' => 0,
+						'recLimit' => 10,
+						'recTotal' => 0,
+						'trade_apply_reply' => 'yes',
+						'trade_item_seq_no' => 0,
+						'trade_item_d_seq_nos' => '',
+						'new_trade_item_d_seq_no' => 0,
+						'del_trade_item_d_seq_no' => 0,
+						'apply_item_seq_no' => 0,
+						'apply_item_d_seq_nos' => '',
+						'new_apply_item_d_seq_no' => 0,
+						'del_apply_item_d_seq_no' => 0,
+						'comp_type' => 1,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeitemtrade/',
+						'current_uri' => get_page_uri()
+						) ;
+	// 現在のデータを設定
+	$GLOBALS['EKPT_PARAM_ITEMTRADE'] = $bParams ;
+	return $bParams ;
+}
+
+function ekpti2_GetUserId() {
+	// ユーザーID取得
+	$user = wp_get_current_user();
+	return $user->ID ;
+}
+
+function ekpti2_GetLink( $urldef = '', $param = '', $desc = '' ) {
+	// ユーザーID取得
+	$goto = '' ;
+	$goto .= $urldef ;
+	if ( $desc === '' ) { $desc = 'こちら' ; } ;
+	if ( $param <> '' ) { $goto .= '?' . $param ; } ;
+	return '<a href="' . $goto . '">' . $desc . '</a>' ;
+}
+?>

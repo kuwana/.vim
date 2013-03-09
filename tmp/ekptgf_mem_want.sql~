@@ -1,0 +1,11 @@
+-- ほしいものリスト
+
+create table ekptgf_mem_item_want (
+	seq_no int(11) unsigned primary key auto_increment,
+	mem_id mediumint(8) unsigned,
+	item_id smallint(5) unsigned,
+	created datetime,
+	modified datetime,
+	comment varchar(256),
+	status varchar(1) default 'U' comment 'U: 有効 D: 無効'
+)

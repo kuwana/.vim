@@ -1,0 +1,780 @@
+<?php
+
+require_once 'ekpt-setting.php' ;
+
+// 設定 稼働時には適切なものにする必要があります。
+function ekpt_get_opt( $optLabel ) {
+    $optValue = '' ;
+    if ( $optLabel == 'EKPTHOME' ) {
+        $optValue = EKPTDEF_HOME ;
+    } elseif ( $optLabel == 'EKPTHOMEAPICHECKTOKEN' ) {
+        $optValue = EKPTDEF_HOMEAPICHECKTOKEN ;
+    } elseif ( $optLabel == 'EKPTGFHOME' ) {
+        $optValue = home_url(EKPTDEF_GFHOME) ;
+    } elseif ( $optLabel == 'EKPTAPI') {
+        $optValue = home_url(EKPTDEF_API) ;
+    } elseif ( $optLabel == 'EKPTAPITRADE') {
+        $optValue = home_url(EKPTDEF_TRADEAPI) ;
+    } elseif ( $optLabel == 'EKPTGFAPI') {
+        $optValue = EKPTDEF_GFAPI;
+    } elseif ( $optLabel == 'EKPTUSER') {
+        get_currentuserinfo() ;
+        $optValue = $GLOBALS['ekpt_mem_id'] ;
+        if ( $optValue == '' ) {
+            $optValue = EKPTDEF_USER;
+        }
+    }
+	// echo '<br>' . $optLabel . '=' . $optValue ;
+    return $optValue ;
+}
+
+function ekpt_get_itemup( $merit_id, $up_power, $up_multi ) {
+	
+	//
+	$ret = '' ;
+    // echo $up_multi ;
+	if ( $merit_id == 1 ) {
+//		if ( (int)$up_multi == 0 ) {
+//			$ret .= '';
+//		} else {
+//			$dataInt = (int)$up_multi ;
+//			$ret .= '×'.$dataInt.'倍' ;
+//		}	
+		if ( $up_power == 0 ) {
+			$ret .= '＋無';
+		} else {
+			$ret .= '＋'.$up_power ;
+		}
+	} else if ($merit_id == 2 ) {
+		// $ret .= 'ガチャチケ' ;
+		if ( $up_power == 0 ) {
+			$ret .= ' ＋無';
+		} else {
+			$dataInt = (int)$up_power ;
+			$ret .= ' ＋'.$dataInt.'個' ;
+		}	
+	} else if ( $merit_id == 3 ) {
+		// $ret .= 'チケット' ;
+		if ( $up_power == 0 ) {
+			$ret .= ' ＋無';
+		} else {
+			$dataInt = (int)$up_power ;
+			$ret .= ' ＋'.$dataInt.'個' ;
+		}	
+	}
+	return $ret ;
+}
+
+function ekpt_get_merit( $merit_id ) {
+	
+	//
+	$ret = '' ;
+	if ( $merit_id == 1 ) {
+		$ret .= '経験値' ;
+	} else if ($merit_id == 2 ) {
+		$ret .= 'ガチャチケ' ;
+	} else if ( $merit_id == 3 ) {
+		$ret .= 'チケット' ;
+	}
+	return $ret ;
+}
+
+function ekpt_get_item_title( $item_title ) {
+	
+	//
+	$ret = $item_title ;
+	$item_title_array = explode( '-', $item_title );
+	if ( count($item_title_array) == 3 ) {
+		$ret = $item_title_array[0] . '-' . $item_title_array[1] ;
+	}
+	return $ret ;
+}
+
+function ekpt_get_item_status( $status ) {
+	
+	//
+	$ret = '' ;
+	if ( $status == 'U' ) {
+		$ret .= '通常' ;
+	} else if ($status == 'E' ) {
+		$ret .= '装備' ;
+	} else if ($status == 'D' ) {
+		$ret .= '交換削除' ;
+	} else if ($status == 'C' ) {
+		$ret .= '合成済' ;
+	} else if ($status == 'T' ) {
+		$ret .= '出品申請' ;
+	} else if ($status == 'A' ) {
+		$ret .= '交換申請' ;
+	}
+	return $ret ;
+}
+
+function ekpt_get_item_status_comp( $status ) {
+	
+	//
+	$ret = '' ;
+	if ( $status == 'U' ) {
+		$ret .= '装備無' ;
+	} else if ($status == 'E' ) {
+		$ret .= '<span style="color:red">装備中</span>' ;
+	} else if ($status == 'D' ) {
+		$ret .= '交換削除' ;
+	} else if ($status == 'C' ) {
+		$ret .= '合成済' ;
+	} else if ($status == 'T' ) {
+		$ret .= '<span style="color:orange">出品中</span>' ;
+	} else if ($status == 'A' ) {
+		$ret .= '<span style="color:blue">交換中</span>' ;
+	}
+	return $ret ;
+}
+
+function ekpt_get_trade_status( $status ) {
+	
+	//
+	$ret = '' ;
+	if ( $status == 'A' ) {
+		$ret .= '申請完了' ;
+	} else if ($status == 'a' ) {
+		$ret .= '申請中' ;
+	} else if ($status == 'C' ) {
+		$ret .= 'ｷｬﾝｾﾙ' ;
+	} else if ($status == 's' ) {
+		$ret .= '出品中' ;
+	} else if ($status == 'S' ) {
+		$ret .= '出品完了' ;
+	}
+	return $ret ;
+}
+
+function ekpt_get_link_param( $params = array() ) {
+	
+	// ディフォルトセット
+	$retstr = '?token='.$GLOBALS['ekpt_token'] ;
+	foreach ( $params as $key => $value ) {
+		$retstr .= '&' . $key . '=' . $value ;
+	}
+	return $retstr ;
+}
+
+function ekpt_get_mem_infos( $members ) {
+	//
+	$memDisplays = array() ;
+    // APIから情報を取得
+	$token = $GLOBALS['ekpt_token'] ;
+    //
+	if ( $token <> '' ) {
+		$param = array( 
+						"token" => $token, 
+						"members" => $members
+						) ;
+		// if ( WP_DEBUG ) print_r($param) ;
+		$ret = ekpt_istown_login('',$param) ;
+        print_r($ret) ;
+		$ret_members = $ret['members'] ;
+        $memDisplay = array() ;
+        foreach ( $ret_members as $ret_member ) {
+            $memDisplay['mem_id'] = $ret_members['mem_id'] ;
+            $memDisplay['nickname'] = $ret_members['nickname'] ;
+            if ( trim($memDisplay['nickname']) == '' ) {
+                $memDisplay['nickname'] = '未設定…';
+            }
+            $memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
+            if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
+                $memDisplay['image'] = '<span">未設定</span>' ;
+            }
+            $memDisplays[] = $memDisplay ;
+        }
+        // print_r($members);
+        // print_r($memDisplays);
+	}
+	// イメージ取得
+	return $memDisplays ;
+}
+
+function ekpt_get_mem_info( $mem_id ) {
+	//
+	$memDisplay = array (
+							'mem_id' => $mem_id,
+							'nickname' => '',
+							'image' => '',
+							'dummy' => 0							
+						) ;
+	// APIから情報を取得
+	$token = $GLOBALS['ekpt_token'] ;
+	$members = $mem_id ;
+	if ( $token <> '' ) {
+		$param = array( 
+						"token" => $token, 
+						"members" => $members
+						) ;
+		// if ( WP_DEBUG ) print_r($param) ;
+         $ret = ekpt_istown_login('',$param) ;
+		$ret_members = $ret['members'][0] ;
+		$memDisplay['mem_id'] = $ret_members['mem_id'] ;
+		$memDisplay['nickname'] = $ret_members['nickname'] ;
+		if ( trim($memDisplay['nickname']) == '' ) {
+			$memDisplay['nickname'] = '未設定…';
+		}
+		$memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
+		if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
+			$memDisplay['image'] = '<span">未設定</span>' ;
+		}
+	}
+	// イメージ取得
+	return $memDisplay ;
+}
+
+function ekpt_get_mem_imagepath( $imagePath ) {
+	return str_replace('/cache','http://town.ekupo.jp/cache',$imagePath) ;
+}
+
+// 合成時のベースアイテムの必要チケット数を求める
+function ekpt_get_item_comp_ticket_count( $rare_label, $level_num ) {
+   
+   if ( $rare_label == 'N') {
+      $ret_num = 1 ;
+   } else if ( $rare_label == 'N+') {
+      $ret_num = 4 ;
+   } else if ( $rare_label == 'R') {
+      $ret_num = 6 ;      
+   } else if ( $rare_label == 'R+') {
+      $ret_num = 8 ;
+   } else if ( $rare_label == 'SR') {
+      $ret_num = 12 ;
+   } else if ( $rare_label == 'SR+') {
+      $ret_num = 16 ;
+   } else {
+      trigger_error('ekpt_get_item_comp_ticket_count:Invalid product_info = '. $rare_label, E_USER_ERROR);
+   }
+   $ret_num = $ret_num * $level_num ;
+   return $ret_num;
+}
+
+
+function ekpt_get_item_info( $item ) {
+	//
+	$baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$imgurl .= $baseurl.EKPTDEF_IMAGEHOME; // wp-content/uploads/ekpt/itemimages/ 
+	// 設定データ
+	$itemDisplay = array (
+							'type_label' => '',
+							'category_label' => '',
+							'style_label' => '',
+							'rare_label' => '',
+							'type_label' => '',
+							'status' => '',
+							'display_status' => '',
+							'item_title' => '',
+							'display_item_title' => '',
+							'equip_cost' => 0,
+							'level' => 0,
+							'merit_id' => 0,
+							'disply_comp_status' => '',
+							'disply_merit_id' => '',
+							'level' => 0,
+							'up_power' => 0,
+							'up_multi' => 0,
+							'display_up' => '',
+							'image_url01' => '',
+							'display_image_url01' => '',
+							'item_level' => 0,
+							'item_cost' => 0,
+							'item_num' => 0,
+							'item_desc' => '',
+							'created' => '',
+							'dummy' => 0							
+						);
+	
+	if ( count($item) > 0 ) {
+		// 基本設定
+		$itemDisplay['type_label'] = $item['type_label'] ;
+		$itemDisplay['category_label'] = $item['category_label'] ;
+		$itemDisplay['style_label'] = $item['style_label'] ;
+		$itemDisplay['rare_label'] = $item['rare_label'] ;
+		$itemDisplay['type_label'] = $item['type_label'] ;
+		$itemDisplay['merit_id'] = $item['merit_id'] ;
+		$itemDisplay['status'] = $item['status'] ;
+		$itemDisplay['item_level'] = $item['item_level'] ;
+		$itemDisplay['image_url01'] = $item['image_url01'] ;
+		$itemDisplay['initial_level'] = $item['initial_level'] ;
+		$itemDisplay['up_power'] = $item['up_power'] ;
+		$itemDisplay['up_multi'] = $item['up_multi'] ;
+		$itemDisplay['item_level'] = $item['item_level'] ;
+		$itemDisplay['item_cost'] = $item['item_cost'] ;
+		$itemDisplay['item_num'] = $item['item_num'] ;
+		$itemDisplay['item_desc'] = $item['item_desc'] ;
+		$itemDisplay['max_level'] = $item['max_level'] ;
+		$itemDisplay['created'] = $item['created'] ;
+		// 各種変換が必要となる処理
+		$itemDisplay['display_status'] = ekpt_get_item_status($item['status']) ;
+		$itemDisplay['display_item_title'] = ekpt_get_item_title($item['item_title']) ;
+		$itemDisplay['display_up'] = ekpt_get_itemup($item['merit_id'], $item['up_power'],$item['up_multi']) ;
+		$itemDisplay['disply_merit_id'] = ekpt_get_merit($item['merit_id']) ;
+		$itemDisplay['disply_comp_status'] = ekpt_get_item_status_comp($item['status']) ;
+		$itemDisplay['display_image_url01'] = $imgurl.$item['image_url01'] ;
+	}
+	//
+	return $itemDisplay ;
+}
+
+// $vdata = 元
+// $displayvdata = ekpt_get_item_infoの出力
+function ekpt_get_item_display_html( $vdata, $displayvdata ) {
+      //]
+      $font = " font-size;80%;";
+      $html = '' ;
+      $html .= '<li>'.$displayvdata['display_item_title'].$displayvdata['rare_label'].'</li>' ;
+      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
+         $html .= '<li style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;   
+      } else {
+         $html .= '<li style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;               
+      }
+      $html .= '<li style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</li>' ;
+      if ( $vdata['status'] <> 'E' ) {
+         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</li>' ;         
+      } else {
+         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</li>' ;
+      }
+      return $html ;
+}
+/**
+ * 交換の表出力用（中段）
+ * Table版
+ */
+function ekpt_get_item_display_html2( $vdata, $displayvdata ) {
+      //]
+      $font = " font-size;80%;";
+      $html = '' ;
+	  $html .= '<td>';
+      $html .= $displayvdata['display_item_title'].$displayvdata['rare_label'];
+      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
+         $html .= '<span style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</span><br>';
+      } else {
+         $html .= '<span style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</span><br>';
+      }
+      $html .= '<span style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</span><br>.';
+      if ( $vdata['status'] <> 'E' ) {
+         $html .= '<span style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</span><br>';
+      } else {
+         $html .= '<span style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</span><br>' ;
+      }
+	  $html .= '</td>';
+      return $html ;
+}
+function ekpt_get_item_detail_display_html( $vdata, $displayvdata , $desc_text = '' ) {
+        //
+        if ( $desc_text == '' ) {
+            $desc_text = isset($vdata['item_desc']) ? $vdata['item_desc'] : '未設定' ;
+        }
+
+        if ( $vdata['type_label'] == "ベース" ) {
+            $html .= '<div class="bg-green">' ;
+            $html .= '<p class="label">'. $displayvdata['display_item_title'] .'</p>' ;
+            $html .= '<p class="desc">Lv <span>'.$displayvdata['item_level'].'/'.$displayvdata['max_level'].'</span> 必要コスト:<span>'.$displayvdata['item_cost'] .'</span></p>' ;
+            $html .= '<img style="width:120px; height:120px;" src="'. $displayvdata['display_image_url01'] .'" alt="'. $displayvdata['display_item_title'] .'" />' ;
+            $html .= '<p class="exp">'.$displayvdata['disply_merit_id'].'GET力:'.$displayvdata['display_up'].'</span></p>';
+            $html .= '<p class="ticket">取引枚数:<span>未設定</span></p>';
+            $html .= '<p class="effect">'.$desc_text.'</p>';
+            $html .= '</div>';           
+        } else {
+            // print_r($vdata);
+            $html .= '<div class="bg-green">' ;
+            $html .= '<p class="label">'. $vdata['item_title'] .'</p>' ;
+            $html .= '<img style="width:120px; height:120px;" src="'. $displayvdata['display_image_url01'] .'" alt="'. $vdata['item_title'] .'" />' ;
+            $html .= '<p class="effect">'.$desc_text.'</p>';
+            $html .= '</div>';
+        }
+        return $html ;
+}
+// $vdata = 元
+// $displayvdata = ekpt_get_item_infoの出力
+function ekpt_get_trade_display_html( $vdata, $displayvdata ) {
+      //]
+      $font = " font-size;80%;";
+      $html = '' ;
+      $html .= '<li>'.$displayvdata['display_item_title'].$displayvdata['rare_label'].'</li>' ;
+      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
+         $html .= '<li style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;   
+      } else {
+         $html .= '<li style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;               
+      }
+      $html .= '<li style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</li>' ;
+      if ( $vdata['status'] <> 'E' ) {
+         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</li>' ;         
+      } else {
+         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</li>' ;
+      }
+      return $html ;
+}
+        
+/**
+ * リクエストデータ取得
+ */
+function req($key) {
+    return(isset($_REQUEST[$key]) ? $_REQUEST[$key] : '');
+}
+
+function ekpt_istown_login( $urldef = '', $param = array(),  $base_url = '' ) {
+
+    if ( $base_url == '' ) {
+        $base_url = ekpt_get_opt('EKPTHOMEAPICHECKTOKEN') ;
+    }
+    
+    $search_url = $base_url . $urldef . "/";
+    $retdata = array() ;
+    //apiから検索結果をjsonでもらう
+    $timeout = 30;
+    ekpt_log_message($search_url) ;
+    // if ( WP_DEBUG ) print_r($param);
+    $ch = curl_init();
+    curl_setopt( $ch, CURLOPT_URL, $search_url );
+    curl_setopt( $ch, CURLOPT_HEADER, false );
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch, CURLOPT_POST, 1);
+    if ( is_array($param) && count($param) > 0) {
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);	
+    }
+    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+    // SSL対応
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
+    //
+    $json = curl_exec( $ch );
+    curl_close( $ch );
+
+    //もらったjsonを連想配列に変換
+    // print_r($param);
+    if ( $json ) {
+        $retdata = json_decode( $json , true );
+    }
+    // print_r($retdata) ;
+    return $retdata ;
+}
+
+function ekpt_login() {
+	//
+	$ok = true ;
+	$token = '' ;
+	$ret = array() ;
+	// 変数初期化
+	$GLOBALS['ekpt_token'] = '' ;
+	$GLOBALS['ekpt_mem_id'] = '' ;
+	$GLOBALS['ekpt_nickname'] = '' ;
+	$GLOBALS['ekpt_image'] = '' ;
+    $GLOBALS['ekpt_token_reply'] = array() ;
+    // REFERチェック
+    $okhosts = array( 'town-pc.ekupo.jp', 'cms04.ekupo.jp', 'mktg.ekupo.jp','town.ekupo.jp','wp04.ekupo.jp', 'wp04.ekupo.biz', 'tutorial.ekupo.jp','town-pc.ekupo.jp' ) ;
+    // セキュリティ対策
+//    // このページは直接呼び出されない
+//    if (isset($_SERVER["HTTP_REFERER"] ) ) {
+//      $ref = parse_url( $_SERVER["HTTP_REFERER"] )  ;      
+//      if ( in_array( $ref['host'], $okhosts ) ) {
+//         $ok = true ;
+//      } else {
+//         $ok = false ;
+//         print_r($ref) ;
+//         exit ;
+//      }
+//    } else {
+//       $ok = false ;
+//    }
+	// ログインチェック
+    if ( isset($_REQUEST['token']) ) {
+		$token = $_REQUEST['token'] ;
+		if ($token == '') {
+			$ok = false ;
+		}
+	} else {
+         $current_page = get_page_uri($post->ID) ;
+         if ( preg_match('/homegiftstock/', $current_page) ) {
+            $token = '444e65d4d68d5b9297c8886f15155b2d' ;
+            $ok = true ;          
+        } else {
+            $ok = false ;
+        }
+ 	}
+	// パラメタ取得
+	if ( $token != '' ) {
+		$param = array( "token" => $token ) ;
+		// if ( WP_DEBUG ) print_r($param) ;
+		$ret = ekpt_istown_login('',$param) ;
+		if ( !isset( $ret['status'] ) || $ret['status'] != 0 ) {
+			$ok = false ;
+		} else {
+			// if ( WP_DEBUG ) print_r($ret) ;
+			$ret_data = $ret['data'] ;
+			$GLOBALS['ekpt_token'] = $token ;
+			$GLOBALS['ekpt_mem_id'] = $ret_data['mem_id'] ;
+			$GLOBALS['ekpt_nickname'] = $ret_data['nickname'] ;
+			$GLOBALS['ekpt_image'] = $ret_data['image'] ;
+            $GLOBALS['ekpt_token_reply'] = $ret_data ;
+		}
+	}
+	return $ok ;
+}
+
+// リダイレクト指定
+function ekpt_redirect_fix(){
+	// if ( WP_DEBUG ) echo 'Caled' ;
+	$redirect_to = ekpt_get_opt('EKPTHOME') ;
+    // wp_safe_redirect($rwdirect_to);
+	header("HTTP/1.1 301 Moved Permanently");
+  	header("Location: ".$redirect_to);
+  	exit();
+}
+
+/* EKPT Start */
+function ekpt_log_message($output, $path = null) {
+    $str = date('y/m/d h:i:s') . ' ' .var_export($output, true);
+    $path = isset($path) ? $path : TEMPLATEPATH . '/ekptlog.txt';
+    $fp = fopen($path, 'a');
+    fwrite($fp, "{$str}\n");
+    fclose($fp);
+    // print_r('OK!'.$path);
+    // print_r($fp);
+}
+
+function ekpt_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
+
+    //twitter apiの検索URL
+    if ( $base_url == '' ) {
+        $base_url = ekpt_get_opt('EKPTAPI') ;
+    }
+    
+    $search_url = $base_url . '' . $urldef . '/';
+    $retdata = array() ;
+
+    //apiから検索結果をjsonでもらう
+    $timeout = 30;
+    ekpt_log_message($search_url) ;
+    // if ( WP_DEBUG ) print_r ($param); 
+    // ekpt_log_message(implode("=",$array));
+    //
+    $ch = curl_init();
+    curl_setopt( $ch, CURLOPT_URL, $search_url );
+    curl_setopt( $ch, CURLOPT_HEADER, false );
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch, CURLOPT_POST, 1);
+    if ( is_array($param) && count($param) > 0) {
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);	
+    }
+    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+    // SSL対応
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
+    $json = curl_exec( $ch );
+    curl_close( $ch );
+    
+    //もらったjsonを連想配列に変換
+//    echo '<br>'.$search_url ;
+//    print_r($param);
+     // print_r($json);
+    if ( $json ) {
+        $retdata = json_decode( $json , true );
+    }
+    return $retdata ;
+
+}
+
+function ekpt_trade_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
+
+    //twitter apiの検索URL
+    if ( $base_url == '' ) {
+        $base_url = ekpt_get_opt('EKPTAPITRADE') ;
+    }
+    $search_url = $base_url . '' . $urldef . '/';
+    $retdata = array() ;
+
+    //apiから検索結果をjsonでもらう
+    $timeout = 30;
+    ekpt_log_message($search_url) ;
+    // if ( WP_DEBUG ) print_r ($param); 
+    // ekpt_log_message(implode("=",$array));
+    //
+    $ch = curl_init();
+    curl_setopt( $ch, CURLOPT_URL, $search_url );
+    curl_setopt( $ch, CURLOPT_HEADER, false );
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch, CURLOPT_POST, 1);
+    if ( is_array($param) && count($param) > 0) {
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);
+    }
+    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+     // SSL対応
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
+    $json = curl_exec( $ch );
+    curl_close( $ch );
+
+    //もらったjsonを連想配列に変換
+    // parr($param);
+    if ( $json ) {
+        $retdata = json_decode( $json , true );
+    }
+    return $retdata ;
+
+}
+
+function ekpt_tf_get_element_hidden( $key, $pvalue, $dtype = 'hidden' ) {
+    $value = $pvalue;
+    return '<input type="' .$dtype. '" name="'.esc_html($key).'" value="'.esc_html($value).'" />';
+}
+
+function ekpt_tf_get_element_disable( $key, $pvalue, $dtype = 'hidden' ) {
+    $value = $pvalue;
+    return '<input type="' .$dtype. '" name="'.esc_html($key).'" value="'.esc_html($value).'" />';
+}
+
+function ekpt_category_title_2_id( $category_title ) {
+
+    $ret_id = 0 ;
+    if ( $category_title == '登録' ) {
+        $ret_id = 1 ;
+    } else if (  $category_title == 'ログイン' ) {
+        $ret_id = 2 ;
+    } else if (  $category_title == 'チェックイン' ) {
+        $ret_id = 3 ;
+    } else if (  $category_title == 'メッセージ' ) {
+        $ret_id = 4 ;
+    } else if (  $category_title == 'レビュー' ) {
+        $ret_id = 5 ;
+    } else if (  $category_title == 'つぶやき' ) {
+        $ret_id = 6 ;
+    } else if (  $category_title == 'Twitter連動' ) {
+        $ret_id = 7 ;
+    } else if (  $category_title == 'Facebook連動' ) {
+        $ret_id = 8 ;
+    } else if (  $category_title == 'プロフィール入力' ) {
+        $ret_id = 9 ;
+    } else if (  $category_title == '友達' ) {
+        $ret_id = 10 ;
+    } else if (  $category_title == 'イイネ！' ) {
+        $ret_id = 11 ;
+    } else if (  $category_title == 'エクポ利用' ) {
+        $ret_id = 12 ;
+    } else if (  $category_title == '会員獲得' ) {
+        $ret_id = 13 ;
+    } else if (  $category_title == 'ＧＰＳ' ) {
+        $ret_id = 14 ;
+    } else if (  $category_title == '投稿' ) {
+        $ret_id = 20 ;
+    }
+    return $ret_id ;
+}
+
+// pager()関数関連の定義
+// ページ情報となる変数名の設定
+// define(PAGE_VALUE , "id");
+// ページをいくつで区切るか？
+// 100件ごとに区切りたいなら100を指定
+// define(PER_PAGE,10);
+// ページメニューの数の幅
+// ページ総数 59 / VIEW_PAGE_MENU_WIDTH = 5の場合
+// 26ページ目を表示しているときは下記のように表示される
+// < 21 22 23 24 25 26 27 28 29 30 31 >
+// 26 の前5つ分(21まで)と後ろ5つ分(31まで）を表示する
+// define(VIEW_PAGE_MENU_WIDTH , 5);
+// 前に戻るときのマーク 「< (&lt;)」とか「前」とか「←」とか指定
+// define(PREV_MARK , "&lt;");
+// 次に行くときのマーク 「< (&gt;)」とか「次」とか「→」とか指定
+// define(NEXT_MARK , "&gt;");
+// pager()関数ここから
+
+function ekpt_pager( $idname, $countRe, $perPage = 0, $viewPageMenuWidth = 0, $offsetKey = '' ) {
+	// 現在のページ情報を取得
+	//
+	// print_r($_GET) ;
+	$id = $_GET[$idname];
+	// ページ数の指定がなければページ数を1にセット
+	if( $id == "" ) $id=1;
+	$prevMark = "前" ;
+	$nextMark = "次" ;
+	if ( $perPage == 0 ) $perPage = 10 ;
+	if ( $viewPageMenuWidth == 0 ) $viewPageMenuWidth = 2 ;
+	if ( $offsetKey == '' ) $offsetKey = "recOffset";
+	// ページ情報以外のパラメータを補完し、$other_paramにセット
+	foreach($_GET as $key => $value){
+		// $idname 以外のGETメソッドのパラメータを $other_param に再構築
+		if ($key != $idname and $key != $offsetKey){
+			// リンクさせるためにurlencodeする.
+			$other_param .= "&".$key."=".urlencode($value);
+		}
+	}
+	// $other_param = urlencode($other_param) ;
+	// 最終ページを計算する
+	// 総Hit数をページング単位で割ると総ページ数が計算される
+	// ページング単位PER_PAGEを10とすると最終ページ数$maxPageは
+	// 総Hit数 / PER_PAGEを切り上げたものとなる。
+	// 検索結果205件 PER_PAGE:10の場合 $maxPage = ceil(205 / 10) = 21
+	$maxPage=ceil($countRe / $perPage);
+	// maxPage=1の場合(PER_PAGEより少ない検索結果)
+	// 選択したページ数(id)よりもmaxPageが小さいときはfalse
+	if( ($maxPage == 1) or ($maxPage < $id) ) return false;
+	// 選択したページ数がVIEW_PAGE_MENU_WIDTHより大きいとき
+	if($id > $viewPageMenuWidth + 1){
+		// スタートページは選択ページからVIEW_PAGE_MENU_WIDTHを
+		// 引いたもの程度出せばよい
+		$startPage = $id - $viewPageMenuWidth;
+		$offSet = ( ($startPage - 1) - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
+		// より小さいもの「 < 」の部分はさらにその$startPageから1を引いたもの
+		$startMore = "<a href=\"$PHP_SELF?".$idname."=".($startPage - 1).$other_param.$offSetParam."\">".$prevMark." </a>";
+	}else{
+		// そうでなければ$startPage=1(一番はじめのページ = 1)になる
+		$startPage = 1;
+	}
+	// 選択したページ数に5を足したものより、更に$maxPage
+	// （最大ページ)が大きければ
+	if($id + $viewPageMenuWidth < $maxPage){
+		// 表示される最終ページは選択したページに
+		// VIEW_PAGE_MENU_WIDTHを足したものになる
+		$endPage = $id + $viewPageMenuWidth;
+		$offSet = ( ($endPage + 1) - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
+		$endMore = "  <a href=\"$PHP_SELF?".$idname."=".($endPage + 1).$other_param.$offSetParam."\"> ".$nextMark."</a>";
+	}else{
+		// そうでなければ、$endPageは最終ページになる
+		$endPage = $maxPage;
+	}
+	// ここまでで、計算されたのは
+	// $id        : 現在選択しているページ番号
+	// $maxPage   : 検索の最終ページ
+	// $startPage : 表示されるはじめのページ
+	// $endPage   : 表示される最後のページ
+	// $page_footer="" として$page_footerを初期化
+	$page_footer="";
+	// $startPage から $endPageまで繰り返し
+	for($i = $startPage ; $i <= $endPage ; $i++){
+		// $i = $idだったら選択されたページなので、fontsizeを大きくする
+		// その際、リンクはなし
+		// そうでなければ、id=$iをリンクにセットする
+		$offSet = ( $i - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
+		$page_footer.= " ".(($id==$i)?"<span style='font-Size:150%; font-weight:bold;'>$i</span>":"<a href=\"$PHP_SELF?$idname=$i$other_param$offSetParam\">$i</a>");
+	}
+	// $startMoreと$endMoreを$page_footerの前後に付け足す
+	$page_footer = 'ﾍﾟｰｼﾞ '.$startMore.$page_footer.$endMore.'';
+	// $page_footerを表示
+	return $page_footer;
+}
+
+/**
+ * デバッグ用関数 by kuwana
+ * == Print Array ==
+ */
+function parr($array, $var_dump = '') {
+	echo '<pre style="white-space: pre;">';
+	echo '==デバッグエリア START==<br>';
+	if ($var_dump == false) {
+		print_r($array);
+	} else {
+		var_dump($array);
+	}
+	echo '<br>==デバッグエリア END==';
+	echo '</pre>';
+}
+
+
+/* EKPT Start */

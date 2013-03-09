@@ -1,0 +1,49 @@
+<?php
+
+class JSON_API_Ekptgfitem {
+  
+  var $item_id;      // Integer
+  var $status;    // String
+  var $item_category_id;     // String
+  var $item_title;    // String
+  var $type_label;    // String
+  var $category_label;    // String
+  var $style_label;    // String
+  var $rare_label;    // String
+  var $color_label;    // String
+  var $merit_id; // String
+  var $base_point;      // Integer
+  var $up_power;      // Integer
+  var $up_multi;      // Integer
+  var $image_url01;    // String
+  
+  function JSON_API_Ekptgfitem($wp_ekptgfitem = null) {
+    if ($wp_ekptgfitem) {
+      $this->import_wp_object($wp_ekptgfitem);
+    }
+  }
+  
+  function import_wp_object($wp_ekptgfitem) {
+    global $json_api;
+    //
+    $date_format = $json_api->query->date_format;
+	//    
+    $this->item_id = (int) $wp_ekptgfitem->item_id;
+    $this->status = $wp_ekptgfitem->status;
+    $this->item_category_id = (int) $wp_ekptgfitem->item_category_id;
+    $this->item_title = $wp_ekptgfitem->item_title;
+    $this->type_label = $wp_ekptgfitem->type_label;
+    $this->category_label = $wp_ekptgfitem->category_label;
+    $this->style_label = $wp_ekptgfitem->style_label;
+    $this->rare_label = $wp_ekptgfitem->rare_label;
+    $this->color_label = $wp_ekptgfitem->color_label;
+    $this->merit_id = (int) $wp_ekptgfitem->merit_id;
+    $this->base_point = (int) $wp_ekptgfitem->base_point;
+    $this->up_power = (int) $wp_ekptgfitem->up_power;
+    $this->up_multi = (int) $wp_ekptgfitem->up_multi;
+    $this->image_url01 = $wp_ekptgfitem->image_url01;
+    //$this->raw = $wp_comment;
+  }
+}
+
+?>

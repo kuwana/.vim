@@ -1,0 +1,53 @@
+<?php
+
+class JidouHanbaiki {
+
+	public $ten;
+	public $handred;
+	public $thausand;
+	public $money;
+
+	public function __construct($money) {
+		$this->money = $money;
+	}
+
+	public function getExchange() {
+
+		$count = 0;
+
+		while ($this->money > 1000) {
+			$this->money = $this->money - 1000;
+			$count++;
+		}
+		$this->thausand = $count;
+
+		while ($this->money > 100) {
+			$this->money = $this->money - 100;
+			$count++;
+		}
+		$this->handred = $count;
+
+		while ($this->money > 10) {
+			$this->money = $this->money - 10;
+			$count++;
+		}
+		$this->ten = $count;
+	}
+
+	public function getTen() {
+		return $this->ten;
+	}
+	public function getHandred() {
+		return $this->handred;
+	}
+	public function getThousand() {
+		return $this->thousand;
+	}
+}
+
+$jihan = new JidouHanbaiki(9999);
+$jihan->getExchange();
+
+echo $jihan->getTen() . "\n";
+echo $jihan->getHandred() . "\n";
+echo $jihan->getThousand() . "\n";

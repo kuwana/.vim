@@ -1,0 +1,62 @@
+script_name: VDBI.vim
+script_id: '4041'
+script_type: utility
+script_package: vdbi-vim.zip
+script_version: '0.02'
+required_vim_version: '7.0'
+summary: Database Client for Vim
+
+detailed_description: |
+
+  This is vim script to manipulate database.
+
+  ref: http://mattn.github.com/vdbi-vim/
+
+  Source Repository.
+  ref: http://github.com/mattn/vdbi-vim
+  
+  This plugin provides following interfaces.
+
+  * Browsing tables
+  * Browsing columns
+  * Easy operations.
+  * Data viewer.
+
+  Supported database.
+
+  * Oracle
+  * SQLite
+  * MySQL
+  * PostgreSQL
+
+  To start VDBI, type ':VDBI'.
+  To open query editor, type <leader>s.
+
+install_details: |
+
+  # cd ~/.vim
+  # unzip vdbi-vim.zip
+
+  or if you install pathogen.vim:
+
+  # cd ~/.vim/bundle # or make directory
+  # unzip /path/to/vdbi-vim.zip
+
+  if you get sources from repository:
+
+  # cd ~/.vim/bundle # or make directory
+  # git clone http://github.com/mattn/vdbi-vim.git
+
+  you need to install database drivers you want to use.
+
+  # cpanm DBI Plack JSON
+  # cpanm ...extra-dbi-module...
+
+versions:
+- '0.2': |
+   Show user friendly error message wihle connecting.
+- '0.1': |
+   Initial upload
+
+# __END__
+# vim: filetype=yaml

@@ -1,0 +1,57 @@
+class ObjPractice_1 {
+
+	public static void main (String [] args) {
+		int inputMoney = 0;
+		try {
+			inputMoney = Integer.parseInt(args[0]);
+		} catch (ArrayIndexOutOfBoundsException e1){
+			// 引数無しの場合の処理
+			System.out.println("引数を入力してください。");
+			System.exit(0);
+		}
+
+		JidouHanbaiki jihan = new JidouHanbaiki(inputMoney);
+
+		System.out.println("千円札は " + jihan.getThousand() + "枚です");
+		System.out.println("百円玉は " + jihan.getHandred() + "枚です");
+		System.out.println("十円玉は " + jihan.getTen() + "枚です");
+	}
+}
+class JidouHanbaiki {
+
+	int money;
+	int count_10, count_100, count_1000;
+
+	JidouHanbaiki(int money) {
+		this.money = money;
+		Exchange();
+	}
+	JidouHanbaiki() {
+		System.out.println("引数を入力してください");
+	}
+
+	void Exchange () {
+
+		while ( money >= 1000 ) {
+			count_1000++;
+			money = money - 1000;
+		}
+		while ( money >= 100 ) {
+			count_100++;
+			money = money - 100;
+		}
+		while ( money >= 10 ) {
+			count_10++;
+			money = money - 10;
+		}
+	}
+	int getThousand() {
+		return count_1000;
+	}
+	int getHandred() {
+		return count_100;
+	}
+	int getTen() {
+		return count_10;
+	}
+}

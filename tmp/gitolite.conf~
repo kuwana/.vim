@@ -1,0 +1,19 @@
+
+repo    gitolite-admin
+        RW+     =   admin gitlab sakata kuwana
+
+repo    testing
+        RW+     =   @all
+
+repo    ekp-shopinfo
+        RW+     =   admin gitlab sakata kuwana arai arao
+
+repo    ekp-shopinfo-dump
+        RW+     =   admin gitlab sakata kuwana arai arao
+
+repo    ekp-milkystep
+        RW+     =   admin gitlab sakata kuwana arai
+
+repo    operation-manager
+        RW+     =   admin gitlab kuwana izumi
+

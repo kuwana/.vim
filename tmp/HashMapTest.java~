@@ -1,0 +1,8 @@
+class HashMapTest {
+
+	public static void main (String [] args)
+	{
+		HashMap<String, Integer> map = 
+	}
+}
+

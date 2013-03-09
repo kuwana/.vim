@@ -1,0 +1,25 @@
+/**
+ * MainClass1.java
+ *
+ *
+ * Created: Wed Sep 03 01:08:24 2003
+ *
+ 
+* @author <a href="mailto:kamechan@sc.kutc.kansai-u.ac.jp"></a>
+ * @version 1.0
+ */
+
+public class MainClass1{
+    public static void main(String[] args) {
+	//カウントダウン新スタンスを作る
+	//CountDown(10)はコンストラクタ．
+	//クラス名と同じ名前の特別なメソッド
+	CountDown cnt = new CountDown(10);
+
+	for(int i=0; i<20; i++){
+	    cnt.countdown();
+	    //インスタンス.メソッド名 で実行する．
+	    //実際に作られた実体で動かしている
+	}
+    }
+} // MainClass1

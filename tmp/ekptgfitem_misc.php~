@@ -1,0 +1,2366 @@
+<?php
+/* プラグイン情報
+Plugin Name: ekptgfitem_misc
+Plugin URI: -
+Description: ekptgfitem_misc
+Version: 1.0
+Author: Smartec Inc.
+Author URI: http://www.smartec.co.jp/
+*/
+
+
+// 各種ショートコード
+add_shortcode("ekptcomcontents_coupon", "ekptcomcontents_coupon");
+
+add_shortcode("ekptcom_contents_change_admin_report", "ekptcom_contents_change_admin_report");
+add_shortcode("ekptcom_contents_ekupopoint", "ekptcom_contents_ekupopoint");
+add_shortcode("ekptcom_contents_change_coupon", "ekptcom_contents_change_coupon");
+add_shortcode("ekptcom_contents_change_gift", "ekptcom_contents_change_gift");
+add_shortcode("ekptcom_contents_change_ranking", "ekptcom_contents_change_ranking");
+add_shortcode("ekptcom_contents_list_rankings", "ekptcom_contents_list_rankings");
+
+add_shortcode("ekptcom_contents_change_expoint", "ekptcom_contents_change_expoint");
+add_shortcode("ekptcom_contents_list_expoints", "ekptcom_contents_list_expoints");
+
+add_shortcode("ekptcom_contents_coupon_confirm", "ekptcom_contents_coupon_confirm");
+add_shortcode("ekptcom_contents_coupon_finish", "ekptcom_contents_coupon_finish");
+
+add_shortcode("ekptcom_contents_gift_confirm", "ekptcom_contents_gift_confirm");
+add_shortcode("ekptcom_contents_gift_finish", "ekptcom_contents_gift_finish");
+add_shortcode("ekptcom_contents_gift_gacya_confirm", "ekptcom_contents_gift_gacya_confirm");
+add_shortcode("ekptcom_contents_gift_gacya_finish", "ekptcom_contents_gift_gacya_finish");
+add_shortcode("ekptcom_contents_change_giftstock", "ekptcom_contents_change_giftstock");
+add_shortcode("ekptcom_contents_list_giftstock", "ekptcom_contents_list_giftstock");
+add_shortcode("ekptcom_contents_information", "ekptcom_contents_information");
+
+add_shortcode("ekptcomcontents_gift", "ekptcomcontents_gift");
+add_shortcode("ekptcomcontents_campaign", "ekptcomcontents_campaign");
+add_shortcode("ekptcomcontents_rank", "ekptcomcontents_rank");
+
+// エクポポイント表示
+function ekptcom_contents_change_admin_report($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_EKUPOPOINT'];
+    extract(shortcode_atts(array(
+		'offset' => 0,
+		'limit' => 5,
+		'maintype' => '',
+		'subtype' => '',
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeekupopoint' ;
+    $func = '' ;
+	$limit = $bParams['recLimit'];
+	$offset = $bParams['recOffset'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$opturl = '' ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$params = array(
+		'mem_id' => $mem_id,
+		'item_type' => $bParams['maintypeK'],
+		'item_cate' => $bParams['subtypeK'],
+		'offset' => $offset,
+		'limit' => $limit
+	);
+	// データ取得
+    // 呼び出し先設定　現在集計
+    $urldata = 'Mem/DaySummary' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+    $vdataSummary = $retdata['data'] ;
+    $totalcount = $retdata['totalcount'];
+    $html .= do_shortcode("[callout]日別登録者数サマリ[/callout]") ;
+	if ( count($vdataSummary) > 0 ) {
+		foreach($vdataSummary as $vdata) {
+			$html .= '<ul class="item-list" style="margin-bottom:0px;">' ;
+			$html .= '<li class="list-three" style="margin-bottom:0px;"><div class="list-three-outer" style="">' ;
+			$html .= '<div class="list-three-left" style="height:30px; width:18%;">'.$vdata['entry_date'] ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-center" style="height:30px; width:47%;">' ;
+            $html .= 'レベル:全て' ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-right" style="height:30px; width:35%;">' ;
+            $html .= '人数:'.$vdata['cou'].' 人';
+			$html .= '</div><div class="clear"></div>' ;
+			$html .= '</div></ul>' ;
+		}
+        // 全体合計
+         $html .= '<ul class="item-list" style="margin-bottom:0px;">' ;
+         $html .= '<li class="list-three" style="margin-bottom:0px;"><div class="list-three-outer" style="">' ;
+         $html .= '<div class="list-three-left" style="height:30px; width:18%;"> 総合計' ;
+         $html .= '</div>' ;
+         $html .= '<div class="list-three-center" style="height:30px; width:47%;">' ;
+         $html .= 'レベル:全て' ;
+         $html .= '</div>' ;
+         $html .= '<div class="list-three-right" style="height:30px; width:35%;">' ;
+         $html .= '人数:'.$totalcount.' 人';
+         $html .= '</div><div class="clear"></div>' ;
+         $html .= '</div></ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+    // 呼び出し先設定
+    $urldata = 'Mem/DayDetails' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+    // データ取得
+    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+    $vdatas = $retdata['data'] ;
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$image_file = 'top_ekpt.png' ;
+    $html .= do_shortcode("[callout]日別レベル別登録者数サマリ[/callout]") ;
+	//
+	$nickName = strlen($GLOBALS['ekpt_nickname']) <> 0 ? $GLOBALS['ekpt_nickname'] : '<ﾆｯｸﾈｰﾑを設定して>' ;
+    if ( false ) {
+      $html_sc = '[callout]' . $nickName.' さんのエクポポイント履歴' ;
+      $html_sc .= '<br>現在ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalCurrent'] ;
+      $html_sc .= '<br>発行ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalPointAdd'].' (うち仮発行：'.$vdataCurrent['totalPointAddKari'].')' ;
+      $html_sc .= '<br>利用ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalPointUse'] ;
+      $html_sc .= '[/callout]';
+      $html .= do_shortcode( $html_sc ) ; 
+    }
+	if ( count($vdatas) > 0 ) {
+		foreach($vdatas as $vdata) {
+			$html .= '<ul class="item-list" style="margin-bottom:0px;">' ;
+			$html .= '<li class="list-three" style="margin-bottom:0px;"><div class="list-three-outer" style="">' ;
+			$html .= '<div class="list-three-left" style="height:30px; width:18%;">'.$vdata['entry_date'] ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-center" style="height:30px; width:47%;">' ;
+            $html .= 'レベル:'.$vdata['current_level'] ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-right" style="height:30px; width:35%;">' ;
+            $html .= '人数:'.$vdata['cou'].' 人';
+			$html .= '</div><div class="clear"></div>' ;
+			$html .= '</div></ul>' ;
+		}
+	} 
+	$html .= '<div class="clear"></div>';
+	//
+    if ( $offset == 0 and count($vdatas) == 0 ) {
+    //if ( true ) {
+        //
+         $html .= do_shortcode('[callout]登録者履歴がありません。<br>右上のホームアイコンを押して、ホーム画面に戻りましょう。[/callout]') ;
+       // $html .= '<div style="color:red;text-align:center;font-size:150%;">' . do_shortcode('[callout]現在こちらの画面はメンテナンス中です。<br>もう少しおまちください。[/callout]') .'</div>'  ;
+	} else {
+		// Pager
+		$next = count($vdatas) ? $offset + $limit : 0;
+		$prev = $offset > $limit ? $offset - $limit : 0;
+		// previous pager
+		$paramsPrev = $paramsNext = $bParams ;
+		$paramsPrev['recOffset'] = $prev;
+		$params = _ekptcom_linkInformation($paramsPrev) ;
+		$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+		// next pager
+		$paramsNext['recOffset'] = $next;
+		$params = _ekptcom_linkInformation($paramsNext) ;
+		$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+		// ボタン設定 スクロール無し
+//		$html .= '<div class="hbtn"><div class="hbtn-inner">';
+//		$html .= $prev_btn.$next_btn;
+//		$html .= '<div class="clear"></div>';
+//		$html .= '</div></div>';
+	}
+	return $html;
+}
+
+// エクポポイント表示
+function ekptcom_contents_ekupopoint($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_EKUPOPOINT'];
+    extract(shortcode_atts(array(
+		'offset' => 0,
+		'limit' => 5,
+		'maintype' => '',
+		'subtype' => '',
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeekupopoint' ;
+    $func = '' ;
+	$limit = $bParams['recLimit'];
+	$offset = $bParams['recOffset'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$opturl = '' ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$params = array(
+		'mem_id' => $mem_id,
+		'item_type' => $bParams['maintypeK'],
+		'item_cate' => $bParams['subtypeK'],
+		'offset' => $offset,
+		'limit' => $limit
+	);
+	// データ取得
+    // 呼び出し先設定　現在集計
+    $urldata = 'EkupoPoint/MemberCurrent' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+    $vdataCurrent = $retdata['data'] ;
+    // 呼び出し先設定
+    $urldata = 'EkupoPoint/History' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+    // データ取得
+    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+    $vdatas = $retdata['data']['ekupopoints'] ;
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$image_file = 'top_ekpt.png' ;
+	//
+	$nickName = strlen($GLOBALS['ekpt_nickname']) <> 0 ? $GLOBALS['ekpt_nickname'] : '<ﾆｯｸﾈｰﾑを設定して>' ;
+    if ( false ) {
+      $html_sc = '[callout]' . $nickName.' さんのエクポポイント履歴' ;
+      $html_sc .= '<br>現在ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalCurrent'] ;
+      $html_sc .= '<br>発行ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalPointAdd'].' (うち仮発行：'.$vdataCurrent['totalPointAddKari'].')' ;
+      $html_sc .= '<br>利用ﾎﾟｲﾝﾄ数：'.$vdataCurrent['totalPointUse'] ;
+      $html_sc .= '[/callout]';
+      $html .= do_shortcode( $html_sc ) ; 
+    }
+	if ( count($vdatas) > 0 ) {
+		foreach($vdatas as $vdata) {
+			$point_type = '発行ﾎﾟｲﾝﾄ';
+			$point_status = '正式';
+			$point_label = '*** 不明 ***';
+			$point_type_data = $vdata['point_type'] ;
+			$point_status_data = $vdata['point_status'] ;
+			if ($point_type_data == 10) {
+				if ( $point_status_data == 1) {
+					$point_status = '仮発行';
+				} else if ( $point_status_data == 2 ) {
+					$point_status = '正式発行';
+				} else if ( $point_status_data == 3 ) {
+					$point_status = '削除';
+				} else if ( $point_status_data == 4 ) {
+					$point_status = '失効';
+				}
+				$point_label = $point_type . '：' .$point_status ;
+			} else if ($point_type_data == 20) {
+				$point_label = 'キャンペーンポイント' ;
+			} else if ($point_type_data == 30) {
+				$point_label = '利用ﾎﾟｲﾝﾄ' ;
+			} else if ($point_type_data == 40) {
+				$point_label = '消滅ﾎﾟｲﾝﾄ' ;
+			}
+			$html .= '<ul class="item-list">' ;
+			$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+			$html .= '<div class="list-three-left" style="width:18%;">' ;
+			$html .= '<img style="width:50px; height:50px;" src="'.$imgurl.$image_file.'" alt="'.$image_file.'" />' ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-center" style="width:47%;">' ;
+			$html .= '<p style="font-size:70%;" >利用日：'.$vdata['issued_at'].'' ;
+			$html .= '<br>お店の名前：'.$vdata['shop_name'].'' ;
+			$html .= '<br>'.$point_label.'</p>' ;
+			$html .= '</div>' ;
+			$html .= '<div class="list-three-right" style="width:35%;"><ul>' ;
+			if ( $vdata['amount'] <> 0 ) {
+				$html .= '<li style="padding-left: 10px; font-size:80%;" >利用金額:'.$vdata['amount'].' 円</li>' ;
+				$html .= '<li style="padding-left: 10px; font-size:80%;" >取得ﾎﾟｲﾝﾄ:'.$vdata['point'].' P</li>' ;
+			} else {
+				$html .= '<li style="padding-left: 10px; font-size:80%;" >利用ﾎﾟｲﾝﾄ:'.$vdata['point'].' P</li>' ;
+			}
+			$html .= '</div><div class="clear"></div>' ;
+			$html .= '</div></li>' ;
+			$html .= '</ul>' ;
+		}
+	} 
+	$html .= '<div class="clear"></div>';
+	//
+    if ( $offset == 0 and count($vdatas) == 0 ) {
+    //if ( true ) {
+        //
+         $html .= do_shortcode('[callout]カード利用履歴がありません。<br>右上のホームアイコンを押して、ホーム画面に戻りましょう。[/callout]') ;
+       // $html .= '<div style="color:red;text-align:center;font-size:150%;">' . do_shortcode('[callout]現在こちらの画面はメンテナンス中です。<br>もう少しおまちください。[/callout]') .'</div>'  ;
+	} else {
+		// Pager
+		$next = count($vdatas) ? $offset + $limit : 0;
+		$prev = $offset > $limit ? $offset - $limit : 0;
+		// previous pager
+		$paramsPrev = $paramsNext = $bParams ;
+		$paramsPrev['recOffset'] = $prev;
+		$params = _ekptcom_linkInformation($paramsPrev) ;
+		$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+		// next pager
+		$paramsNext['recOffset'] = $next;
+		$params = _ekptcom_linkInformation($paramsNext) ;
+		$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+		// ボタン設定
+		$html .= '<div class="hbtn"><div class="hbtn-inner">';
+		$html .= $prev_btn.$next_btn;
+		$html .= '<div class="clear"></div>';
+		$html .= '</div></div>';
+	}
+	return $html;
+}
+
+// 画面=homecoupon
+function ekptcom_contents_change_coupon($atts = array()) {
+	//
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$gid = isset($_REQUEST['tid']) ? $_REQUEST['tid'] : 0 ;
+	$reqMaintype = $_REQUEST['maintype'];
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	// 表示対象制御
+	$mainType = 'notuse' ; // =base =sozai =coupon
+	$activeNotuse = $activeUsed = $activeOut ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'notuse' ) {
+			$mainType  = 'notuse' ;
+			$activeNotuse = 'active';
+		} else if ( $reqMaintype == 'used' ) {
+			$mainType = 'used' ;
+			$activeUsed = 'active';
+		} else if ( $reqMaintype == 'out' ) {
+			$mainType = 'out' ;
+			$activeOut = 'active';
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'notuse' ;
+		$activeNotuse = 'active';
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$opturl = ekpt_get_link_param( $params ) ;
+    // 種別切替部
+	$linkPage = $baseurl . 'homecoupon/';
+	$linkNotuse = esc_html($linkPage.$opturl.'&maintype=notuse') ;
+	$linkUsed = esc_html($linkPage.$opturl.'&maintype=used') ;
+	$linkOut = esc_html($linkPage.$opturl.'&maintype=out') ;
+	// 出力部
+	$html .= '<div class="hbtn">' ;
+	$html .= '<div class="hbtn-inner">';
+	$html .= '<ul id="menuekpt">';
+	$html .= '    <li class="first ' . $activeNotuse. '"><a href="' . $linkNotuse . '">未使用</a></li>' ;
+	$html .= '    <li class="' . $activeUsed. '"><a href="' . $linkUsed . '">使用済</a></li>' ;
+	$html .= '    <li class="' . $activeOut. '"><a href="' . $linkOut . '">期限切</a></li>' ;
+	$html .= '</ul>' ;
+	$html .= '<div class="clear"></div>' ;
+	$html .= '</div>' ;
+	$html .= '</div>' ;
+
+	if ( $mainType == 'notuse' ) {
+		$buf .= '[ekptcomcontents_coupon limit=5 tid=0 maintype="notuse"]';
+	} else if ( $mainType == 'used' ) {
+		$buf .= '[ekptcomcontents_coupon limit=5 tid=1 maintype="used"]';
+	} else if ( $mainType == 'out' ) {
+		$buf .= '[ekptcomcontents_coupon limit=5 tid=2 maintype="out"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+// 画面=homecoupon
+function ekptcom_contents_change_gift($atts = array()) {
+	//
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$gid = isset($_REQUEST['tid']) ? $_REQUEST['tid'] : 0 ;
+	$reqMaintype = $_REQUEST['maintype'];
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	// 表示対象制御
+	$mainType = 'notuse' ; // =base =sozai =coupon
+	$activeNotuse = $activeUsed = $activeOut ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'notuse' ) {
+			$mainType  = 'notuse' ;
+			$activeNotuse = 'active';
+		} else if ( $reqMaintype == 'used' ) {
+			$mainType = 'used' ;
+			$activeUsed = 'active';
+		} else if ( $reqMaintype == 'out' ) {
+			$mainType = 'out' ;
+			$activeOut = 'active';
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'notuse' ;
+		$activeNotuse = 'active';
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$opturl = ekpt_get_link_param( $params ) ;
+    // 種別切替部
+	$linkPage = $baseurl . 'homegift/';
+	$linkNotuse = esc_html($linkPage.$opturl.'&maintype=notuse') ;
+	$linkUsed = esc_html($linkPage.$opturl.'&maintype=used') ;
+	$linkOut = esc_html($linkPage.$opturl.'&maintype=out') ;
+	// 出力部
+	$html .= '<div class="hbtn">' ;
+	$html .= '<div class="hbtn-inner">';
+	$html .= '<ul id="menuekpt">';
+	$html .= '    <li class="first ' . $activeNotuse. '"><a href="' . $linkNotuse . '">受け取る</a></li>' ;
+	$html .= '    <li class="' . $activeUsed. '"><a href="' . $linkUsed . '">受取済み</a></li>' ;
+	// $html .= '    <li class="' . $activeOut. '"><a href="' . $linkOut . '">期限切</a></li>' ;
+	$html .= '</ul>' ;
+	$html .= '<div class="clear"></div>' ;
+	$html .= '</div>' ;
+	$html .= '</div>' ;
+
+	if ( $mainType == 'notuse' ) {
+		$buf .= '[ekptcomcontents_gift limit=5 tid=0 maintype="notuse"]';
+	} else if ( $mainType == 'used' ) {
+		$buf .= '[ekptcomcontents_gift limit=5 tid=1 maintype="used"]';
+	} else if ( $mainType == 'out' ) {
+		$buf .= '[ekptcomcontents_gift limit=5 tid=2 maintype="out"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+function ekptcom_contents_change_ranking($atts = array()) {
+	//
+	$bParams = $GLOBALS['EKPT_PARAM_RANKING'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$gid = isset($_REQUEST['tid']) ? $_REQUEST['tid'] : 0 ;
+	$reqMaintype = $_REQUEST['maintype'];
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	// 表示対象制御
+	$mainType = 'me' ; // =base =sozai =coupon
+	$activeNotuse = $activeUsed = $activeOut ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'me' ) {
+			$mainType  = 'me' ;
+			$activeMe = 'active';
+		} else if ( $reqMaintype == 'top100' ) {
+			$mainType = 'top100' ;
+			$activeTop100 = 'active';
+		} else if ( $reqMaintype == 'freiends' ) {
+			$mainType = 'freiends' ;
+			$activeFreiends = 'active';
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'me' ;
+		$activeMe = 'active';
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$opturl = ekpt_get_link_param( $params ) ;
+    // 種別切替部
+	$linkPage = $baseurl . 'homeranking/';
+	$linkMe = esc_html($linkPage.$opturl.'&maintype=me') ;
+	$linkTop100 = esc_html($linkPage.$opturl.'&maintype=top100') ;
+	$linkFreiends = esc_html($linkPage.$opturl.'&maintype=freiends') ;
+	// 出力部
+	$html .= '<div class="hbtn">' ;
+	$html .= '<div class="hbtn-inner">';
+	$html .= '<ul id="menuekpt">';
+	$html .= '    <li class="' . $activeMe. '"><a href="' . $linkMe . '">自分</a></li>' ;
+	$html .= '    <li class="' . $activeTop100. '"><a href="' . $linkTop100 . '">Top100</a></li>' ;
+	$html .= '    <li class="' . $activeFreiends. '"><a href="' . $linkFreiends . '">ともだち</a></li>' ;
+	$html .= '</ul>' ;
+	$html .= '<div class="clear"></div>' ;
+	$html .= '</div>' ;
+	$html .= '</div>' ;
+
+	if ( $mainType == 'me' ) {
+		$buf .= '[ekptcom_contents_list_rankings tid=0 maintype="me"]';
+	} else if ( $mainType == 'top100' ) {
+		$buf .= '[ekptcom_contents_list_rankings tid=1 maintype="top100"]';
+	} else if ( $mainType == 'freiends' ) {
+		$buf .= '[ekptcom_contents_list_rankings tid=2 maintype="freiends"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+// 
+function ekptcom_contents_list_rankings($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_RANKING'];
+    extract(shortcode_atts(array(
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 4,
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeranking' ;
+    $func = '' ;
+	$offset = $bParams['recOffset'];
+	$limit = $bParams['recLimit'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$imgurl .= $baseurl.EKPTDEF_IMAGEHOME ;
+	$opturl = '' ;
+	// データ取得
+	$vdatas = $vdatasw = array() ;
+    // 呼び出し先設定
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$image_file = 'top_ekpt.png' ;
+	$params = array(
+		'mem_id' => $mem_id,
+		'tid' => $gid,
+		'item_type' => $bParams['maintypeK'],
+		'item_cate' => $bParams['subtypeK'],
+		'offset' => $offset,
+		'limit' => $limit
+	);
+	//
+	if ( $item_type == 'me' ) {
+	    $urldata = 'Ranking/ListMemid' ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas01 = $retdata['data']['rankingsUnder'] ;
+	    $vdatas02 = $retdata['data']['rankingMemid'] ;
+	    $vdatas03 = $retdata['data']['rankingsUpper'] ;
+		$recno = 0 ;
+		foreach ( $vdatas01 as $vdataw ) { $vdatasw[] = $vdataw ; }
+		foreach ( $vdatas02 as $vdataw ) { $vdatasw[] = $vdataw ; }
+		foreach ( $vdatas03 as $vdataw ) { $vdatasw[] = $vdataw ; }
+        // 自分がTOPとなる
+        $top = 0;
+        foreach ( $vdatasw as $vdataw ) {
+           if ( $vdataw['mem_id'] == $mem_id ) {
+              break ;
+           }
+           $top++ ;
+        }
+        // Offset == 0 が TOP
+        $r = 0 ; 
+        $c = 0 ;
+        $i = 0 ;
+        for ( $i = 0 ; $i <  $bParams['recLimit'] ; $i++ ) {
+           $c = $top + $bParams['recOffset']  + $i ;
+           $vdatas[] = $vdatasw[$c] ;
+        }
+	} else if ( $item_type == 'top100' ) {
+	    $urldata = 'Ranking/ListTop100' ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas = $retdata['data']['rankings'] ;
+	} else if ( $item_type == 'freiends' ) {
+	    $urldata = 'Ranking/ListFreiends' ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas = $retdata['data']['rankings'] ;;
+	}
+	$imgpath = ekpt_get_mem_imagepath($GLOBALS['ekpt_image']) ;
+	$cur_id = $mem_id ;
+	foreach($vdatas as $vdata) {
+		$merit_txt = ekpt_get_merit($vdata['merit_id']) ;
+		$params = ekpt_get_link_param(array('seq_no' => $vdata['seq_no']));
+		if ( $vdata['mem_id'] <> $cur_id ) {
+			$cur_id = $vdata['mem_id'] ;
+			$mem_data = ekpt_get_mem_info( $vdata['mem_id'] ) ;
+			$imgpath = $mem_data['image'];
+		}
+		//        $html .= '<ul><a href="' .EKPTDEF_HOME.'/useracount?id='.$cur_id.'">'  ;
+		$html .= '<ul class="item-list"><a href="' .EKPTDEF_HOME.'/useracount?id='.$cur_id.'">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left"  style="width:25%; text-align:center;">' ;
+		// $html .= '<img style="width:50px; height:50px;" src="'.$imgurl.$image_file.'" alt="'.$image_file.'" />' ;
+		$html .= $imgpath ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="width:40%;"><ul>' ;
+		if ( $mem_id == $vdata['mem_id'] ) {
+			$html .= '<li style="color:red;">順位：'.$vdata['order_no'].'</li>' ;
+			$html .= '<li style="color:red;">あなた：<br>'.$mem_data['nickname'].'さん</li>' ;
+		} else {
+			$html .= '<li>順位：'.$vdata['order_no'].'</li>' ;
+			$html .= '<li>名前：<br>'.$mem_data['nickname'].'さん</li>' ;
+		}
+		$html .= '</a></ul></div>' ;
+		$html .= '<div class="list-three-right" style="width:35%;"><ul>' ;
+		$html .= '<li>レベル：'.$vdata['current_level'].'</li>' ;
+		$html .= '<li>経験値：'.$vdata['order_score'].'</li>' ;
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+	// Pager
+	$next = count($vdatas) ? $offset + $limit : 0;
+	$prev = $offset > $limit ? $offset - $limit : 0;
+	// previous pager
+	$paramsPrev = $paramsNext = $bParams ;
+	$paramsPrev['recOffset'] = $prev;
+	$params = _ekptcom_linkRanking($paramsPrev) ;
+	$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+	// next pager
+	$paramsNext['recOffset'] = $next;
+	$params = _ekptcom_linkRanking($paramsNext) ;
+	$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+	// ボタン設定
+	$html .= '<div class="hbtn"><div class="hbtn-inner">';
+	$html .= $prev_btn.$next_btn;
+	$html .= '<div class="clear"></div>';
+	$html .= '</div></div>';
+	return $html;
+}
+
+function ekptcom_contents_change_expoint($atts = array()) {
+	//
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$gid = isset($_REQUEST['tid']) ? $_REQUEST['tid'] : 0 ;
+	$reqMaintype = $_REQUEST['maintype'];
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+	$html = $html_sc ='' ;
+	// 表示対象制御
+	$mainType = 'me' ; // =base =sozai =coupon
+	$activeNotuse = $activeUsed = $activeOut ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'me' ) {
+			$mainType  = 'me' ;
+			$activeMe = 'active';
+		} else if ( $reqMaintype == 'freiends' ) {
+			$mainType = 'freiends' ;
+			$activeFreiends = 'active';
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'me' ;
+		$activeMe = 'active';
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$opturl = ekpt_get_link_param( $params ) ;
+    // 種別切替部
+	$linkPage = $baseurl . 'homeexpoint/';
+	$linkMe = esc_html($linkPage.$opturl.'&maintype=me') ;
+	$linkFreiends = esc_html($linkPage.$opturl.'&maintype=freiends') ;
+	// 出力部
+	$html .= '<div class="hbtn">' ;
+	$html .= '<div class="hbtn-inner">';
+	$html .= '<ul id="menuekpt">';
+	$html .= '    <li class="' . $activeMe. '"><a href="' . $linkMe . '">自分</a></li>' ;
+	$html .= '    <li class="' . $activeFreiends. '"><a href="' . $linkFreiends . '">ともだち</a></li>' ;
+	$html .= '</ul>' ;
+	$html .= '<div class="clear"></div>' ;
+	$html .= '</div>' ;
+	$html .= '</div>' ;
+	if ( $mainType == 'me' ) {
+		$buf .= '[ekptcom_contents_list_expoints limit=10 tid=0 maintype="me"]';
+	} else if ( $mainType == 'freiends' ) {
+		$buf .= '[ekptcom_contents_list_expoints limit=10 tid=1 maintype="freiends"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+
+// 
+function ekptcom_contents_list_expoints($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_EXPOINT'];
+    extract(shortcode_atts(array(
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 4,
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeexpoint' ;
+    $func = '' ;
+	$offset = $bParams['recOffset'];
+	$limit = $bParams['recLimit'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$imgurl .= $baseurl.EKPTDEF_IMAGEHOME ;
+	$opturl = 'itemdetail/' ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$params = array(
+		'mem_id' => $mem_id,
+		'tid' => $gid,
+		'item_type' => $bParams['maintypeK'],
+		'item_cate' => $bParams['subtypeK'],
+		'offset' => $offset,
+		'limit' => $limit
+	);
+	// データ取得
+	$vdatas = array() ;
+    // 呼び出し先設定
+	if ( $item_type == 'me' ) {
+	    $urldata = 'MemActivity/History' ;
+	    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas = $retdata['data']['expoints'] ;
+        $countRe = $retdata['totalcount'] ;
+		$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+		$image_file = 'top_ekpt.png' ;
+	} else if ( $item_type == 'freiends' ) {
+	    $urldata = 'MemActivity/HistoryFreiends' ;
+	    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas = $retdata['data']['expoints'] ;
+        $countRe = $retdata['totalcount'] ;
+		$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+		$image_file = 'top_ekpt.png' ;
+	}
+	$imgpath = ekpt_get_mem_imagepath($GLOBALS['ekpt_image']) ;
+	$cur_id = $mem_id ;
+      // Pager
+      $html_pager = ekpt_pager( 'pageid', $countRe, $limit ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	foreach($vdatas as $vdata) {
+		$merit_txt = ekpt_get_merit($vdata['merit_id']) ;
+		$params = ekpt_get_link_param(array('seq_no' => $vdata['seq_no']));
+		if ( $vdata['mem_id'] <> $cur_id ) {
+			$cur_id = $vdata['mem_id'] ;
+			$mem_data = ekpt_get_mem_info( $vdata['mem_id'] ) ;
+			$imgpath = $mem_data['image'];
+		}
+		//
+        // print_r( $imgpath ) ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left"  style="width:25%;">' ;
+		//$html .= '<img style="width:50px; height:50px; " src="'.$imgurl.$image_file.'" alt="'.$image_file.'" />' ;
+		$html .= '<span style="width=100%">'.$imgpath.'</span>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="width:40%;"><ul>' ;
+		if ( $vdata['type_id'] == 0 ) {
+			if ( $item_type == 'freiends' ) {
+				$nickname = isset($vdata['nickname']) ? '未設定' : $vdata['nickname'] ;
+				$html .= '<li style="font-size:70%;">' . $vdata['nickname'] . 'さん<br>取得日：'.$vdata['created'].'</li>' ;
+			} else {
+				$html .= '<li style="font-size:70%;">取得日：'.$vdata['created'].'</li>' ;
+			}
+			$html .= '<li style="font-size:70%;">種類:'.$vdata['label'].'</li>' ;
+			$html .= '<li style="font-size:70%;">レベル:'.$vdata['mem_level'].'</li>' ;
+			$html .= '</ul></div>' ;
+			$html .= '<div class="list-three-right" style="width:35%;"><ul>' ;
+		} else {
+			if ( $item_type == 'freiends' ) {
+				$nickname = isset($vdata['nickname']) ? '未設定' : $vdata['nickname'] ;
+				$html .= '<li style="font-size:70%;">' . $vdata['nickname'] . 'さん<br>取得日：'.$vdata['created'].'</li>' ;
+			} else {
+				$html .= '<li style="font-size:70%;">取得日：'.$vdata['created'].'</li>' ;
+			}			
+			$html .= '<li style="font-size:80%;">種類:'.$vdata['label'].'</li>' ;
+			if ( $vdata['amount'] <> 0 ) {
+			$html .= '<li style="font-size:80%;">金額:\\'.$vdata['amount'].'</li>' ;
+			}
+			$html .= '</ul></div>' ;
+			$html .= '<div class="list-three-right" style="width:35%;　text-align:center;"><ul>' ;
+			$html .= '<li style="font-size:80%;">合計：'.$vdata['total_point'].' 経験値</li>' ;
+			$html .= '<li style="font-size:80%;">基本：'.$vdata['base_point'].'<br>＋ｱｲﾃﾑ効果：'.$vdata['bonus_point'].'</li>' ;
+			/* if ( $vdata['bonus_point'] <> 0 ) {
+				$html .= '<li style="font-size:70%;">×ﾎﾞｰﾅｽ='.$vdata['bonus_multi_point'].'('.$vdata['bonus_multi'].'倍)</li>' ;
+				$html .= '<li style="font-size:70%;">＋ﾎﾞｰﾅｽ='.$vdata['bonus_power'].'</li>' ;
+			} */
+		}
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+	// Pager
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	// ボタン設定
+	$html .= '<div class="hbtn"><div class="hbtn-inner">';
+	$html .= $prev_btn.$next_btn;
+	$html .= '<div class="clear"></div>';
+	$html .= '</div></div>';
+	return $html;
+}
+
+function _ekptcom_paramExpoint() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'maintype' => 'me' ,
+						'subtype' => '' ,
+						'maintypeK' => '未使用' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 10,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeexpoint/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_EXPOINT']) ? $GLOBALS['EKPT_PARAM_EXPOINT'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// 条件による設定の場合
+	if ( isset($_REQUEST['maintype']) ) {
+		$bParams['maintype'] = $_REQUEST['maintype'] ;
+		if ( $bParams['maintype'] == 'me' ) {
+			$bParams['maintypeK'] = '自分' ;
+		} else if ( $bParams['maintype'] == 'freiends' ) {
+			$bParams['main	typeK'] = 'ともだち' ;
+		} else {
+			$bParams['maintype'] = 'me';
+			trigger_error('_paramItemFusion:Invalid maintype = '. $_REQUEST['maintype'], E_USER_ERROR);
+		}
+	}
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_EXPOINT'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+function ekptcom_contents_coupon_confirm($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+	$token = $_REQUEST['token'] ;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $type = '/homecoupon' ;
+    $func = '/oprfinish' ;
+    $oprType = $bParams['opr_type'] ;
+    $paramLabel = '&seq_nos=' ;
+    $paramLabel2 = '&desc_label=' ;
+    // パラメタ設定
+    $item_type = $_REQUEST['item_type'];
+    $seq_nos = $_REQUEST['seq_nos'];
+	if ( $oprType == 'use' ) {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('get_memcoupon', $param);
+	} else {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('get_memcoupon', $param);
+	}
+    // 配列データを取得
+    $vdatas = $jsondatas['memcoupons'];
+    $html = '' ;
+    if ( $jsondatas['status'] == 'ok' ) {
+        // 正常系出力
+		// ｸｰﾎﾟﾝ実行による表示
+		foreach ($vdatas as $vdata) {
+           $svcDesc = "【ｻｰﾋﾞｽ内容】".$vdata['coupon_desc'];
+           $shopDesc = "【店舗名】".$vdata['shop_title'];
+           $useCond = "【利用条件】".$vdata['coupon_use'];
+           $dispCond = "【提示条件】".$vdata['coupon_disp'];
+           
+           //
+			$html_sc = '' ;
+			//if ( $oprType == 'use' ) {
+            //   $html_sc .= '<dic style="width:100%; text-align:center;"><img style="width:100%;" src="'. $imgPath . 'coupon_banner_01.gif" /></div>' ;
+            //}
+            $html_sc .= '[callout align="center" text-align="center"]' ;
+			if ( $oprType == 'use' ) {
+				$html_sc .= '<p style="text-align:center;">'.$svcDesc.'<br> が利用可能です。</p>';
+			} else {
+				$html_sc .= '<p style="text-align:center;">'.$svcDesc.'<br> が利用済みです。</p>';
+			}
+		    $html_sc .= '[/callout]' ;
+            if ( $oprType == 'use' ) {
+               $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+               $html_sc .= '<p class="label" style="background-color:blue;">'.$shopDesc.'</p>' ;
+               $html_sc .= '<img style="width:105px; height:105px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['coupon_title'] .'" />' ;
+               $html_sc .= '<p class="effect" style="font-size:80%;">'.$useCond.'<br>'.$dispCond.'</p>';
+               $html_sc .= '</div>';
+            } else if ( $oprType == 'used' ) {
+               $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+               $html_sc .= '<p class="label" style="background-color:gray;">'.$shopDesc.'</p>' ;
+               $html_sc .= '<img style="width:105px; height:105px;" src="'. $imgPath. str_replace("\.png", "\_used\.png", $vdata['image_url01'] ) . '" alt="'. $vdata['coupon_title'] .'" />' ;
+               $html_sc .= '<p class="effect" style="font-size:80%;">'.$useCond.'<br>'.$dispCond.'</p>';
+               $html_sc .= '</div>';  
+            } else {
+               $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+               $html_sc .= '<p class="label">'.$shopDesc.'</p>' ;
+               $html_sc .= '<img style="width:105px; height:105px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['coupon_title'] .'" />' ;
+               $html_sc .= '<p class="effect" style="font-size:80%;">'.$useCond.'<br>'.$dispCond.'</p>';
+               $html_sc .= '</div>';               
+            }
+            $html .= do_shortcode($html_sc); 
+		}
+        // 実行確認して完了画面に遷移
+        $opturl = _ekptcom_linkCoupon($bParams) ;
+         $button_link = esc_html($baseurl.$type.$func.$opturl.$paramLabel.$seq_nos) ;
+		$html_sc = '' ;
+        $html_sc .= '<ul id="misc-bar" class="hlist cap-btn">' ;
+        $html_sc .= '	<li class="hlistitem-top"><a href="javascript:void(0);" onclick="showConfMsg(\'本当にクーポンを使いますか？\n※一度、利用ボタンを押すと利用済になってしまいます。\',\''.$button_link.'\') ;" >ｸｰﾎﾟﾝを使う</a></li>' ;
+        $html_sc .= '</ul>' ;
+		// 戻るボタンは共通
+		$html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html_sc .= '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]ｸｰﾎﾟﾝﾎｰﾑに戻る[/button]' ;
+		$html_sc .= '<div class="clear"></div>' ;
+		$html_sc .= '</div></div>' ;
+		$html .= do_shortcode($html_sc) ;
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]エラーが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+
+function ekptcom_contents_coupon_finish($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+	$token = $_REQUEST['token'] ;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $type = '/homecoupon' ;
+    $func = '/oprfinish' ;
+    $oprType = $bParams['opr_type'] ;
+    $paramLabel = '&seq_nos=' ;
+    $paramLabel2 = '&desc_label=' ;
+    // パラメタ設定
+    $item_type = $_REQUEST['item_type'];
+    $seq_nos = $_REQUEST['seq_nos'];
+	if ( $oprType == 'use' ) {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('exec_memcoupon', $param);
+	} else {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('get_memcoupon', $param);
+	}
+    // 配列データを取得
+    $vdatas = $jsondatas['memcoupons'];
+    $html = '' ;
+    if ( $jsondatas['status'] == 'ok' ) {
+        // 正常系出力
+		// ｸｰﾎﾟﾝ実行による表示
+		foreach ($vdatas as $vdata) {
+           //
+           $svcDesc = "【ｻｰﾋﾞｽ内容】".$vdata['coupon_desc'];
+           $shopDesc = "【店舗名】".$vdata['shop_title'];
+           $useCond = "【利用条件】".$vdata['coupon_use'];
+           $dispCond = "【提示条件】".$vdata['coupon_disp'];           
+           //
+			$html_sc = '' ;
+			if ( $oprType == 'use' ) {
+               $html_sc .= '<dic style="width:100%; text-align:center;"><img style="width:100%;" src="'. $imgPath . 'coupon_banner_01.gif" /></div>' ;
+            }
+               $html_sc .= '[callout align="center" text-align="center"]' ;
+			if ( $oprType == 'use' ) {
+                $html_sc .= '<p style="text-align:center;font-size:120%;color:red;font-weight:bold;">'.'<br> この画面を店舗スタッフにご提示ください</p>';
+				$html_sc .= '<p style="text-align:center;">'.$svcDesc.'<br> が利用可能です。</p>';
+			} else {
+				$html_sc .= '<p style="text-align:center;color:red;">'.$svcDesc.'<br> が利用済みです。</p>';
+			}
+		    $html_sc .= '[/callout]' ;
+            if ( $oprType == 'use' ) {
+               $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+               $html_sc .= '<p class="label" style="background-color:blue;">'.$shopDesc.'</p>' ;
+               $html_sc .= '<img style="width:105px; height:105px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['coupon_title'] .'" />' ;
+               $html_sc .= '<p class="effect" style="font-size:80%;">'.$useCond.'<br>'.$dispCond.'</p>';
+               $html_sc .= '</div>';
+            } else {
+               // echo str_replace(".png", "_used.png", $vdata['image_url01'] ) ;
+               $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+               $html_sc .= '<p class="label" style="background-color:gray;">'.$shopDesc.'</p>' ;
+               $html_sc .= '<img style="width:105px; height:105px;" src="'. $imgPath. str_replace(".png", "_used.png", $vdata['image_url01'] ) . '" alt="'. $vdata['coupon_title'] .'" />' ;
+               $html_sc .= '<p class="effect" style="font-size:80%;">'.$useCond.'<br>'.$dispCond.'</p>';
+               $html_sc .= '</div>';               
+            }
+		    $html .= do_shortcode($html_sc); 
+		}
+		// 戻るボタンは共通
+		$html_sc = '' ;
+		$html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html_sc .= '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]ｸｰﾎﾟﾝﾎｰﾑに戻る[/button]' ;
+		$html_sc .= '<div class="clear"></div>' ;
+		$html_sc .= '</div></div>' ;
+		$html .= do_shortcode($html_sc) ;
+		// アイテム取得時のアニメーション処理
+		$html .= '
+			<script type="text/javascript">
+			<!--
+				(function ($) {
+					$(function () {
+						var panels = $(".entry-content").find(".imgArea");
+						for (var i = 0; i < panels.length; i++) {
+							for (var j = 0; j < 6; j++) {
+								$(panels[i]).rotate3Di("-=180", 200);
+							}
+						}
+					});
+				})(jQuery);
+			-->
+			</script>
+			';
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]ｴﾗｰが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+
+function ekptcom_contents_gift_confirm($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+	$token = $_REQUEST['token'] ;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $type = '/homegift' ;
+    $func = '/oprfinish' ;
+    $oprType = $bParams['opr_type'] ;
+    $paramLabel = '&seq_nos=' ;
+    $paramLabel2 = '&desc_label=' ;
+    // パラメタ設定
+    $item_type = $_REQUEST['item_type'];
+    $seq_nos = $_REQUEST['seq_nos'];
+	if ( $oprType == 'use' ) {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    // $jsondatas = ekpt_get_json('exec_memcoupon', $param);
+	    $jsondatas = ekpt_get_json('get_memgift', $param);
+	} else {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('get_memgift', $param);
+	}
+    // 配列データを取得
+    $vdatas = $jsondatas['memgifts'];
+    // print_r($vdatas) ;
+    $html = '' ;
+    if ( $jsondatas['status'] == 'ok' ) {
+        // 正常系出力
+		// ｸｰﾎﾟﾝ実行による表示
+		foreach ($vdatas as $vdata) {
+			$html_sc = '' ;
+    		$html_sc .= '[callout align="center" text-align="center"]' ;
+			if ( $oprType == 'use' ) {
+				$html_sc .= '<p style="text-align:center;">【景品】<br>'.$vdata['gift_title'].'<br>を受け取れます。</p>';
+			} else {
+				$html_sc .= '<p style="text-align:center;">【景品】<br>'.$vdata['gift_title'].'<br>を受け取れます。</p>';
+			}
+		    $html_sc .= '[/callout]' ;
+			$desc_text = isset($vdata['gift_desc']) ? $vdata['gift_desc'] : 'こちらの景品を受け取ると、交換等ができなくなります。。<br>' ;
+			$html_sc .= '<div class="bg-green" style="width:90%;">' ;
+			$html_sc .= '<p class="label">'.$vdata['gift_title'].'</p>' ;
+			$html_sc .= '<img style="width:80px; height:80px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['gift_title'] .'" />' ;
+			$html_sc .= '<p class="effect" style="font-size:80%;">'.$desc_text.'</p>';
+			$html_sc .= '</div>';
+		    $html .= do_shortcode($html_sc); 
+		}
+
+        // 実行確認して完了画面に遷移
+        $opturl = _ekptcom_linkCoupon($bParams) ;
+         $button_link = esc_html($baseurl.$type.$func.$opturl.$paramLabel.$seq_nos) ;
+		$html_sc = '' ;
+        $html_sc .= '<ul id="misc-bar" class="hlist cap-btn">' ;
+        $html_sc .= '	<li class="hlistitem-top"><a href="javascript:void(0);" onclick="showConfMsg(\'本当に景品を受け取りますか？\',\''.$button_link.'\') ;" >景品を受け取る</a></li>' ;
+        $html_sc .= '</ul>' ;		
+        // 戻るボタンは共通
+        $html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html_sc .= '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]景品ﾎｰﾑに戻る[/button]' ;
+		$html_sc .= '<div class="clear"></div>' ;
+		$html_sc .= '</div></div>' ;
+		$html .= do_shortcode($html_sc) ;
+		// アイテム取得時のアニメーション処理
+		$html .= '
+			<script type="text/javascript">
+			<!--
+				(function ($) {
+					$(function () {
+						var panels = $(".entry-content").find(".imgArea");
+						for (var i = 0; i < panels.length; i++) {
+							for (var j = 0; j < 6; j++) {
+								$(panels[i]).rotate3Di("-=180", 200);
+							}
+						}
+					});
+				})(jQuery);
+			-->
+			</script>
+			';
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]エラーが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+
+function ekptcom_contents_gift_finish($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+	$token = $_REQUEST['token'] ;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $type = '/homegift' ;
+    $func = '/entryform' ;
+    $oprType = $bParams['opr_type'] ;
+    $paramLabel = 'seq_nos=' ;
+    $paramLabel2 = 'desc_label=' ;
+    // パラメタ設定
+    $item_type = $_REQUEST['item_type'];
+    $seq_nos = $_REQUEST['seq_nos'];
+	if ( $oprType == 'use' ) {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('exec_memgift', $param);
+	} else {
+	    $param = array( "seq_no" =>  $seq_nos ) ;
+	    $jsondatas = ekpt_get_json('get_memgift', $param);
+	}
+    // 配列データを取得
+    $vdatas = $jsondatas['memgifts'];
+    $html = '' ;
+    if ( $jsondatas['status'] == 'ok' ) {
+        // 正常系出力
+		// ｸｰﾎﾟﾝ実行による表示
+		foreach ($vdatas as $vdata) {
+			$html_sc = '' ;
+    		$html_sc .= '[callout align="center" text-align="center"]' ;
+			if ( $oprType == 'use' ) {
+				$html_sc .= '<p style="text-align:center;">おめでとうございます。【景品】<br>'.$vdata['gift_title'].'<br>を受け取りました。</p>';
+			} else {
+				$html_sc .= '<p style="text-align:center;">【景品】<br>'.$vdata['gift_title'].'<br>を受け取りました。</p>';
+			}
+		    $html_sc .= '[/callout]' ;
+			$desc_text = isset($vdata['gift_desc']) ? $vdata['gift_desc'] : '引き続き、景品を受け取るため、送付先の情報を入力してください。' ;
+			$html_sc .= '<div class="bg-green" style="width:90%;">' ;
+			$html_sc .= '<p class="label">'.$vdata['gift_title'].'</p>' ;
+			$html_sc .= '<img style="width:80px; height:80px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['coupon_title'] .'" />' ;
+			$html_sc .= '<p class="effect" style="font-size:80%;">'.$desc_text.'</p>';
+			$html_sc .= '</div>';
+		    $html .= do_shortcode($html_sc); 
+		}
+
+        // 実行確認して完了画面に遷移
+        $opturl = _ekptcom_linkCoupon($bParams) ;
+         $button_link = esc_html($baseurl.$type.$func.$opturl.$paramLabel.$seq_nos) ;
+		$html_sc = '' ;
+        $html_sc .= '<ul id="misc-bar" class="hlist cap-btn">' ;
+        $html_sc .= '	<li class="hlistitem-top"><a href="'.$button_link.'" >送付先情報を登録</a></li>' ;
+        $html_sc .= '</ul>' ;
+		// 戻るボタンは共通
+		$html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html_sc .= '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]景品ﾎｰﾑに戻る[/button]' ;
+		$html_sc .= '<div class="clear"></div>' ;
+		$html_sc .= '</div></div>' ;
+		$html .= do_shortcode($html_sc) ;
+		// アイテム取得時のアニメーション処理
+		$html .= '
+			<script type="text/javascript">
+			<!--
+				(function ($) {
+					$(function () {
+						var panels = $(".entry-content").find(".imgArea");
+						for (var i = 0; i < panels.length; i++) {
+							for (var j = 0; j < 6; j++) {
+								$(panels[i]).rotate3Di("-=180", 200);
+							}
+						}
+					});
+				})(jQuery);
+			-->
+			</script>
+			';
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]エラーが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+
+function ekptcom_contents_gift_gacya_confirm($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_GIFTGACYA'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+	$token = $_REQUEST['token'] ;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $home = '/homeitem' ;
+    $type = '/homegiftgacya' ;
+    $func = '/oprfinish/' ;
+    $oprType = $bParams['opr_type'] ;
+    $paramLabel = '&seq_no=' ;
+    $paramLabel2 = '&desc_label=' ;
+    // パラメタ設定
+    $item_type = $_REQUEST['item_type'];
+    $seq_nos = $_REQUEST['seq_nos'];
+    // 景品権利データ取得
+    $urldata = 'GiftRight/Get' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+   	$param = array( "mem_id" =>  $mem_id ) ;
+    $retdata = ekpt_get_json( $urldata, $param, $urlbase);
+    $vdatasSeq = $retdata['data']['gift_right'];
+    $vdataSeqSel = '' ;
+    $found = 'NG' ;
+    $link_url = EKPTDEF_COUPON_GUIDE;
+    foreach ( $vdatasSeq as $vdataSeq ) {
+       if ( $vdataSeq['right_status'] == 'U' ) {
+            $vdataSeqSel = $vdataSeq ;
+            $found = 'OK' ;
+            break ;
+       }
+    }
+    // 景品権利を予約
+    $vdatas = array() ;
+    if ( $found == 'OK' ) {
+      $urldataexec = 'GiftRight/PreExecute' ;
+      $paramexec = array( "seq_no" =>  $vdataSeqSel['seq_no'] ) ;
+      $retdataexec = ekpt_get_json( $urldataexec, $paramexec, $urlbase);
+      $vdatas = $retdataexec['data']['gift_right'];   
+      $html = '' ;
+      $oprSeqNo = $vdataSeqSel['seq_no'] ;
+      // print_r( $vdataSeqSel) ;
+      // print_r($retdataexec);       
+    } else {
+       $retdata['status_code'] == '200';
+    }
+    $html_sc = '' ;
+    if ( $retdata['status_code'] == '200' ) {
+        // 正常系出力
+        if ( $found <> 'OK' ) {
+            $button_link_home = esc_html($baseurl.$home.$opturlBase) ;
+            $html_sc .= '[callout align="center" text-align="center"]' ;
+            $html_sc .= '<p style="text-align:center;">現在、受け取れる景品はありません。</p>';
+            $html_sc .= '[/callout]' ;
+            $html_sc .= '[button align="center" color="white" size="large" link="'.$button_link_home.'"]アイテムホームに戻る[/button]' ;
+            $html .= do_shortcode($html_sc); 
+        } else { 
+            // ｸｰﾎﾟﾝ実行による表示
+            foreach ($vdatas as $vdata) {
+               // print_r($vdata);
+               // echo $imgPath. $vdata['image_url01'] ;
+                if ( $vdata['gift_exec_type'] == 'gift' ) {
+                   $desc_text = isset($vdata['gift_desc']) ? $vdata['gift_desc'] : '未設定' ;
+                } else {
+                   $desc_text = isset($vdata['gift_desc']) ? $vdata['gift_desc'] : '未設定' ;
+                }
+                $html_sc = '' ;
+                $html_sc .= '[callout align="center" text-align="center"]' ;
+                if ( $vdata['gift_exec_type'] == 'gift' ) {
+                   $link_url = $vdata['link_url'] ;
+                  $html_sc .= '<div style="text-align:center;"><span style="font-size:120%; font-weight:bold;">『'.$vdata['gift_title'].'』が受け取れます。 </span><br><a href="'.$vdata['link_url'].'" target="_blank">景品の詳細はこちら⇒</a><br>別ｳｲﾝﾄﾞｳが開きます<br><span style="font-size:100%; font-weight:bold;color:red">※１　景品の受け取りは、<br>下記の、[景品ガチャを受け取る]を<br>押した順になります。</span></div>';                   
+                } else {
+                   if ( $vdata['coupon_grade'] == '1等クーポン' ) {
+                      $link_url .= '#rank_first';
+                   } else if ( $vdata['coupon_grade'] == '2等クーポン' ) {
+                      $link_url .= '#rank_second';
+                   } else if ( $vdata['coupon_grade'] == '3等クーポン' ) {
+                      $link_url .= '#rank_third';
+                   } else if ( $vdata['coupon_grade'] == '4等クーポン' ) {
+                      $link_url .= '#rank_forth';
+                   } else if ( $vdata['coupon_grade'] == '5等クーポン' ) {
+                      $link_url .= '#rank_fifth';
+                   }
+                  $html_sc .= '<div style="text-align:center;"><span style="text-align:center;"><span style="font-size:120%; font-weight:bold;">『'.$vdata['gift_title'].'のクーポン』が受け取れます。</span><br><a href="'.$link_url.'">クーポンの詳細はこちら⇒</a><br><span style="font-size:100%; font-weight:bold;color:red">※１　クーポンの受け取りは、<br>下記の、[景品ガチャを受け取る]を<br>押した順になります。</span></div>';                   
+                }
+                $html_sc .= '[/callout]' ;
+                $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+                $html_sc .= '<p class="label">'.$vdata['gift_title'].'</p>' ;
+                $html_sc .= '<img style="width:210px; height:210px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['gift_title'] .'" />' ;
+                $html_sc .= '<p class="effect" style="font-size:80%;">'.$desc_text.'</p>';
+                $html_sc .= '</div>';
+                $html .= do_shortcode($html_sc); 
+            }
+            // 実行確認して完了画面に遷移
+            $bParamsCacnel = $bParams;
+            $bParamsExecute = $bParams;
+            $bParamsExecute['opr_type'] = 'execute';
+            $bParamsExecute['seq_no'] = $oprSeqNo;
+            $opturlExecute = _ekptcom_linkGiftGacya($bParamsExecute) ;
+            $button_link = esc_html($baseurl.$type.$func.$opturlExecute) ;
+            //echo EKPTDEF_GIFT_LINK;
+            //echo EKPTDEF_API;
+            $linkgift = $baseurl.'homegiftstock/'.$opturlBase ; // 定数にしたい
+            $html_sc = '' ;
+            $html_sc .= '<ul id="misc-bar" class="hlist cap-btn">' ;
+            $html_sc .= '	<li class="hlistitem-top"><a href="javascript:void(0);" onclick="showConfMsg(\'本当に景品ガチャを受け取りますか？\',\''.$button_link.'\') ;" ><span style="font-size:200%;">景品ガチャを受け取る</span></a><br><br><span style="color:red;font-size:120%;">この景品を受け取ると、<br>次以降のレベルアップ景品は<br>取得できません。</span></li>';
+            $html_sc .= '</ul>' ;
+            $html_sc .= '[callout align="center" text-align="center"]' ;
+            $html_sc .= '<p style="text-align:center;">次以降のレベルアップ景品は<br><a href="'.$linkgift.'" >コチラ⇒</a></p>';
+            $html_sc .= '[/callout]' ;
+            // キャンセルボタン
+            $bParamsCacnel['opr_type'] = 'cancel';
+            $bParamsCacnel['seq_no'] = $oprSeqNo;
+            $opturlCancel = _ekptcom_linkGiftGacya($bParamsCacnel) ;
+            $button_link_cancel = esc_html($baseurl.$type.$func.$opturlCancel) ;
+            $html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+            $html_sc .= '[button align="center" color="white" size="large" link="'.$button_link_cancel.'"]景品ガチャは受け取らない！[/button]' ;
+            $html_sc .= '<div class="clear"></div>' ;
+            $html_sc .= '</div></div>' ;
+            $html .= do_shortcode($html_sc) ;
+            // アイテム取得時のアニメーション処理
+            $html .= '
+                <script type="text/javascript">
+                <!--
+                    (function ($) {
+                        $(function () {
+                            var panels = $(".entry-content").find(".imgArea");
+                            for (var i = 0; i < panels.length; i++) {
+                                for (var j = 0; j < 6; j++) {
+                                    $(panels[i]).rotate3Di("-=180", 200);
+                                }
+                            }
+                        });
+                    })(jQuery);
+                -->
+                </script>
+                ';
+            }
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]エラーが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+function ekptcom_contents_gift_gacya_finish($atts=array()) {
+    // 属性を取り出す
+	$bParams = $GLOBALS['EKPT_PARAM_GIFTGACYA'] ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    // 基本設定
+    $baseurl = ekpt_get_opt('EKPTGFHOME');
+	$imgPath = $baseurl.EKPTDEF_IMAGEHOME ;
+    $gacyahome = 'homegacya/' ;
+    $murmurs = ekpt_get_opt('EKPTHOME').'murmurs?preset=';
+	$token = $_REQUEST['token'] ;
+    $link_url = EKPTDEF_COUPON_GUIDE;
+	$opturlBase = '?token='.$token ;
+	// 呼出設定
+    $type = 'homegiftgacya/' ;
+    $oprType = $bParams['opr_type'] ;
+    $seq_no = $bParams['seq_no'] ;
+    // パラメタ設定
+    if ( $oprType == 'execute' ) {
+      // 景品権利を予約
+      $urldataexec = 'GiftRight/Execute' ;
+      $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+      $paramexec = array( "seq_no" =>  $seq_no, "mem_id"=> $mem_id ) ;
+      $retdataexec = ekpt_get_json( $urldataexec, $paramexec, $urlbase);
+      // 配列データを取得
+      $vdata = $retdataexec['data']['stocks'][0];
+      // print_r($paramexec);
+      // print_r($retdataexec);
+	} else if ( $oprType == 'cancel' ) {
+      // 景品権利を予約
+      $urldataexec = 'GiftRight/Cancel' ;
+      $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+      $paramexec = array( "seq_no" =>  $seq_no, "mem_id"=> $mem_id  ) ;
+      $retdataexec = ekpt_get_json( $urldataexec, $paramexec, $urlbase);
+      // 配列データを取得
+      $vdata = $retdataexec['data']['stocks'][0];
+	}
+    // print_r($retdataexec) ;
+    $html = '' ;
+    if ( $retdataexec['status_code'] == '200' ) {
+        // 正常系出力
+        if ($oprType == 'execute' ) {
+            // ｸｰﾎﾟﾝ実行による表示
+            $html_sc = '' ;
+            $html_sc .= '[callout align="center" text-align="center"]' ;
+            if ( $oprType == 'execute' ) {
+               if ( $retdataexec['data']['right_status'] == 'E' ) {
+                $html_sc .= '<p style="text-align:center;">【景品ガチャ】<br>『'.$vdata['gift_title'].'』<br>を獲得しました。 <br>受け取りは<br><a href="'.$baseurl.$gacyahome.$opturlBase .'">こちら</a>のガチャホーム＝＞景品ガチャからどうぞ</p>';               
+               } else {
+                $html_sc .= '<p style="text-align:center;">【景品ガチャ】<br>『'.$vdata['gift_title'].'』<br>を獲得できませんでした。<br>残念！！！</p>';                  
+               }
+            } else if ( $oprType == 'cancel' ) {
+                $html_sc .= '<p style="text-align:center;">【景品ガチャ】<br>『'.$vdata['gift_title'].'』<br>の受取りを、<br>キャンセルしました。</p>';
+            }
+            $html_sc .= '[/callout]' ;
+            $desc_text = isset($vdata['gift_desc']) ? $vdata['gift_desc'] : '未設定' ;
+            $html_sc .= '<div class="bg-green" style="width:90%;">' ;
+            $html_sc .= '<p class="label">'.$vdata['gift_title'].'</p>' ;
+            $html_sc .= '<img style="width:210px; height:210px;" src="'. $imgPath. $vdata['image_url01'] .'" alt="'. $vdata['gift_title'] .'" />' ;
+            $html_sc .= '<p class="effect" style="font-size:80%;">'.$desc_text.'</p>';
+            $html_sc .= '</div>';
+            $html .= do_shortcode($html_sc); 
+           
+            if ( $oprType == 'execute' ) {
+               if ( $retdataexec['data']['right_status'] == 'E' ) {
+                if ( $vdata['gift_exec_type'] == 'gift' ) {
+                  $jumpurl = $vdata['link_url'] ;
+                  $murmurs .= 'エクポタウン('.ekpt_get_opt('EKPTHOME').')で、'.  $vdata['gift_title'] .'をゲットしました！！詳しくは、こちら。'.$jumpurl;
+                } else {
+                   $jumpurl = $vdata['link_url'] ;
+                  $murmurs .= 'エクポタウン('.ekpt_get_opt('EKPTHOME').')で、'.  $vdata['gift_title'] .'のクーポンをゲットしました！！こんなクーポンをもらえます。'.$link_url;                   
+                }
+                $html_sc = '[callout align="center" text-align="center"]' ;
+                $html_sc .= '<p style="text-align:center;">景品をｹﾞｯﾄしたことを、<br>つぶやきで、<br>ともだちにしらせましょう！！！ <br><a href="'. esc_html($murmurs) .'"><span style="font-size:120%; color:red; font-weight:bold;">こちら<span></a>からどうぞ<<br>経験値もゲットできます。/p>';
+                $html_sc .= '[/callout]' ;
+                $html .= do_shortcode($html_sc); 
+               }
+            }
+        } else {
+                $html_sc = '' ;
+                $html_sc .= '[callout align="center" text-align="center"]' ;
+                $html_sc .= '<p style="text-align:center;">【景品ガチャ】の受取りを、<br>キャンセルしました。</p>';
+                $html_sc .= '[/callout]' ;
+                $html .= do_shortcode($html_sc);            
+        }
+		// 戻るボタンは共通
+        $html_sc = '' ;
+		$html_sc .= '<div class="hbtn"><div class="hbtn-inner">' ;
+		$html_sc .= '[button align="center" color="white" size="large" link="'.$baseurl.$type.$opturlBase.'"]景品ガチャﾎｰﾑに戻る[/button]' ;
+		$html_sc .= '<div class="clear"></div>' ;
+		$html_sc .= '</div></div>' ;
+		$html .= do_shortcode($html_sc) ;
+		// アイテム取得時のアニメーション処理
+		$html .= '
+			<script type="text/javascript">
+			<!--
+				(function ($) {
+					$(function () {
+						var panels = $(".entry-content").find(".imgArea");
+						for (var i = 0; i < panels.length; i++) {
+							for (var j = 0; j < 6; j++) {
+								$(panels[i]).rotate3Di("-=180", 200);
+							}
+						}
+					});
+				})(jQuery);
+			-->
+			</script>
+			';
+    } else {
+        // 異常系出力
+		// ホームへ戻るボタンの生成
+        $html_sc = $scode = '[button align="center" color="white" size="large" link="'.$baseurl.$type.'/'.$opturlBase.'"]エラーが発生しました。[/button]' ;
+		$html .= do_shortcode($html_sc) ;
+	    ekpt_log_message($scode);
+    }
+    return $html;
+}
+
+// information 表示
+function ekptcom_contents_information($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_INFORMATION'];
+    extract(shortcode_atts(array(
+		'offset' => 0,
+		'limit' => 5,
+		'maintype' => '',
+		'subtype' => '',
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homeinformation' ;
+    $func = '' ;
+	$limit = $bParams['recLimit'];
+	$offset = $bParams['recOffset'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$opturl = '' ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$params = array(
+		'mem_id' => $mem_id,
+		'item_type' => $bParams['maintypeK'],
+		'item_cate' => $bParams['subtypeK'],
+		'offset' => $offset,
+		'limit' => $limit
+	);
+	// データ取得
+    // 呼び出し先設定
+    $urldata = 'Information/History' ;
+    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+    // データ取得
+    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+    $vdatas = $retdata['data']['informations'] ;
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	$image_file = 'top_ekpt.png' ;
+	//
+      $countRe = $retdata['totalcount'] ;
+      // Pager
+      $html_pager = ekpt_pager( 'pageid', $countRe, $limit ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+	foreach($vdatas as $vdata) {
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left" style="width:15%;">' ;
+		$html .= '<img src="'.$imgurl.$image_file.'" alt="'.$image_file.'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="width:25%;">' ;
+		$html .= '<p>'.$vdata['subject'].'</p>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-right" style="width:60%;">' ;
+		$html .= '<p>'.strip_tags($vdata['value']).'</p>' ;
+		$html .= '<p>掲載期間：'.$vdata['limit_from'].'-'.$vdata['limit_to'].'' ;
+		$html .= ' 最終更新日：'.$vdata['updated_at'].'</p>' ;
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+      // Pager
+      $html_pager = ekpt_pager( 'pageid', $countRe, $limit ) ;
+      if ( $html_pager <> '' ) {
+         $html .= '<div id="misc-pager" class="title-bar" style="text-align:center;">'.$html_pager.'</div>' ;           
+      } 
+
+	// ボタン設定
+	$html .= '<div class="hbtn"><div class="hbtn-inner">';
+	$html .= $prev_btn.$next_btn;
+	$html .= '<div class="clear"></div>';
+	$html .= '</div></div>';
+	return $html;
+}
+
+function ekptcom_contents_change_giftstock($atts = array()) {
+	//
+	$mem_id = ekpt_get_opt('EKPTUSER');
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+	$gid = isset($_REQUEST['tid']) ? $_REQUEST['tid'] : 0 ;
+	$reqMaintype = $_REQUEST['maintype'];
+	$html = '';
+	$buf = '';
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+    $param = array( "mem_id" =>  $mem_id ) ;
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $link = EKPTDEF_COUPON_GUIDE;
+	$html = $html_sc ='' ;
+	// 表示対象制御
+	$mainType = 'me' ; // =base =sozai =coupon
+	$activeNotuse = $activeUsed = $activeOut ;
+	if (strlen($reqMaintype) <> 0) {
+		if ( $reqMaintype == 'me' ) {
+			$mainType  = 'me' ;
+			$activeMe = 'active';
+		} else if ( $reqMaintype == 'freiends' ) {
+			$mainType = 'freiends' ;
+			$activeFreiends = 'active';
+		} else {
+			$html = 'Error: Invalid Parameter. maintype='.$reqMaintype ;
+			return $html ;
+		}
+	} else {
+		$mainType  = 'me' ;
+		$activeMe = 'active';
+	}
+	// 表示レコード制御
+	// パラメタ作成
+	$params = array() ;
+	$opturl = ekpt_get_link_param( $params ) ;
+    // 種別切替部
+	$linkPage = $baseurl . 'homegiftstock/';
+	$linkMe = esc_html($linkPage.$opturl.'&maintype=me') ;
+	$linkFreiends = esc_html($linkPage.$opturl.'&maintype=freiends') ;
+	// 出力部
+    // $html .= do_shortcode('[button align="center" color="lightblue" size="large" link="'.EKPTDEF_COUPON_GUIDE . '"]ｴｸﾎﾟ加盟店で使えるｸｰﾎﾟﾝの情報！！！[/button]');
+//	$html .= '<div class="hbtn">' ;
+//	$html .= '<div class="hbtn-inner">';
+//	$html .= '<ul id="menuekpt">';
+//	$html .= '    <li class="first ' . $activeMe. '"><a href="' . $linkMe . '">全体</a></li>' ;
+//	// $html .= '    <li class="' . $activeFreiends. '"><a href="' . $linkFreiends . '">ともだち</a></li>' ;
+//	$html .= '</ul>' ;
+//	$html .= '<div class="clear"></div>' ;
+//	$html .= '</div>' ;
+//	$html .= '</div>' ;
+	if ( $mainType == 'me' ) {
+		$buf .= '[ekptcom_contents_list_giftstock limit=10 tid=0 maintype="me"]';
+//	} else if ( $mainType == 'freiends' ) {
+//		$buf .= '[ekptcom_contents_list_expoints limit=10 tid=1 maintype="freiends"]';
+	}
+	$html .= do_shortcode($buf);
+	$html .= '</div>';
+	$html .= '<div class="clear"></div>' ;
+	return $html;
+}
+// 
+function ekptcom_contents_list_giftstock($atts=array()) {
+	// Initialized.
+	$bParams = $GLOBALS['EKPT_PARAM_GIFTSTOCK'];
+    extract(shortcode_atts(array(
+		'tid' => 0,
+		'maintype' => '',
+		'subtype' => '',
+		'cid' => 4,
+		'link' => ''
+	), $atts));
+	// Get paramaters.
+	$mem_id = ekpt_get_opt('EKPTUSER');
+	$mem_info = $GLOBALS['EKPTMEMINFO'];
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homegiftstock' ;
+    $func = '' ;
+	$offset = $bParams['recOffset'];
+	$limit = $bParams['recLimit'];
+	$gid = $_GET['tid'];
+	// Set paramaters.
+	$html = '';
+	$vdatas = array();
+	$imgurl .= $baseurl.EKPTDEF_IMAGEHOME ;
+	$opturl = 'itemdetail/' ;
+	$item_type = $bParams['maintype'];
+	$item_cate = $bParams['subtype'];
+	$params = array(
+		'mem_id' => $mem_id,
+	);
+	// データ取得
+	$vdatas = array() ;
+    // 呼び出し先設定
+	if ( $item_type == 'me' ) {
+	    $urldata = 'Gift/GetStock' ;
+	    $urlbase = ekpt_get_opt('EKPTGFAPI') ;
+	    // データ取得
+	    $retdata = ekpt_get_json( $urldata, $params, $urlbase);
+	    $vdatas = $retdata['data']['giftstocks'] ;
+		$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+		$image_file = 'top_ekpt.png' ;
+	}
+    $html .= '[button align="left" color="white" size="large" link="#"]景品一覧[/button]' ;
+    $html .= '[button align="left" color="green" size="large" link="'.EKPTDEF_COUPON_GUIDE . '"]ｸｰﾎﾟﾝ一覧はこちら[/button]';
+     $html .= ' <div class="clear"></div>' ;
+     $html .= '<div style="color:white;">先着商品からもれてしまった方にはクーポンをプレゼントしております。</div>';
+      $imgpath = ekpt_get_mem_imagepath($GLOBALS['ekpt_image']) ;
+      $html .= '<br><ul class="item-list">' ;
+      $html .= '<li class="list-three">' ;
+      $html .= '<div class="list-three-outer"  style="height:30px;">' ;
+      $html .= ' <div class="list-three-left"  style="height:100%; text-align:center; width:25%;">イメージ</div>' ;
+      $html .= ' <div class="list-three-center" style="height:100%; text-align:center; width:50%;">景品説明</div>' ;
+      $html .= ' <div class="list-three-right" style="height:100%; text-align:center; width:25%;">残り数</div>' ;  
+     $html .= ' <div class="clear"></div>' ;
+      $html .= '</div>' ; 
+      $html .= '</li>' ;
+      $html .= '</ul>' ;
+	$cur_id = $mem_id ;
+
+    foreach($vdatas as $vdata) {
+		$merit_txt = ekpt_get_merit($vdata['merit_id']) ;
+		$params = ekpt_get_link_param(array('seq_no' => $vdata['seq_no']));
+		if ( $vdata['mem_id'] <> $cur_id ) {
+			$cur_id = $vdata['mem_id'] ;
+			$mem_data = ekpt_get_mem_info( $vdata['mem_id'] ) ;
+			$imgpath = $mem_data['image'];
+		}
+		//
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="height:140px;">' ;
+		$html .= '<div class="list-three-left"  style="height:100%; width:25%; ">' ;
+		//$html .= '<img style="width:50px; height:50px; " src="'.$imgurl.$image_file.'" alt="'.$image_file.'" />' ;
+		$html .= '<img style="width:80px; height:80px;" src="'.$imgurl.$vdata['image_url01'].'"/>' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="height:100%; width:50%;"><ul>' ;
+         $html .= '<li style="font-size:100%;">獲得レベル:'.$vdata['level_num'].'</li>' ;
+         $html .= '<li style="font-size:90%; font-weight:bold;">景品名:' . $vdata['gift_title'] . '</li>' ;
+         $html .= '<li style="font-size:80%;">説明:' . $vdata['gift_desc'] . '</li>' ;
+         $html .= '</ul></div>' ;
+         $html .= '<div class="list-three-right" style="height:100%; width:25%;"><ul>' ;
+         $html .= '<li style="font-size:100%;">最初 '.$vdata['num_of_stock_org'].' 個'.'</li>' ;
+         if ( $vdata['num_of_stock'] <> 0) {
+            $html .= '<li style="font-size:120%;color:red;">あと'.$vdata['num_of_stock'].'個！</li>' ;            
+         } else {
+            $html .= '<li style="font-size:100%;color:blue;">無くなりました！</li>' ;            
+         }
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+
+	// Pager
+	$next = count($vdatas) ? $offset + $limit : 0;
+	$prev = $offset > $limit ? $offset - $limit : 0;
+	// previous pager
+	$paramsPrev = $paramsNext = $bParams ;
+	$paramsPrev['recOffset'] = $prev;
+	$params = _ekptcom_linkExpoint($paramsPrev) ;
+	$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+	// next pager
+	$paramsNext['recOffset'] = $next;
+	$params = _ekptcom_linkExpoint($paramsNext) ;
+	$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+	// ボタン設定
+    // ボタン表示停止
+//	$html .= '<div class="hbtn"><div class="hbtn-inner">';
+//	$html .= $prev_btn.$next_btn;
+//	$html .= '<div class="clear"></div>';
+//	$html .= '</div></div>';
+    $html .= '[button align="left" color="white" size="large" link="#"]景品一覧[/button]' ;
+    $html .= '[button align="left" color="green" size="large" link="'.EKPTDEF_COUPON_GUIDE . '"]ｸｰﾎﾟﾝ一覧はこちら[/button]';
+	return do_shortcode($html);
+}
+
+// 内部関数：　_ekptcom_linkCoupon 用： http用クエリ文字列を作る
+function _ekptcom_linkGiftGacya( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_GIFTGACYA'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+function _ekptcom_paramRanking() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'maintype' => 'me' ,
+						'subtype' => '' ,
+						'maintypeK' => '自分' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 10,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeranking/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_RANKING']) ? $GLOBALS['EKPT_PARAM_RANKING'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// 条件による設定の場合
+	if ( isset($_REQUEST['maintype']) ) {
+		$bParams['maintype'] = $_REQUEST['maintype'] ;
+		if ( $bParams['maintype'] == 'me' ) {
+			$bParams['maintypeK'] = '自分' ;
+		} else if ( $bParams['maintype'] == 'top100' ) {
+			$bParams['maintypeK'] = 'Top100' ;
+		} else if ( $bParams['maintype'] == 'freiends' ) {
+			$bParams['maintypeK'] = 'ともだち' ;
+		} else {
+			$bParams['maintype'] = 'me';
+			trigger_error('_paramItemFusion:Invalid maintype = '. $_REQUEST['maintype'], E_USER_ERROR);
+		}
+	}
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_RANKING'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+
+// 内部関数：　_ekptcom_linkCoupon 用： http用クエリ文字列を作る
+function _ekptcom_linkRanking( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_RANKING'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+// 内部関数：　_ekptcom_linkRxpoint 用： http用クエリ文字列を作る
+function _ekptcom_linkExpoint( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_EXPOINT'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+function _ekptcom_paramGiftStock() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'maintype' => 'me' ,
+						'subtype' => '' ,
+						'maintypeK' => '未使用' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 10,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homegiftstock/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_GIFTSTOCK']) ? $GLOBALS['EKPT_PARAM_GIFTSTOCK'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// 条件による設定の場合
+	if ( isset($_REQUEST['maintype']) ) {
+		$bParams['maintype'] = $_REQUEST['maintype'] ;
+		if ( $bParams['maintype'] == 'me' ) {
+			$bParams['maintypeK'] = '自分' ;
+		} else if ( $bParams['maintype'] == 'freiends' ) {
+			$bParams['main	typeK'] = 'ともだち' ;
+		} else {
+			$bParams['maintype'] = 'me';
+			trigger_error('_paramGiftStock:Invalid maintype = '. $_REQUEST['maintype'], E_USER_ERROR);
+		}
+	}
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_GIFTSTOCK'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+// 内部関数：　_ekptcom_linkRxpoint 用： http用クエリ文字列を作る
+function _ekptcom_linkGiftStock( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_GIFTSTOCK'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+//
+function ekptcomcontents_gift($atts=array()) {
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'coupon_type' => 1,
+    ), $atts));
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homegift' ;
+    $func = '/oprconfirm' ;
+    $paramLabel = '/?seq_no=' ;
+    $paramLabel2 = '&desc_label=' ;    
+    $offset = $bParams['recOffset'] ;    
+    $limit = $bParams['recLimit'] ;    
+    // パラメタ設定
+	$GLOBALS['EKPT_COUPON'] = array() ;
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+	if ( $bParams['maintype'] == 'notuse' ) {
+		$status = 'U' ;
+	} else if ( $bParams['maintype'] == 'used') {
+		$status = 'E' ;
+	} else if ( $bParams['maintype'] == 'out') {
+		$status = 'O' ;
+	}
+    $param = array( "mem_id" =>  $mem_id,
+					'offset' => $offset,
+					'limit' => $limit,
+					'status' => $status ) ;
+    $arrdata = ekpt_get_json('get_memgift_box', $param);
+    // 配列データを取得
+    $vdatas = $arrdata['memgifts'];
+	$GLOBALS['EKPT_COUPON'] = $vdatas ;
+    // ループして出力
+    $odata = '' ;
+    // 出力指定
+    $html = '' ;
+    // 表示個数に応じてループ
+    $exnum = 1 ;
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	foreach($vdatas as $vdata) {
+		$opturl = ekpt_get_link_param($params) ;
+		if ( $bParams['maintype'] == 'notuse' ) {
+			// パラメータのセット
+			$params = array(
+				'item_type' => $item_type,
+				'opr_type' => 'use',
+				'seq_nos' => $vdata['seq_no'],
+			) ;
+			$opturl = ekpt_get_link_param($params) ;
+		    $button_link = '<a href="'.esc_html($baseurl.$type.$func.$opturl).'">受け取る ></a>' ;
+		} else if ( $bParams['maintype'] == 'used' ) {
+			// パラメータのセット
+			$params = array(
+				'item_type' => $item_type,
+				'opr_type' => 'show',
+				'seq_nos' => $vdata['seq_no'],
+			) ;
+			$opturl = ekpt_get_link_param($params) ;
+		    $button_link = '<a href="'.esc_html($baseurl.$type.$func.$opturl).'"><span style="color:red;">表示></span></a>' ;
+		} else if ( $bParams['maintype'] == 'out' ) {
+		    $button_link = '<span style="color:orange;">期限切</span>' ;
+		}
+		//
+		$height = ' height:120px;"' ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left"  style="width:20%; '.$height.'">' ;
+		$html .= '<img style="width:40px; height:40px;" src="'.$imgurl.$vdata['image_url01'].'" alt="'.$vdata['image_url01'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="width:60%; '.$height.'"><ul>' ;
+		$html .= '<li style="font-size:90%;" >景品名：'.$vdata['gift_title'].'</li>' ;
+		// $html .= '<li style="font-size:60%;" >期限：'.$vdata['date_time_start'].'～'.$vdata['date_time_end'].'</li>' ;
+		$html .= '</ul></div>' ;
+		$html .= '<div class="list-three-right" style="width:20%; '.$height.'"><ul>' ;
+		$html .= $button_link ;
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+	if ( $offset == 0 and count($vdatas) == 0 ) {
+		$html .= do_shortcode('[callout]現在景品はありません。[/callout]') ;
+	} else {
+		// Pager
+		$next = count($vdatas) ? $offset + $limit : 0;
+		$prev = $offset > $limit ? $offset - $limit : 0;
+		// previous pager
+		$paramsPrev = $paramsNext = $bParams ;
+		$paramsPrev['recOffset'] = $prev;
+		$params = _ekptcom_linkCoupon($paramsPrev) ;
+		$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+		// next pager
+		$paramsNext['recOffset'] = $next;
+		$params = _ekptcom_linkCoupon($paramsNext) ;
+		$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+		// ボタン設定
+//		$html .= '<div class="hbtn"><div class="hbtn-inner">';
+//		$html .= $prev_btn.$next_btn;
+//		$html .= '<div class="clear"></div>';
+//		$html .= '</div></div>';	
+	}
+
+	return do_shortcode($html);
+}
+
+// 内部関数： _ekptcom_linkCoupon 用： パラメタを定義
+function _ekptcom_paramCoupon() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'opr_type' => 'use',
+						'maintype' => 'notuse' ,
+						'subtype' => '' ,
+						'maintypeK' => '未使用' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 5,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homecoupon/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_COUPON']) ? $GLOBALS['EKPT_PARAM_COUPON'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['opr_type'] = isset($_REQUEST['opr_type']) ? $_REQUEST['opr_type'] : $bParams['opr_type'];	
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// 条件による設定の場合
+	if ( isset($_REQUEST['maintype']) ) {
+		$bParams['maintype'] = $_REQUEST['maintype'] ;
+		if ( $bParams['maintype'] == 'notuse' ) {
+			$bParams['maintypeK'] = '未使用' ;
+		} else if ( $bParams['maintype'] == 'used' ) {
+			$bParams['maintypeK'] = '使用済' ;
+		} else if ( $bParams['maintype'] == 'out' ) {
+			$bParams['maintypeK'] = '期限切' ;
+		} else {
+			$bParams['maintype'] = 'base';
+			trigger_error('_paramItemFusion:Invalid maintype = '. $_REQUEST['maintype'], E_USER_ERROR);
+		}
+	}
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_COUPON'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+// 内部関数：　_ekptcom_linkCoupon 用： http用クエリ文字列を作る
+function _ekptcom_linkCoupon( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_COUPON'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+// 内部関数： _ekptcom_linkCoupon 用： パラメタを定義
+function _ekptcom_paramGiftGacya() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'opr_type' => 'execute',
+						'seq_no' => 0,
+						'maintype' => 'notuse' ,
+						'subtype' => '' ,
+						'maintypeK' => '未使用' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 5,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homecoupon/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_GIFTGACYA']) ? $GLOBALS['EKPT_PARAM_GIFTGACYA'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['opr_type'] = isset($_REQUEST['opr_type']) ? $_REQUEST['opr_type'] : $bParams['opr_type'];	
+	$bParams['seq_no'] = isset($_REQUEST['seq_no']) ? $_REQUEST['seq_no'] : $bParams['seq_no'];	
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_GIFTGACYA'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+// 内部関数：　homeitemfusion 用： パラメタを定義
+function _ekptcom_paramInformation() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'maintype' => 'base' ,
+						'subtype' => 'head' ,
+						'maintypeK' => 'ベース' ,
+						'subtypeK' => 'ヘッド' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 5,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeinformation/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_INFORMATION']) ? $GLOBALS['EKPT_PARAM_INFORMATION'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_INFORMATION'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+// 内部関数：　homeitemfusion 用： http用クエリ文字列を作る
+function _ekptcom_linkInformation( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_INFORMATION'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+// 内部関数：　homeitemfusion 用： パラメタを定義
+function _ekptcom_paramEkupopoint() {
+	// パラメタ定義-ディフォルト設定
+	$bParams = array(
+						'token' => $_REQUEST['token'],
+						'mem_id' => ekpt_get_opt('EKPTUSER'),
+						'maintype' => '' ,
+						'subtype' => '' ,
+						'maintypeK' => '' ,
+						'subtypeK' => '' ,
+						'maintypeN' => 0 ,
+						'subtypeN' => 0 ,
+						'recOffset' => 0,
+						'recLimit' => 5,
+						'recTotal' => 0,
+						'json_status' => 'ok',
+						'json_error' => '',
+						'base_url' => ekpt_get_opt('EKPTGFHOME'),
+						'home_url' => 'homeekupopoint/',
+						'current_uri' => get_page_uri($post->ID)
+						) ;
+	// 現在のデータを設定
+	$oldParams = isset($GLOBALS['EKPT_PARAM_EKUPOPOINT']) ? $GLOBALS['EKPT_PARAM_EKUPOPOINT'] : $bParams ;
+	// リクエストから値を取得
+	$bParams['recOffset'] = isset($_REQUEST['recOffset']) ? $_REQUEST['recOffset'] : $bParams['recOffset'];	
+	$bParams['recLimit'] = isset($_REQUEST['recLimit']) ? $_REQUEST['recLimit'] : $bParams['recLimit'];
+	$bParams['recTotal'] = isset($_REQUEST['recTotal']) ? $_REQUEST['recTotal'] : $bParams['recTotal'];
+	// グローバル変数に保存
+	$GLOBALS['EKPT_PARAM_EKUPOPOINT'] = $bParams ;
+	//
+	// return $bParams ;
+}
+
+// 内部関数：　homeitemfusion 用： http用クエリ文字列を作る
+function _ekptcom_linkEkupopoint( $bParams, $linktype = 'Q' ) {
+	if ( count($bParams) == 0 ) { $bParams = $GLOBALS['EKPT_PARAM_EKUPOPOINT'] ; }
+	unset($bParams['json_status']) ;
+	unset($bParams['json_error']) ;
+	unset($bParams['base_url']) ;
+	unset($bParams['home_url']) ;
+	unset($bParams['current_uri']) ;
+	$html = '' ;
+	if ( $linktype == 'Q' ) {
+		$html = '?' . http_build_query($bParams) ;
+	} else {
+		foreach ( $bParams as $vk => $vv ) {
+			$html .= '<input type="hidden" name="' . $vk . '" value="' . $vv . '">';
+		}
+	}
+	return $html ;
+}
+
+//
+function ekptcomcontents_coupon($atts=array()) {
+    // 属性を取り出す
+    extract(shortcode_atts(array(
+        'coupon_type' => 1,
+    ), $atts));
+    // 基本設定
+	$bParams = $GLOBALS['EKPT_PARAM_COUPON'] ;
+    $baseurl = ekpt_get_opt('EKPTGFHOME'); 
+    $type = '/homecoupon' ;
+    $funcConfirm = '/oprconfirm' ;
+    $funcFinish = '/oprfinish' ;
+    $paramLabel = '/?seq_no=' ;
+    $paramLabel2 = '&desc_label=' ;    
+    $offset = $bParams['recOffset'] ;    
+    $limit = $bParams['recLimit'] ;    
+    // パラメタ設定
+	$GLOBALS['EKPT_COUPON'] = array() ;
+    $mem_id = ekpt_get_opt("EKPTUSER") ;
+	if ( $bParams['maintype'] == 'notuse' ) {
+		$status = 'U' ;
+	} else if ( $bParams['maintype'] == 'used') {
+		$status = 'E' ;
+	} else if ( $bParams['maintype'] == 'out') {
+		$status = 'O' ;
+	}
+    $param = array( "mem_id" =>  $mem_id,
+					'offset' => $offset,
+					'limit' => $limit,
+					'status' => $status ) ;
+    $arrdata = ekpt_get_json('get_memcoupon_box', $param);
+    // 配列データを取得
+    $vdatas = $arrdata['memcoupons'];
+	$GLOBALS['EKPT_COUPON'] = $vdatas ;
+    // ループして出力
+    $odata = '' ;
+    // 出力指定
+    $html = '' ;
+    // 表示個数に応じてループ
+    $exnum = 1 ;
+	$imgurl = $baseurl.EKPTDEF_IMAGEHOME ;
+	foreach($vdatas as $vdata) {
+        $button_link2 = '' ;
+		$opturl = ekpt_get_link_param($params) ;
+		if ( $bParams['maintype'] == 'notuse' ) {
+			// パラメータのセット
+			$params = array(
+				'item_type' => $item_type,
+				'opr_type' => 'use',
+				'seq_nos' => $vdata['seq_no'],
+			) ;
+			$opturl = ekpt_get_link_param($params) ;
+		    $button_link = '<a href="'.esc_html($baseurl.$type.$funcConfirm.$opturl).'">使う 〉</a>' ;
+		    $button_link2 = '<a href="'.esc_html($baseurl.$type.$funcConfirm.$opturl).'">詳細 〉</a>' ;
+		} else if ( $bParams['maintype'] == 'used' ) {
+			// パラメータのセット
+			$params = array(
+				'item_type' => $item_type,
+				'opr_type' => 'show',
+				'seq_nos' => $vdata['seq_no'],
+			) ;
+			$opturl = ekpt_get_link_param($params) ;
+		    $button_link = '<a href="'.esc_html($baseurl.$type.$funcFinish.$opturl).'"><span style="color:red;">表示></span></a>' ;
+		} else if ( $bParams['maintype'] == 'out' ) {
+		    $button_link = '<span style="color:orange;">期限切</span>' ;
+		}
+		//
+		$height = ' height:120px;"' ;
+		$html .= '<ul class="item-list">' ;
+		$html .= '<li class="list-three"><div class="list-three-outer" style="">' ;
+		$html .= '<div class="list-three-left"  style="width:20%; '.$height.'">' ;
+		$html .= '<img style="width:70px; height:70px;" src="'.$imgurl.$vdata['image_url01'].'" alt="'.$vdata['image_url01'].'" />' ;
+		$html .= '</div>' ;
+		$html .= '<div class="list-three-center" style="width:60%; '.$height.'"><ul>' ;
+		$html .= '<li style="font-size:90%;" >お店 '.$vdata['shop_title'].'</li>' ;
+		$html .= '<li style="font-size:80%;" >サービス内容 '.$vdata['coupon_desc'].'</li>' ;
+		$html .= '<li style="font-size:60%;" >期限 '.$vdata['date_time_start'].'～'.$vdata['date_time_end'].'</li>' ;
+		$html .= '</ul></div>' ;
+		$html .= '<div class="list-three-right" style="width:20%; '.$height.'"><ul>' ;
+		$html .= $button_link ;
+        if ( $button_link2 <> '' ) {
+         $html .= '<br>'.$button_link2 ;            
+        }
+		$html .= '</div><div class="clear"></div>' ;
+		$html .= '</div></li>' ;
+		$html .= '</ul>' ;
+	}
+	$html .= '<div class="clear"></div>';
+	if ( $offset == 0 and count($vdatas) == 0 ) {
+		$html .= do_shortcode('[callout]現在クーポンはありません。[/callout]') ;
+	} else {
+		// Pager
+		$next = count($vdatas) ? $offset + $limit : 0;
+		$prev = $offset > $limit ? $offset - $limit : 0;
+		// previous pager
+		$paramsPrev = $paramsNext = $bParams ;
+		$paramsPrev['recOffset'] = $prev;
+		$params = _ekptcom_linkCoupon($paramsPrev) ;
+		$prev_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]前へ[/button]') ;
+		// next pager
+		$paramsNext['recOffset'] = $next;
+		$params = _ekptcom_linkCoupon($paramsNext) ;
+		$next_btn = do_shortcode('[button align="center" color="lightblue" size="small" link="'.esc_html($baseurl.$bParams['current_uri'].$params).'"]次へ[/button]') ;
+		// ボタン設定
+		$html .= '<div class="hbtn"><div class="hbtn-inner">';
+		$html .= $prev_btn.$next_btn;
+		$html .= '<div class="clear"></div>';
+		$html .= '</div></div>';	
+	}
+
+	return do_shortcode($html);
+}
+
+?>

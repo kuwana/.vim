@@ -1,0 +1,32 @@
+# 出品アイテム選択画面（セット）
+
+## `contents_newtrade_set_sendlist`
+* 旧出品画面で使ってるモジュールは
+	contents_newtrade_set_sendlist
+	ekptcom2_change_contents_sendlistをコール
+	
+	qsItemFusionが見つからない...
+		これが呼ばれてる_ekptcom2_retrunItemTradeは戻るボタンの作成だから一旦消すか
+	
+* `get_page_uri()`でPHP Warning出るけどシカトでいいっぽい
+	$post->IDを引数で解決
+
+* 把握するのにかかる時間、priceless...
+
+
+## テンプレート
+$html .= '<h2 class="ekptgfH2">出品可能なアイテム一覧</h2>';
+$html .= '<ul class="itemTypeList">';
+$html .= '<li>ヘッド</li>';
+$html .= '<li class="selectedItem"><a href="">ボディ</a></li>';
+$html .= '<li>レッグ</li>';
+$html .= '<li>アクセサリ</li>';
+$html .= '<li>ガチャチケ</li>';
+$html .= '<li>変化剤</li>';
+$html .= '<li>強化剤</li>';
+$html .= '<li>エクポチケ</li>';
+$html .= '<li>セット</li>';
+$html .= '<li>その他</li>';
+$html .= '</ul>';
+$html .= '<br class="lineSpace">';
+

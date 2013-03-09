@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>画像取得ページ</title>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<div id="wrapper">
+		<h1 class="h1_musou_getimage"><img src="musou.png" alt="musou.png"></h1>
+		<div class="div_musou_getimage">
+			<h2>今回ゲットできる画像</h2><br>
+			<table>
+				<tr>
+					<td><img src="image_01.png" alt="image_01.png"></td>
+					<td>説明など</td>
+					<td><a href="getmusouimgconfirm.html" class="button white">ゲットする</a></td>
+				</tr>
+				<tr>
+					<td><img src="image_02.png" alt="image_02.png"></td>
+					<td>説明など</td>
+					<td><a href="getmusouimgconfirm.html" class="button white">ゲットする</a></td>
+				</tr>
+				<tr>
+					<td><img src="image_03.png" alt="image_03.png"></td>
+					<td>説明など</td>
+					<td><a href="getmusouimgconfirm.html" class="button white">ゲットする</a></td>
+				</tr>
+			</table><br>
+		</div>
+	</div>
+</body>
+</html>

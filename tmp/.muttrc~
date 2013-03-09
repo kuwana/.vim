@@ -1,0 +1,17 @@
+# 日本語環境設定（日本語サイト参照）
+set send_charset="us-ascii:iso-2022-jp"
+set strict_mime=no
+set assumed_charset="iso-2022-jp:euc-jp:shift_jis:utf-8"
+set thorough_search=yes
+set sanitize_ja_chars=yes
+set rfc2047_parameters=yes
+set edit_headers=yes
+
+# メールアドレスホスト名
+set hostname="gmail.com"
+# 送信メールのbccを書かない
+set write_bcc=no
+# 終了時に、常に mbox 等にメールを移動しない
+set move=no
+# bccのデフォルトに自分のアドレス
+# my_hdr Bcc: my-address@xxx.yy

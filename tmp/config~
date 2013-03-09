@@ -1,0 +1,8 @@
+HOST gitolite
+	USER         gitolite
+	HOSTNAME     www12313ue.sakura.ne.jp
+	IDENTITYFILE ~/.ssh/admin
+HOST si-media.biz
+	USER         kuwana
+	HOSTNAME     si-media.biz
+	IDENTITYFILE ~/.ssh/id_rsa

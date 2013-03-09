@@ -1,0 +1,208 @@
+
+/* Clear Fix
+------------------------------------------------*/
+.clearfix { zoom:1; }
+.clearfix:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+
+/* Common
+------------------------------------------------*/
+* {
+	margin:  0;
+	padding: 0;
+}
+body {
+	background-color: #333333;
+}
+#wrapper {
+	width: 100%;
+}
+
+
+/* Rayout
+------------------------------------------------*/
+#header {
+	width: 100%;
+	height: 100px;
+	background-color: #eee;
+}
+#container {}
+.content {
+	width: 70%;
+	height: 100px;
+	float: left;
+}
+.side_coupon {
+	width: 30%;
+	height: 100px;
+	float: left;
+	background-color: #efe;
+}
+
+
+/* Global Navi
+------------------------------------------------*/
+.ul_global_nav {
+	
+}
+.ul_global_nav li {
+	width: 16%;
+	list-style: none;
+	float: left;
+}
+
+/* Box Margin
+------------------------------------------------*/
+.store_title,
+.campain_banner,
+.ul_tab_menu {
+	margin: 8px;
+}
+
+
+/* 店舗ヘッダ
+------------------------------------------------*/
+.store_title {
+	background-color: #ffffff;
+	color: #666666;
+}
+	.store_title p:first-child {
+		font-size: 16px;
+		line-height: 150%;
+		background-color: #999999;
+		color: #ffffff;
+	}
+	.store_title h2 {
+		width: 50%;
+		line-height: 100%;
+		background-color: #ffffff;
+		float: left;
+	}
+	.store_title p:last-child {
+		font-size: x-large;
+		font-weight: bold;
+		width: 50%;
+		line-height: 100%;
+		text-align: right;
+		background-color: #ffffff;
+		float: left;
+	}
+
+/* バナー
+------------------------------------------------*/
+.campain_banner {
+	height: 50px;
+	color: #116655;
+	background-color: #CCCCCC;
+}
+/* タブメニュー
+------------------------------------------------*/
+.ul_tab_menu {
+}
+	.ul_tab_menu li {
+		width: 14%;
+		line-height: 36px;
+		list-style: none;
+		text-align: center;
+		border: 1px solid #777777;
+		float: left;
+	}
+
+/* 店舗メイン
+------------------------------------------------*/
+.store_main {
+}
+	.store_main .left{
+		width: 30%;
+		float: left;
+	}
+	.store_main .right{
+		width: 70%;
+		float: left;
+	}
+
+
+/* クーポン１
+------------------------------------------------*/
+.div_coupon_01 {
+}
+	.div_coupon_01 h4 {
+		background-color: #fb6938;
+		color: #ffffff;
+	}
+
+/* ボタン系
+------------------------------------------------*/
+.a_btn_coupon_01 {
+	font-size:16px;
+	font-weight:normal;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	border:1px solid #74b807;
+	padding:9px 18px;
+	text-decoration:none;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #66cc66), color-stop(100%, #66cc66) );
+	background:-moz-linear-gradient( center top, #66cc66 5%, #66cc66 100% );
+	background:-ms-linear-gradient( top, #66cc66 5%, #66cc66 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#66cc66', endColorstr='#66cc66');
+	background-color:#66cc66;
+	color:#ffffff;
+	display:inline-block;
+	text-shadow:0px 1px 3px #348f37;
+ 	-webkit-box-shadow:inset 0px 0px 0px 3px #c3e8c4;
+ 	-moz-box-shadow:inset 0px 0px 0px 3px #c3e8c4;
+ 	box-shadow:inset 0px 0px 0px 3px #c3e8c4;
+}.a_btn_coupon_01:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #66cc66), color-stop(100%, #66cc66) );
+	background:-moz-linear-gradient( center top, #66cc66 5%, #66cc66 100% );
+	background:-ms-linear-gradient( top, #66cc66 5%, #66cc66 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#66cc66', endColorstr='#66cc66');
+	background-color:#66cc66;
+}.a_btn_coupon_01:active {
+	position:relative;
+	top:1px;
+}
+
+
+/* グラデーション設定
+================================================*/
+
+/* シルバー系 */
+.silver,
+.ul_tab_menu li {
+	color:#666666;
+/*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
+	border-bottom:1px solid #CCCCCC;
+	background: #CCCCCC;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #CCCCCC), color-stop(0.00, #F2F2F2));
+	background: -webkit-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -moz-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -o-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -ms-linear-gradient(#F2F2F2, #CCCCCC);
+	background: linear-gradient(#F2F2F2, #CCCCCC);
+	-pie-background: linear-gradient(#F2F2F2, #CCCCCC);
+	position: relative;
+	behavior: url("http://mktg.ekupo.jp/gf/wp-content/themes/ekpt/PIE.htc");
+}
+/* ブラック系 */
+.black,
+li.tab_active {
+	color:#DDDDDD;
+/*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
+	border-bottom:1px solid #333333;
+	background: #333333;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #333333), color-stop(0.00, #777777));
+	background: -webkit-linear-gradient(#777777, #333333);
+	background: -moz-linear-gradient(#777777, #333333);
+	background: -o-linear-gradient(#777777, #333333);
+	background: -ms-linear-gradient(#777777, #333333);
+	background: linear-gradient(#777777, #333333);
+	-pie-background: linear-gradient(#777777, #333333);
+	position: relative;
+	behavior: url("http://mktg.ekupo.jp/gf/wp-content/themes/ekpt/PIE.htc");
+}

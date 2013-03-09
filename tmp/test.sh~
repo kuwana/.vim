@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ " $1" = "kuwana" ] ; then
+	echo "tensai!"
+else
+	echo "none"
+fi

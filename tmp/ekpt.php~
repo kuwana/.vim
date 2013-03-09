@@ -1,0 +1,779 @@
+<?php
+/*
+Controller name: Ekpt
+Controller description: Basic introspection methods for Ekupo Town.
+*/
+
+class JSON_API_Ekpt_Controller {
+  
+  public function info() {
+    global $json_api;
+    $php = '';
+    print_r($_SERVER) ;
+    if (!empty($json_api->query->controller)) {
+      return $json_api->controller_info($json_api->query->controller);
+    } else {
+      $dir = json_api_dir();
+      if (file_exists("$dir/json-api.php")) {
+        $php = file_get_contents("$dir/json-api.php");
+      } else {
+        // Check one directory up, in case json-api.php was moved
+        $dir = dirname($dir);
+        if (file_exists("$dir/json-api.php")) {
+          $php = file_get_contents("$dir/json-api.php");
+        }
+      }
+      if (preg_match('/^\s*Version:\s*(.+)$/m', $php, $matches)) {
+        $version = $matches[1];
+      } else {
+        $version = '(Unknown)';
+      }
+      $active_controllers = explode(',', get_option('json_api_controllers', 'ekpt'));
+      $controllers = array_intersect($json_api->get_controllers(), $active_controllers);
+      return array(
+        'json_api_version' => $version,
+        'controllers' => array_values($controllers)
+      );
+    }
+  } 
+  
+	public function get_item_index() {
+
+		global $json_api;
+
+		extract($json_api->query->get(array('offset', 'range')));
+		if (empty($offset)) {
+			$posts = $json_api->introspector->get_posts(array(
+			'offset' => $offset,
+			'range' => $range
+			));
+		}
+		// Use : ekptgfis2
+		$items = $json_api->ekptgfis2->get_items();
+		$count = count($items);
+		$next = $offset + $range;
+		if ($count < $next) { $next = $count - 1; }
+		return array(
+			'count' => $count,
+			'next' => $next,
+			'items' => array_slice($items, $offset, $range)
+		);
+	}
+	public function get_item_by_id() {
+
+		global $json_api;
+
+		extract($json_api->query->get(array('item_id')));
+		if (empty($item_id)) {
+			$posts = $json_api->introspector->get_posts(array(
+			'item_id' => $item_id
+			));
+		}
+		$item = $json_api->ekptgfis->get_item_by_id($item_id);
+		return array(
+			'count' => count($item),
+			'item' => $item
+		);
+	}
+
+  public function add_memitemown() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'item_id')));
+    if (!$mem_id) {
+                $posts = $json_api->introspector->get_posts(array(
+                'mem_id' => $mem_id,
+                'item_id' => $item_id
+            ));
+        }
+    // データ追加
+    $memitemowns = $json_api->ekptgfis2->add_memitemown( $mem_id, $item_id );
+    if ( count($memitemowns) == 0 ) {
+    $json_api->error("EKPTGF IF add_memitemown mem_id=".$mem_id." item_id=".$item_id);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+
+  public function update_memitemown() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no', 'status')));
+    if (!$seq_no) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'seq_no' => $seq_no,
+	        'status' => $status
+	    ));
+	}
+    // データ追加
+    $memitemowns = $json_api->ekptgfis2->update_memitemown( $seq_no, $status );
+    if ( count($memitemowns) == 0 ) {
+            $json_api->error("EKPTGF IF add_memitemown seq_no=".$seq_no." status=".$status);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+
+  public function get_memitemown_index() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array('mem_id' => $mem_id,));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memitemowns = $json_api->ekptgfis2->get_memitemowns( $mem_id );
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+
+  // seq_noで
+  public function get_memitemown_by_seqno() {
+	  global $json_api;
+	  // Parameter
+	  extract($json_api->query->get(array('seq_no')));
+
+	  // $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+	  $memitemown = $json_api->ekptgfis2->get_memitemown_by_seqno( $seq_no );
+	  return array(
+		  'count' => count($memitemown),
+		  'memitemown' => $memitemown
+	  );
+  }
+  // seq_noとアイテム種別で
+  public function get_memitemown_by_category() {
+	  global $json_api;
+	  // Parameter
+	  extract($json_api->query->get(array('seq_no', 'category_label')));
+
+	  // $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+	  $memitemown = $json_api->ekptgfis2->get_memitemown_by_seqno( $seq_no, $category_label );
+	  return array(
+		  'count' => count($memitemown),
+		  'memitemown' => $memitemown
+	  );
+  }
+  // ベースアイテム取得
+  public function get_memitemown_base() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id
+	    ));
+	}
+    //$baseitems = $json_api->ekptgfis2->get_memitemowns( $mem_id ); 
+	$baseitems = $json_api->ekptgfis2->get_membaseitem( $mem_id );
+
+	return array(
+      'count' => count($baseitem),
+      'baseitem' => $baseitems,
+    );
+  }
+
+  public function add_memitemequip() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no','mem_id')));
+    // データ追加
+	// Use : ekptgfis2
+    $memitemequips = $json_api->ekptgfis2->add_memitemequip( $seq_no );
+    if ( !isset($memitemequips) or count($memitemequips) == 0 ) {
+        $json_api->error("EKPTGF IF add_memitemequip seq_no=".$seq_no);
+    }
+	// データ更新
+/*    $memitemowns =  $json_api->ekptgfis2->update_memitemown( $seq_no );
+    if ( count($memitemowns) == 0 ) {
+        $json_api->error("EKPTGF IF add_memitemequip update_memitemown seq_no=".$seq_no) ;
+    }*/
+    // 正常ケース
+    return array(
+      'count' => count($memitemequips),
+      'memitemequips' => $memitemequips
+    );
+  }
+
+    public function update_memitemequip() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no','mem_id')));
+    // データ追加
+	// Use : ekptgfis2
+    $memitemowns = $json_api->ekptgfis2->update_memitemequip( $seq_no, 'R' );
+    if ( count($memitemowns) == 0 ) {
+        $json_api->error("EKPTGF IF update_memitemequip seq_no=".$seq_no." mem_id=".$mem_id);
+    }
+    // データ更新
+	// Use : ekptgfis
+    $memitemowns =  $json_api->ekptgfis2->update_memitemown( $seq_no, 'U' );
+    if ( count($memitemowns) == 0 ) {
+        $json_api->error("EKPTGF IF update_memitemequip update_memitemown seq_no=".$seq_no) ;
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+  
+  public function get_memitemequip_index() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'limit')));
+    //
+    // $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memitemequips = $json_api->ekptgfis2->get_memitemequips( $mem_id );
+    return array(
+      'count' => count($memitemequips),
+      'memitemequips' => $memitemequips
+    );
+  }
+  
+  public function add_memgacya() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'gacya_id')));
+    // データ追加
+    $memgacyas = $json_api->ekptgfis2->add_memgacya( $mem_id, $gacya_id );
+    if ( count($memgacyas) == 0 ) {
+            $json_api->error("EKPTGF IF add_memgacyas mem_id=".$mem_id." gacya_id=".$gacya_id);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memgacyas),
+      'memgacyas' => $memgacyas
+    );
+  }
+
+ public function add_memgacya_tomail() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_mail_addr', 'gacya_id')));
+    // データ追加
+    // echo 'Go';
+    $memgacyas = $json_api->ekptgfis2->add_memgacya_tomail( $mem_mail_addr , $gacya_id );
+    if ( count($memgacyas) == 0 ) {
+            $json_api->error("EKPTGF IF add_memgacya_tomail mem_mail_addr =".$mem_mail_addr ." gacya_id=".$gacya_id);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memgacyas),
+      'memgacyas' => $memgacyas
+    );
+  }
+  
+  public function exec_memgacya() {
+    //
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no')));
+    // データ追加
+    $memitemowns = $json_api->ekptgfis2->exec_memgacya( $seq_no );
+    // if ( count($memitemowns) == 0 ) {
+    //    $json_api->error("EKPTGF IF exec_memgacyas seq_no=".$seq_no);
+    // }
+    // 正常ケース
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+
+    public function exec_memgacya_bytimes() {
+    //
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'category_code','numofgacya' )));
+    // データ追加
+    $memitemowns = $json_api->ekptgfis2->exec_memgacya_bytimes( $mem_id, $category_code, $numofgacya );
+    // 正常ケース
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+  
+  public function get_memgacya_index() {
+    global $json_api;
+    // Parameter
+	extract($json_api->query->get(array(
+		'mem_id')));
+    //
+    $memgacyas = $json_api->ekptgfis2->get_memgacyas($mem_id);
+    if ( count($memgacyas) == 0 ) {
+            $json_api->error("EKPTGF IF get_memgacya_index mem_id=".$mem_id);
+    }
+    return array(
+      'count' => count($memgacyas),
+      'memgacyas' => $memgacyas
+    );
+  }
+
+    public function add_memexpointadd() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'mem_level_seq_no', 'level_num')));
+    // データ追加
+	//
+    $memexpointadds = $json_api->ekptgfis2->add_memexpointadd( $mem_id, $mem_level_seq_no, $level_num );
+    if ( count($memexpointadds) == 0 ) {
+        $json_api->error("EKPTGF IF add_memexpointadd mem_id=".$mem_id." mem_level_seq_no=".$mem_level_seq_no." level_num=".$level_num);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memexpointadds),
+      'memexpointadds' => $memexpointadds
+    );
+  }
+
+  
+  public function exec_memexpointadd() {
+    //
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'total_point', 'cidlist', 'clabellist', 'uppointlist')));
+    // データ追加
+    $memexpointlimits = $json_api->ekptgfis2->exec_memexpointadd( $mem_id, $total_point, $cidlist, $clabellist, $uppointlist );
+    // if ( count($memitemowns) == 0 ) {
+    //    $json_api->error("EKPTGF IF exec_memgacyas seq_no=".$seq_no);
+    // }
+    // 正常ケース
+    return array(
+      'count' => count($memexpointlimits),
+      'memexpointlimits' => $memexpointlimits
+    );
+  }
+
+  public function get_memexpointadd_index() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'limit')));
+    //
+    $memexpointadds = $json_api->ekptgfis2->get_memexpointadd( $mem_id );
+//    if ( count($memexpointadds) == 0 ) {
+//            $json_api->error("EKPTGF IF get_memexpointadd_index mem_id=".$mem_id);
+//    }
+    return array(
+      'count' => count($memexpointadds),
+      'memexpointadds' => $memexpointadds
+    );
+  }
+  
+    public function add_memcoupon() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'coupon_id' , 'coupon_comment', 'date_time_start', 'date_time_end')));
+    if ( !$mem_id ) {
+                $posts = $json_api->introspector->get_posts(array(
+                'mem_id' => $mem_id,
+                'coupon_id' => $coupon_id,
+                'coupon_comment' => $coupon_comment,
+                'date_time_start' => $date_time_start,
+                'date_time_end' => $date_time_end
+            ));
+        }
+	if (!$mem_id) {
+	    $json_api->error("EKPTGF IF must def mem_id=".$mem_id);
+	}
+    // データ追加
+    $memcoupons = $json_api->ekptgfis2->add_memcoupon( $mem_id, $coupon_id, $coupon_comment , $date_time_start ,  $date_time_end);
+    if ( count($memcoupons) == 0 ) {
+    $json_api->error("EKPTGF IF add_memcoupon mem_id=".$mem_id." coupon_id=".$coupon_id);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memcoupons),
+      'memcoupons' => $memcoupons
+    );
+  }
+
+  public function exec_memcoupon() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no', 'status')));
+    if (!$seq_no) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'seq_no' => $seq_no,
+	        'status' => $status
+	    ));
+	}
+    // データ更新
+    $memcoupons = $json_api->ekptgfis2->exec_memcoupon( $seq_no, $status );
+    if ( count($memcoupons) == 0 ) {
+            $json_api->error("EKPTGF IF exec_memcoupon seq_no=".$seq_no." status=".$status);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memcoupons),
+      'memcoupons' => $memcoupons
+    );
+  }
+
+  public function get_memcoupon() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no', 'status')));
+    if (!$seq_no) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'seq_no' => $seq_no,
+	        'status' => $status
+	    ));
+	}
+    // データ更新
+    $memcoupons = $json_api->ekptgfis2->get_memcoupon_byseqno( $seq_no, $status );
+    if ( count($memcoupons) == 0 ) {
+            $json_api->error("EKPTGF IF get_memcoupon seq_no=".$seq_no." status=".$status);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memcoupons),
+      'memcoupons' => $memcoupons
+    );
+  }
+  
+  public function get_memcoupon_index() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'limit')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'limit' => $limit,
+          ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memcoupons = $json_api->ekptgfis2->get_memcoupon( $mem_id );
+    return array(
+      'count' => count($memcoupons),
+      'memcoupons' => $memcoupons
+    );
+  } 
+
+  public function get_memcoupon_box() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'status','offset','limit')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'status' => $status,
+	        'offset' => $offset,
+	        'limit' => $limit,
+          ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memcoupons = $json_api->ekptgfis2->get_memcoupon_box( $mem_id, $status, $offset, $limit );
+    return array(
+      'allcount'=> $memcoupons['allcount'],
+      'count' => count($memcoupons['items']),
+      'memcoupons' => $memcoupons['items']
+    );
+}
+
+    public function add_memgift() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('mem_id', 'gift_id' , 'gift_comment', 'date_time_start', 'date_time_end')));
+    if ( !$mem_id ) {
+                $posts = $json_api->introspector->get_posts(array(
+                'mem_id' => $mem_id,
+                'gift_id' => $coupon_id,
+                'gift_comment' => $coupon_comment,
+                'date_time_start' => $date_time_start,
+                'date_time_end' => $date_time_end
+            ));
+        }
+	if (!$mem_id) {
+	    $json_api->error("EKPTGF IF must def mem_id=".$mem_id);
+	}
+    // データ追加
+    $memgifts = $json_api->ekptgfis2->add_memgift( $mem_id, $coupon_id, $coupon_comment , $date_time_start ,  $date_time_end);
+    if ( count($memgifts) == 0 ) {
+    $json_api->error("EKPTGF IF add_memgift mem_id=".$mem_id." gift_id=".$gift_id);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memgifts),
+      'memgifts' => $memgifts
+    );
+  }
+
+  public function exec_memgift() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no', 'status')));
+    if (!$seq_no) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'seq_no' => $seq_no,
+	        'status' => $status
+	    ));
+	}
+    // データ更新
+    $memgifts = $json_api->ekptgfis2->exec_memgift( $seq_no, $status );
+    if ( count($memgifts) == 0 ) {
+            $json_api->error("EKPTGF IF exec_memgift seq_no=".$seq_no." status=".$status);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memgifts),
+      'memgifts' => $memgifts
+    );
+  }
+
+  public function get_memgift() {
+    global $json_api;
+    // Parameter
+    extract($json_api->query->get(array('seq_no', 'status')));
+    if (!$seq_no) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'seq_no' => $seq_no,
+	        'status' => $status
+	    ));
+	}
+    // データ更新
+    $memgifts = $json_api->ekptgfis2->get_memgift_byseqno( $seq_no, $status );
+    if ( count($memgifts) == 0 ) {
+            $json_api->error("EKPTGF IF get_memgift seq_no=".$seq_no." status=".$status);
+    }
+    // 正常ケース
+    return array(
+      'count' => count($memgifts),
+      'memgifts' => $memgifts
+    );
+  }
+  
+  public function get_memgift_index() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'limit')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'limit' => $limit,
+          ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memgifts = $json_api->ekptgfis2->get_memgift( $mem_id );
+    return array(
+      'count' => count($memgifts),
+      'memgifts' => $memgifts
+    );
+  } 
+
+  public function get_memgift_box() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'status','offset','limit')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'status' => $status,
+	        'offset' => $offset,
+	        'limit' => $limit,
+          ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memgifts = $json_api->ekptgfis2->get_memgift_box( $mem_id, $status, $offset, $limit );
+    return array(
+        'allcount'=> $memcoupons['allcount'],
+      'count' => count($memgifts['items']),
+      'memgifts' => $memgifts['items']
+    );
+}
+
+    public function get_memrank() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'target_date', 'exec_type')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'target_date' => $target_date,
+	        'exec_type' => $exec_type,
+                    ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $memranks = $json_api->ekptgfis2->get_memrank( $mem_id, $target_date, $exec_type );
+    return array(
+      'count' => count($memranks),
+      'memranks' => $memranks
+    );
+  }
+ 
+    public function get_campaign_index() {
+    global $json_api;
+	// Parameter
+	extract($json_api->query->get(array('mem_id', 'target_date')));
+    if (!$mem_id) {
+		$posts = $json_api->introspector->get_posts(array(
+	        'mem_id' => $mem_id,
+	        'target_date' => $target_date,
+          ));
+	}
+	//
+	// $json_api->error("Not found.Updated=".$mem_id." and ".$limit);
+    $campaigns = $json_api->ekptgfis2->get_campaign_index( $mem_id,  $target_date );
+    return array(
+      'count' => count($campaigns),
+      'campaigns' => $campaigns
+    );
+  }
+
+	/**
+	 *  アイテムの合成
+	 * gf/api/ekpt/exec_memitemcomp/?comp_type=1&seq_no=11&seq_no_comp=1,2,3,4
+	 * 引数：comp_type = 1=BASE | 2=強化剤 | 3=変化剤
+	 * 引数：seq_no = ベース素材のSeq_no
+	 * 引数：seq_no_comp = 合成素材のseq_no文字列。カンマ区切り。
+	 * 戻り値：合成結果アイテム情報
+	 */
+   public function exec_memitemcomp() {
+    //
+    global $json_api;
+	extract($json_api->query->get(array( 'comp_type', 'seq_no', 'seq_no_comp', 'expoint_power', 'expoint_multi')));
+    $memitemowns = $json_api->ekptgfis2->exec_memitemcomp( $comp_type, $seq_no, $seq_no_comp, $expoint_power, $expoint_multi );
+    return array(
+      'count' => count($memitemowns),
+      'memitemowns' => $memitemowns
+    );
+  }
+  // ベースアイテム変更
+   public function exec_changebaseitem() {
+    //
+    global $json_api;
+	extract($json_api->query->get(array( 'mem_id', 'new_seq_no', 'current_seq_no')));
+    $memitemowns = $json_api->ekptgfis2->exec_changebaseitem( $mem_id, $new_seq_no, $current_seq_no );
+    return array(
+      'count' => count($baseitems),
+      'memitemowns' => $memitemowns
+    );
+  }
+
+	/**
+	 * 会員のアクティビティ履歴の取得
+	 * 引数：会員ID
+	 * 引数：開始レコード番号
+	 * 引数：終了レコード番号
+	 * 戻り値：会員のアクティビティ履歴
+	 */
+	public function get_mem_activity_history() {
+
+		global $json_api;
+
+		extract ($json_api->query->get(array('mem_id', 'sta_no', 'fin_no')));
+
+		if (!$mem_id) {
+			$params = $json_api->introspector->get_posts(array(
+				'mem_id' => $mem_id,
+				'sta_no' => $sta_no,
+				'fin_no' => $fin_no
+			));
+		}
+
+		$activity_histories = $json_api->ekptgfis2->get_mem_activity_history($mem_id, $sta_no, $fin_no);
+
+		return array(
+			'count' => count($activity_histories),
+			'activities' => $activity_histories
+		);
+
+	}
+
+	/**
+	 * 会員のポイント履歴の取得
+	 * 引数：会員ID
+	 * 引数：開始レコード番号
+	 * 引数：終了レコード番号
+	 * 戻り値：会員のアクティビティ履歴
+	 */
+	public function get_mem_point_history() {
+
+		global $json_api;
+
+		extract ($json_api->query->get(array('mem_id', 'sta_no', 'fin_no')));
+
+		if (!$mem_id) {
+			$params = $json_api->introspector->get_posts(array(
+				'mem_id' => $mem_id,
+				'sta_no' => $sta_no,
+				'fin_no' => $fin_no
+			));
+		}
+
+		$point_histories = $json_api->ekptgfis2->get_mem_point_history($mem_id, $sta_no, $fin_no);
+
+		return array(
+			'count' => count($point_histories),
+			'points' => $point_histories
+		);
+
+	}
+
+	public function exec_memgacyas() {
+
+		global $json_api;
+
+		extract($json_api->query->get(array('seq_nos')));
+		$memitemowns = $json_api->ekptgfis2->exec_memgacyas($seq_nos);
+
+		return array(
+			'count' => count($memitemowns),
+			'memitemowns' => $memitemowns
+		);
+	}
+
+	public function get_memitemboxown_index() {
+
+	    global $json_api;
+		extract($json_api->query->get(array(
+			'mem_id', 'item_type', 'item_cate', 'offset', 'limit', 'status'
+		)));
+		if (!$mem_id) {
+			$params = $json_api->introspector->get_posts(array(
+			'mem_id' => $mem_id,
+			'status' => $status,
+			'item_type' => $item_type,
+			'item_cate' => $item_cate,
+			'offset' => $offset,
+			'limit' => $limit,
+		));
+		}
+		$statusStr = '' ;
+		if ( strlen($status) > 0 ) {
+			$statusArr = explode(",", $status);
+			foreach ( $statusArr as $statusChar ) {
+				if ( $statusStr == '' ) {
+					$statusStr .= "'".$statusChar."'" ;
+				} else {
+					$statusStr .= ",'".$statusChar."'" ;
+				}
+			}
+		}
+		$memitemboxowns = $json_api->ekptgfis2->get_memitemboxowns(
+			$mem_id, $item_type, $item_cate, $statusStr, $offset, $limit
+		);
+		$count = count($memitemboxowns['items']);
+		return array(
+            'allcount'=> $memitemboxowns['allcount'],
+			'count' => $count,
+			'memitemboxowns' => $memitemboxowns['items']
+		);
+
+	}  
+}
+?>

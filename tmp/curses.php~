@@ -1,0 +1,12 @@
+<?php
+
+ncurses_init();
+
+ncurses_can_change_color();
+if (true){
+	echo 'true';
+} else {
+	echo 'false';
+}
+
+ncurses_end();

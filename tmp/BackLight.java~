@@ -1,0 +1,81 @@
+/**
+ * 輝度の設定をスライダーでできるGUIアプリケーション
+ */
+
+import java.io.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import java.awt.BorderLayout;
+
+class BackLight extends JFrame implements ChangeListener {
+
+	JSlider slider;
+	JLabel label;
+
+	// main
+	public static void main(String[] args) {
+	
+		BackLight frame = new BackLight();
+
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//frame.setBounds(1063, 10, 300, 80);
+		frame.setSize(300, 80);
+		frame.setLocationRelativeTo(null);
+		frame.setTitle("Set Brightness");
+		frame.setVisible(true);
+	}
+
+	// GUI設定
+	BackLight () {
+
+		int initBrightness = 0;
+
+		// 現在の輝度を取得
+		try {
+			Process ps = Runtime.getRuntime().exec("cat /sys/class/backlight/intel_backlight/brightness");
+			int exitValue = ps.waitFor();
+			BufferedReader br = new BufferedReader(new InputStreamReader(ps.getInputStream()));
+			initBrightness = Integer.parseInt(br.readLine());
+
+		} catch (Exception e) {}
+
+		// 現在のスライダーの位置 -> イベントリスナー
+		slider = new JSlider(0, 976, initBrightness);
+		slider.addChangeListener(this);
+
+		// 現在の輝度を表示
+		label = new JLabel();
+		label.setText("value: " + slider.getValue());
+
+		// スライダーとラベルの配置
+		JPanel p = new JPanel();
+		p.add(slider);
+
+		getContentPane().add(p, BorderLayout.CENTER);
+		getContentPane().add(label, BorderLayout.PAGE_END);
+	}
+
+	// スライダーのイベント処理（動かすたびbrightnessを書き換える）
+	public void stateChanged(ChangeEvent e) {
+		
+		try {
+			// sudoでbashを起動
+			String[] cmd = {"sudo", "-S", "bash"};
+			ProcessBuilder pb = new ProcessBuilder(cmd);
+			Process ps = pb.start();
+			PrintWriter pw = new PrintWriter(ps.getOutputStream(), true);
+
+			// 輝度の設定ファイルを書き換える
+			pw.println("mink0512");
+			pw.println("echo " + slider.getValue() + " > /sys/class/backlight/intel_backlight/brightness");
+			pw.close();
+
+		} catch (Exception e2) {
+			e2.printStackTrace();
+		}
+
+		// 明るさの数値をラベルに出力
+		label.setText("value: " + slider.getValue());
+	}
+
+}

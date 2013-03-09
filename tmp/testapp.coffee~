@@ -1,0 +1,40 @@
+###
+Javaでやった自動販売機のオブジェクト作成練習
+* 実行はクラス定義の後じゃなきゃダメ
+###
+
+class Jihan
+
+	count_10: 0
+	count_100: 0
+	count_1000: 0
+
+	constructor: (@money) ->
+		@exchange()
+
+	exchange: ->
+
+		while @money >= 1000
+			@count_1000++
+			@money = @money - 1000
+		while @money >= 100
+			@count_100++
+			@money = @money - 100
+		while @money >= 10
+			@count_10++
+			@money = @money - 10
+		
+	getTousand: ->
+		@count_1000
+	getHandred: ->
+		@count_100
+	getTen: ->
+		@count_10
+
+# ==Class End==
+
+ji = new Jihan 999
+
+alert '千円札は' + ji.getTousand() + '枚です'
+alert '百円玉は' + ji.getHandred() + '枚です'
+alert '十円玉は' + ji.getTen() + '枚です'

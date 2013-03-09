@@ -1,0 +1,72 @@
+#!/usr/bin/env php 
+<?php 
+// ncursesの初期化 
+ncurses_init(); 
+
+// 画面サイズの取得 
+ncurses_getmaxyx(STDSCR, $height, $width); 
+// 枠の描画 
+ncurses_border(0x7c, 0x7c, 0x2d, 0x2d, 0x2b, 0x2b, 0x2b, 0x2b); 
+// 文字列の表示 
+ncurses_mvaddstr(0, 2, "[ Ncurses Sample ]"); 
+// カーソルの消去 
+ncurses_curs_set(false); 
+// 画面のリフレッシュ 
+ncurses_refresh(); 
+
+$menu = array( 
+	"Menu Item 1", 
+	"Menu Item 2", 
+	"Menu Item 3", 
+	"Exit" 
+); 
+$menu_count = count($menu); 
+$pos = 0; 
+$loop = true; 
+
+// ウィンドウの作成 
+$window = ncurses_newwin($menu_count+2, 20, ($height-$menu_count)/2, ($width-20)/2); 
+// ウィンドウ枠の描画 
+ncurses_wborder($window, 0x7c, 0x7c, 0x2d, 0x2d, 0x2b, 0x2b, 0x2b, 0x2b); 
+
+while ($loop) { 
+	// メニューの表示 
+	for ($i = 0; $i < $menu_count; $i++) { 
+		if($i == $pos){ 
+			// 反転表示をON 
+			ncurses_wattron($window, NCURSES_A_REVERSE); 
+			ncurses_mvwaddstr($window, $i+1, 1, $menu[$i]); 
+			// 反転表示をOFF 
+			ncurses_wattroff($window, NCURSES_A_REVERSE); 
+		}else{ 
+			ncurses_mvwaddstr($window, $i+1, 1, $menu[$i]); 
+		} 
+	} 
+	// ウィンドウのリフレッシュ 
+	ncurses_wrefresh($window); 
+	// キーボード入力の判定 
+	$key = ncurses_getch($window); 
+	switch ($key) { 
+	case NCURSES_KEY_UP: 
+		$pos--; 
+		if ($pos < 0) { 
+			$pos = 0; 
+		} 
+		break; 
+	case NCURSES_KEY_DOWN: 
+		$pos++; 
+		if ($pos >= $menu_count) { 
+			$pos = $menu_count - 1; 
+		} 
+		break; 
+	case 13: // KEY_ENTER 
+		if ($menu[$pos] == "Exit") { 
+			$loop = false; 
+		} 
+		break; 
+	} 
+} 
+
+// ncursesの終了 
+ncurses_end(); 
+?>

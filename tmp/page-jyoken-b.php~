@@ -1,0 +1,87 @@
+<?php
+/**
+ * The Template for displaying fudou single posts.
+ *
+ * Template Name: page-jyoken-b.php
+ *
+ * @package WordPress3.5
+ * @subpackage Fudousan Plugin
+ * Version: 1.2.0
+ */
+
+//require_once '../../../../wp-blog-header.php';
+
+get_header();
+the_post();
+
+
+$site = site_url( '/' );
+
+?>
+<div id="container" class="site-content">
+	<div id="content" role="main" class="jsearch">
+
+	<header class="entry-header">
+		<h1 class="entry-title"><?php the_title(); ?></h1>
+	</header>
+
+	<div class="entry-content">
+		<?php the_content(); ?>
+	</div><!-- .entry-content -->
+
+
+<?php
+
+		global $wpdb;
+		$sql = '';
+		$sql .= "SELECT T.term_id, T.name, T.slug, TT.parent";
+		$sql .= " FROM $wpdb->terms AS T";
+		$sql .= " INNER JOIN $wpdb->term_taxonomy AS TT";
+		$sql .= " ON T.term_id = TT.term_id";
+		$sql .= " WHERE TT.taxonomy = 'bukken'";
+		$metas = $wpdb->get_results($sql, ARRAY_A);
+		//echo '<h3>店舗選定'.$shub_txt.'</h3>';
+		//echo 'ご希望の条件を選択して下さい(複数可)<br />';
+
+		echo '<form method="get" id="searchpage" name="searchpage" action="'.$site.'" >';
+		echo '<input type="hidden" name="bukken" value="jsearch" >';
+		echo '<dl>';
+		echo '<dt>ポイント</dt>';
+		echo '<dd><input type="checkbox" id="point" name="point" value="point"><label for="point">ポイント導入店舗</label></dd>';
+		echo '<dt>エリア</dt>';
+		echo '<dd><select name="region">';
+		echo '<option value="none">こだわらない</option>';
+		foreach ($metas as $v) {
+			if ($v['parent'] === 0)  continue;
+			echo '<option value="'.$v["slug"].'">'.$v["name"].'</option>'."\n";
+		}
+		echo '</select></dd>';
+		echo '<dt>予算</dt>';
+		echo '<dd><select name="budget">';
+		foreach ($budget as $k => $v) {
+			echo '<option value="'.$k.'">'.$v.'</option>'."\n";
+		}
+		echo '</select></dd>';
+		echo '<dt>ジャンル</dt>';
+		echo '<dd>';
+		foreach ($genre as $k => $v) {
+			echo '<span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="genre[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span>';
+		}
+		echo '</dd>';
+		echo '<dt>目的</dt>';
+		echo '<dd>';
+		foreach ($purpose as $k => $v) {
+			echo '<span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="purpose[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span>';
+		}
+		echo '</dd>';
+		echo '</dl>';
+
+		echo '<div class="submit" style="text-align:center;"><input type="submit" value="店舗検索" /></div>';
+		echo '</form>';
+?>
+
+	</div><!-- .#content -->
+</div><!-- .#container -->
+
+<?php //get_sidebar(); ?>
+<?php get_footer(); ?>
