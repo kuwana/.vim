@@ -7,6 +7,7 @@
 
 /**
  * Index
+ * 00. meta
  * 01. サービス概要
  * 02. 店舗概要
  * 03. クーポン詳細
@@ -15,7 +16,56 @@
  * 06. 店舗詳細
  * 07. 飲食店舗詳細
  * 08. メニュー/コンテンツ
+ *
+ * + exca.jp拡張function afterline:1249)
  */
+
+// エクポタウンAPI関連のURL設定ファイル読み込み
+require_once WP_PLUGIN_DIR .'/'. plugin_basename('ekpt-setting.php') ;
+
+$lb_purpose = array(
+	'private-room' => '個室',
+	'date' => 'デートに最適',
+	'party' => '宴会・パーティー',
+	'non-smoking' => '禁煙席あり',
+	'buffet' => '食べ放題あり',
+	'bottomless-cup' => '飲み放題あり',
+	'always-open' => '深夜営業(24時以降)',
+	'lunch' => 'ランチがある',
+	'reception' => '接待に最適',
+	'alone' => 'お一人様歓迎',
+	'memorial' => '記念日',
+	'cut-hair' => '髪を切る',
+	'cultivate' => '自分をみがく',
+	'entertainment' => 'エンターテイメント',
+	'other' => 'その他'
+);
+$lb_genre = array(
+	'izakaya-daining' => '居酒屋・ダイニングバー',
+	'bar' => 'バー(bar)',
+	'japanese' => '和食',
+	'western' => '洋食',
+	'chinese' => '中華・ラーメン',
+	'asia-multinational' => 'アジア・焼肉・多国籍',
+	'cafe-gourmet' => 'カフェ・その他グルメ',
+	'hair-beauty' => 'ヘアーサロン・美容健康',
+	'relaxation' => 'リラクゼーション',
+	'leisure-amusement' => 'レジャー・アミューズメント',
+	'other' => 'その他業種'
+);
+$lb_budget = array(
+	'u1000' => '1000円未満',
+	'u2000' => '1001円-2000円',
+	'u3000' => '2001円-3000円',
+	'u4000' => '3001円-4000円',
+	'u5000' => '4001円-5000円',
+	'u6000' => '5001円-6000円',
+	'u7000' => '6001円-7000円',
+	'u8000' => '7001円-8000円',
+	'u9000' => '8001円-9000円',
+	'u10000' => '9001円-10000円',
+	'a10000' => '10001円以上'
+);
 
 add_action('admin_head', 'shop_admin_css', 100);
 function shop_admin_css() {
@@ -53,6 +103,55 @@ function store_icons($atts = '') {
 
 	return $html;
 }
+
+
+// 00. meta
+add_action('admin_menu', 'my_custom_meta') ;
+add_action('save_post', 'custom_save_meta') ;
+function my_custom_meta() {
+	add_meta_box('my_custom_meta_area', 'meta', 'my_custom_meta_in', 'fudo', 'advanced' );
+}
+function my_custom_meta_in() {
+	global $post;
+	echo '<input type="hidden" name="mycustom_meta_name" id="mycustom_meta_name" value="' .wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+	echo '<label for="fudokeywords">keywords 　( <font color="#ff0000">,</font> 区切り )</label> ';
+//	echo '<input type="text" name="fudokeywords" value="'.get_post_meta($post->ID,'fudokeywords',true).'" size="50" /> ( <font color="#ff0000">,</font> 区切り)<br />';
+	echo '<textarea rows="2" cols="60" name="fudokeywords" id="fudokeywords" style="width:100%" >'.get_post_meta($post->ID,'fudokeywords',true).'</textarea>';
+	echo '<br /><br />';
+
+	echo '<label for="fudodescription">description</label> ';
+//	echo '<input type="text" name="fudodescription" value="'.get_post_meta($post->ID,'fudodescription',true).'" size="50" />';
+	echo '<textarea rows="2" cols="60" name="fudodescription" id="fudodescription" style="width:100%" >'.get_post_meta($post->ID,'fudodescription',true).'</textarea>';
+
+}
+function custom_save_meta ( $post_id ) {
+	if ( isset($_POST['mycustom_meta_name']) ){
+		if ( !wp_verify_nonce( $_POST['mycustom_meta_name'], plugin_basename(__FILE__) )) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$my_custom_fudokeywords_data = isset($_POST['fudokeywords']) ? $_POST['fudokeywords'] : '';
+		if( strcmp($my_custom_fudokeywords_data,get_post_meta($post_id, 'fudokeywords', true)) != 0 )
+			update_post_meta($post_id, 'fudokeywords',$my_custom_fudokeywords_data);
+		elseif($my_custom_fudokeywords_data == "")
+			delete_post_meta($post_id, 'fudokeywords',get_post_meta($post_id,'fudokeywords',true));
+
+		$my_custom_fudodescription_data = isset($_POST['fudodescription']) ? $_POST['fudodescription'] : '';
+		if( strcmp($my_custom_fudodescription_data,get_post_meta($post_id, 'fudodescription', true)) != 0 )
+			update_post_meta($post_id, 'fudodescription',$my_custom_fudodescription_data);
+		elseif($my_custom_fudodescription_data == "")
+			delete_post_meta($post_id, 'fudodescription',get_post_meta($post_id,'fudodescription',true));
+	}else{
+			return $post_id;
+	}
+}
+
+
 // 01. サービス概要
 add_action('admin_menu', 'attach_service_summary');
 add_action('save_post', 'save_service_summary');
@@ -61,8 +160,9 @@ function attach_service_summary() {
   add_meta_box('service_summary_area', 'サービス概要', 'service_summary_container', 'fudo', 'advanced', 'high');
 }
 function service_summary_container() {
-	global $post;
+	global $post, $user_ID;
 	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+	$point_rate = get_post_meta($post->ID,'shuuhensonota',true);
 	$preopen_checked = get_post_meta($post->ID,'shozaichimeisho',true) ? 'checked="checked"' : '';
 	$point_checked = get_post_meta($post->ID,'tatemonomenseki',true) ? 'checked="checked"' : '';
 	$servicetype_data = get_post_meta($post->ID, 'tatemonozentaimenseki', true);
@@ -78,10 +178,12 @@ function service_summary_container() {
 		'discount' => '値引き・割引き・延長系',
 		'course' => '各コース系'
 	);
-
+	$readonly = ($user_ID != '1') ? ' readonly="readonly"' : '';
 	$html = <<<HTML
 <input type="hidden" name="service_summary_nonce" id="service_summary_nonce" value="{$nonce}" />
 
+<label for="cpn_common_content" style="font-weight:bold;">ポイント還元率</label>
+<input type="text" name="point_rate" id="point_rate" value="{$point_rate}" size="3"{$readonly} />%<br />
 <span style="font-weight:bold;">サービス導入</span><br />
 <span style="display:inline-block;">
 	<input type="checkbox" name="preopen" id="preopen" value="1"{$preopen_checked} />
@@ -133,11 +235,17 @@ function save_service_summary($post_id) {
 			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
 		}
 
+		$point_rate = isset($_POST['point_rate']) ? $_POST['point_rate'] : '5';
 		$preopen_flag = isset($_POST['preopen']) ? $_POST['preopen'] : '';
 		$point_flag = isset($_POST['point']) ? $_POST['point'] : 'coupon';
 		$service_type_data = isset($_POST['service_type']) ? implode(',', $_POST['service_type']) : '';
 		$coupon_type_data = isset($_POST['coupon_type']) ? implode(',', $_POST['coupon_type']) : '';
 
+		// point_rate
+		if ($point_rate != get_post_meta($post_id, 'shuuhensonota', true))
+			update_post_meta($post_id, 'shuuhensonota', $point_rate);
+		elseif ($point_rate == '')
+			delete_post_meta($post_id, 'shuuhensonota', get_post_meta($post_id,'shuuhensonota',true));
 		// preopen_flag
 		if ($preopen_flag != get_post_meta($post_id, 'shozaichimeisho', true))
 			update_post_meta($post_id, 'shozaichimeisho', $preopen_flag);
@@ -171,69 +279,31 @@ function attach_shop_summary() {
   add_meta_box('shop_summary_area', '店舗概要', 'shop_summary_container', 'fudo', 'advanced', 'high');
 }
 function shop_summary_container() {
-	global $post;
+	global $post, $lb_purpose, $lb_genre, $lb_budget;
 	$nonce = wp_create_nonce(plugin_basename(__FILE__));
-	$alias_data = get_post_meta($post->ID, 'kaiin', true);
+	$shop_id = get_post_meta($post->ID, 'kaiin', true);
 	$restaurant_checked = get_post_meta($post->ID,'tatemonochikunenn',true) ? 'checked="checked"' : '';
+	$no_course_checked = get_post_meta($post->ID,'no_course',true) ? 'checked="checked"' : '';
+	$minimums_checked = get_post_meta($post->ID,'minimums',true) ? 'checked="checked"' : '';
 	$purpose_data = get_post_meta($post->ID, 'madorisu', true);
 	$genre_data = get_post_meta($post->ID, 'madorisyurui', true);
 	$budget_data = get_post_meta($post->ID, 'kakakukoushin', true);
-	$purpose = array(
-		'private-room' => '個室',
-		'date' => 'デートに最適',
-		'party' => '宴会・パーティー',
-		'non-smoking' => '禁煙席あり',
-		'buffet' => '食べ放題あり',
-		'bottomless-cup' => '飲み放題あり',
-		'always-open' => '深夜営業(24時以降)',
-		'lunch' => 'ランチがある',
-		'reception' => '接待に最適',
-		'alone' => 'お一人様歓迎',
-		'memorial' => '記念日',
-		'cut-hair' => '髪を切る',
-		'cultivate' => '自分をみがく',
-		'entertainment' => 'エンターテイメント',
-		'other' => 'その他'
-	);
-	$genre = array(
-		'izakaya-daining' => '居酒屋・ダイニングバー',
-		'bar' => 'バー',
-		'japanese' => '和食',
-		'western' => '洋食',
-		'chinese' => '中華・ラーメン',
-		'asia-multinational' => 'アジア・焼肉・多国籍',
-		'gourmet' => 'カフェ・その他グルメ',
-		'hair-beauty' => 'ヘアーサロン・美容健康',
-		'relaxation' => 'リラクゼーション',
-		'leisure-amusement' => 'レジャー・アミューズメント',
-		'other' => 'その他業種'
-	);
-	$budget = array(
-		'u1000' => '1000円未満',
-		'u2000' => '1001円-2000円',
-		'u3000' => '2001円-3000円',
-		'u4000' => '3001円-4000円',
-		'u5000' => '4001円-5000円',
-		'u6000' => '5001円-6000円',
-		'u7000' => '6001円-7000円',
-		'u8000' => '7001円-8000円',
-		'u9000' => '8001円-9000円',
-		'u10000' => '9001円-10000円',
-		'a10000' => '10001円以上'
-	);
-
 	$html = <<<HTML
 <input type="hidden" name="shop_summary_nonce" id="shop_summary_nonce" value="{$nonce}" />
 
-<span style="font-weight:bold;">エイリアス</span><br />
-<input type="text" name="kaiin" id="kaiin" value="{$alias_data}" /><br />
+<span style="font-weight:bold;">店舗ID ：{$shop_id}</span><br />
+<input type="hidden" name="kaiin" id="kaiin" value="{$shop_id}" />
 <span style="font-weight:bold;">店舗形態</span><br />
 <input type="checkbox" name="restaurant" id="restaurant" value="1"{$restaurant_checked} />
 <label for="restaurant">飲食店フラグ</label>
+<input type="checkbox" name="no_course" id="no_course" value="1"{$no_course_checked} />
+<label for="no_course">コース無しフラグ</label>
+<input type="checkbox" name="minimums" id="minimums" value="1"{$minimums_checked} />
+<label for="minimums">最小表示フラグ</label>
 <br />
 HTML;
 	$html .= '<span style="font-weight:bold;">利用目的</span><br />';
-	foreach ($purpose as $k => $v) {
+	foreach ($lb_purpose as $k => $v) {
 		if (strpos($purpose_data, $k) !== false) {
 			$checked = ' checked="checked"';
 		} else {
@@ -247,7 +317,7 @@ HTML;
 	$html .= '<br />';
 	$html .= '<span style="font-weight:bold;">店舗業種</span><br />';
 	$html .= '<select name="genre">';
-	foreach ($genre as $k => $v) {
+	foreach ($lb_genre as $k => $v) {
 		if (strpos($genre_data, $k) !== false) {
 			$html .= '<option value="'.$k.'" selected="selected">'.$v.'</option>'."\n";
 		} else {
@@ -258,7 +328,7 @@ HTML;
 	$html .= '<br />';
 	$html .= '<span style="font-weight:bold;">平均予算</span><br />';
 	$html .= '<select name="budget">';
-	foreach ($budget as $k => $v) {
+	foreach ($lb_budget as $k => $v) {
 		if (strpos($budget_data, $k) !== false) {
 			$html .= '<option value="'.$k.'" selected="selected">'.$v.'</option>'."\n";
 		} else {
@@ -280,22 +350,31 @@ function save_shop_summary($post_id) {
 			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
 		}
 
-		$alias = isset($_POST['kaiin']) ? $_POST['kaiin'] : '';
 		$restaurant_flag = isset($_POST['restaurant']) ? $_POST['restaurant'] : '';
+		$no_course_flag = isset($_POST['no_course']) ? $_POST['no_course'] : '';
+		$minimums_flag = isset($_POST['minimums']) ? $_POST['minimums'] : '';
 		$purpose_data = isset($_POST['purpose']) ? implode(',', $_POST['purpose']) : '';
 		$genre = isset($_POST['genre']) ? $_POST['genre'] : '';
 		$budget = isset($_POST['budget']) ? $_POST['budget'] : '';
 
-		// alias
-		if ($alias != get_post_meta($post_id, 'kaiin', true))
-			update_post_meta($post_id, 'kaiin', $alias);
-		elseif ($alias == '')
-			delete_post_meta($post_id, 'kaiin', get_post_meta($post_id,'kaiin',true));
+		// shop_id
+		// -> admin_fudo.phpにて処理
+
 		// restaurant_flag
 		if ($restaurant_flag != get_post_meta($post_id, 'tatemonochikunenn', true))
 			update_post_meta($post_id, 'tatemonochikunenn', $restaurant_flag);
 		elseif ($restaurant_flag == '')
 			delete_post_meta($post_id, 'tatemonochikunenn', get_post_meta($post_id,'tatemonochikunenn',true));
+		// no_course_flag
+		if ($no_course_flag != get_post_meta($post_id, 'no_course', true))
+			update_post_meta($post_id, 'no_course', $no_course_flag);
+		elseif ($no_course_flag == '')
+			delete_post_meta($post_id, 'no_course', get_post_meta($post_id,'no_course',true));
+		// minimums_flag
+		if ($minimums_flag != get_post_meta($post_id, 'minimums', true))
+			update_post_meta($post_id, 'minimums', $minimums_flag);
+		elseif ($minimums_flag == '')
+			delete_post_meta($post_id, 'minimums', get_post_meta($post_id,'minimums',true));
 		// purpose_data
 		if (strcmp($purpose_data, get_post_meta($post_id, 'madorisu', true)) != 0)
 			update_post_meta($post_id, 'madorisu', $purpose_data);
@@ -466,6 +545,51 @@ function save_coupon_detail($post_id) {
 	}
 }
 
+// 03. クーポン詳細情報
+add_action('admin_menu', 'person_charge_detail');
+add_action('save_post', 'save_person_charge');
+
+function person_charge_detail() {
+	add_meta_box('person_charge_area', 'B担当', 'person_charge_container', 'fudo', 'advanced', 'high');
+}
+function person_charge_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	$person_charge = get_post_meta($post->ID, 'btantou', true);
+
+	$html = <<<HTML
+<input type="hidden" name="person_charge_nonce" id="person_charge_nonce" value="{$nonce}" />
+
+<label for="charge_name">担当者名</label>
+<input type="text" name="charge_name" id="charge_name" value="{$person_charge}" /><br />
+<br />
+HTML;
+	echo $html;
+}
+function save_person_charge($post_id) {
+	if ( isset($_POST['person_charge_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['person_charge_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		$charge_name = isset($_POST['charge_name']) ? $_POST['charge_name'] : '';
+
+		// charge_name
+		if (strcmp($charge_name, get_post_meta($post_id, 'btantou', true)) != 0)
+			update_post_meta($post_id, 'btantou', $charge_name);
+		elseif ($common_content == '')
+			delete_post_meta($post_id, 'btantou', get_post_meta($post_id, 'btantou', true));
+	} else {
+		return $post_id;
+	}
+}
+
 // 04. 店舗画像情報
 add_action('admin_menu', 'my_custom_gazo');
 add_action('save_post', 'custom_save_gazo');
@@ -473,7 +597,7 @@ function my_custom_gazo() {
 	add_meta_box('my_custom_gazo_area', '店舗画像', 'my_custom_gazo_in', 'fudo', 'normal', 'high' );
 }
 function my_custom_gazo_in() {
-	global $post,$work_gazo,$work_gazo2;
+	global $post,$work_gazo,$work_gazo2, $wpdb;
 
 	if( FUDOU_IMG_MAX > 10 ){
 	  $work_gazo = array_merge($work_gazo, $work_gazo2);
@@ -487,53 +611,18 @@ function my_custom_gazo_in() {
 		//echo'<label for="'.$meta_box['name'].'">'.$meta_box['title'].'</label>';
 
 		if('select'==$meta_box['type']){
-/*
-			echo '<select name="'.$meta_box['name'].'">';
-			echo '<option value="">選択</option>';
-
-			echo '<option value="1"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="1"){ 	 echo ' selected="selected"';	}
-			echo '">間取</option>';
-
-			echo '<option value="2"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="2"){ 	 echo ' selected="selected"';	}
-			echo '">外観</option>';
-
-			echo '<option value="3"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="3"){ 	 echo ' selected="selected"';	}
-			echo '">地図</option>';
-
-			echo '<option value="4"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="4"){ 	 echo ' selected="selected"';	}
-			echo '">周辺</option>';
-
-			echo '<option value="5"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="5"){ 	 echo ' selected="selected"';	}
-			echo '">内装</option>';
-
-			echo '<option value="9"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="9"){ 	 echo ' selected="selected"';	}
-			echo '">その他画像</option>';
-
-			echo '<option value="10"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="10"){  echo ' selected="selected"';	}
-			echo '">玄関</option>';
-
-			echo '<option value="11"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="11"){  echo ' selected="selected"';	}
-			echo '">居間</option>';
-
-			echo '<option value="12"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="12"){  echo ' selected="selected"';	}
-			echo '">キッチン</option>';
-
-			echo '<option value="13"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="13"){  echo ' selected="selected"';	}
-			echo '">寝室</option>';
-
-			echo '<option value="14"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="14"){  echo ' selected="selected"';	}
-			echo '">子供部屋</option>';
-
-			echo '<option value="15"'; if(get_post_meta($post->ID, $meta_box['name'], true)=="15"){  echo ' selected="selected"';	}
-			echo '">風呂</option>　';
-
-			echo '</select><br />';
- */
 		}else{
+			$q1 = $wpdb->prepare("SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $post->ID AND meta_key = %s", $meta_box['name']);
+			$fname = substr($wpdb->get_var($q1), 0, -4);
+			$q2 = $wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts WHERE post_title = %s", $fname);
+			$attachid = $wpdb->get_var($q2);
+			$src = wp_get_attachment_image_src($attachid, 'thumbnail');
+			$src = $src[0] ? $src[0] : get_bloginfo('url').'/wp-content/plugins/fudou/themes/images/ui/noimage.jpg';
+			echo '<img style="vertical-align:bottom;" src="'.$src.'" alt="'.basename($src[0]).'" width="40" height="40" />　';
 			echo $meta_box['title'].'<input type="text" name="'.$meta_box['name'].'" value="'.$meta_box_value.'" size="25" id="'.$meta_box['name'].'" />';
-			echo ''.$meta_box['description'].'';
 			if($meta_box['std']=="1")
 				echo ' '.$meta_box['com'].'　<a href="media-upload.php?post_id='.$post->ID.'&amp;type=image&amp;img_no='.$meta_box['name'].'&amp;flash=0&amp;TB_iframe=1" class="thickbox">画像を設定</a><br />';
+			echo ''.$meta_box['description'].'';
 		}
 	}
 
@@ -654,19 +743,72 @@ function shop_description_container() {
 	$description_sub1 = get_post_meta($post->ID,'koutsubussfun1',true);
 	$description_sub2 = get_post_meta($post->ID,'koutsutohob1f',true);
 
+	$gallerytext = get_post_meta($post->ID, 'gallerytext', true);
+	$recommend_ttl = get_post_meta($post->ID, 'recommend_ttl', true);
+	$recommend1 = get_post_meta($post->ID, 'recommend1', true);
+	$recommend2 = get_post_meta($post->ID, 'recommend2', true);
+	$recommend3 = get_post_meta($post->ID, 'recommend3', true);
+
+	$main1_ttl = get_post_meta($post->ID, 'main1_ttl', true);
+	$main1_desc = get_post_meta($post->ID,'koutsubusstei1',true);
+	$sub1_1_desc = get_post_meta($post->ID,'koutsubussfun1',true);
+	$sub1_2_desc = get_post_meta($post->ID,'koutsutohob1f',true);
+
+	$main2_ttl = get_post_meta($post->ID, 'main2_ttl', true);
+	$main2_desc = get_post_meta($post->ID,'main2_desc',true);
+	$sub2_1_desc = get_post_meta($post->ID,'sub2_1_desc',true);
+	$sub2_2_desc = get_post_meta($post->ID,'sub2_2_desc',true);
+
+	// for old data.
+	$main1_desc = $main1_desc ? $main1_desc : $description_main;
+	$sub1_1_desc = $sub1_1_desc ? $sub1_1_desc : $description_sub1;
+	$sub1_2_desc = $sub1_2_desc ? $sub1_2_desc : $description_sub2;
+
+
 	$html = <<<HTML
 <input type="hidden" name="shop_description_nonce" id="shop_description_nonce" value="{$nonce}" />
 
-<label>説明文メイン</label>
-<textarea rows="3" cols="60" name="description_main" id="description_main" style="width:100%">{$description_main}</textarea><br />
+<label>ギャラリー説明文</label>
+<textarea rows="3" cols="60" name="gallerytext" id="gallerytext" style="width:100%">{$gallerytext}</textarea><br />
 <br />
-<label>説明文サブ1</label>
-<textarea rows="3" cols="60" name="description_sub1" id="description_sub1" style="width:100%">{$description_sub1}</textarea><br />
+<label>タイトルおすすめ</label>
+<input type="text" name="recommend_ttl" id="recommend_ttl" value="{$recommend_ttl}" style="width:60%" /><br />
 <br />
-<label>説明文サブ2</label>
-<textarea rows="3" cols="60" name="description_sub2" id="description_sub2" style="width:100%">{$description_sub2}</textarea><br />
+<label>おすすめ_左</label>
+<textarea rows="3" cols="60" name="recommend1" id="recommend1" style="width:100%">{$recommend1}</textarea><br />
+<br />
+<label>おすすめ_中央</label>
+<textarea rows="3" cols="60" name="recommend2" id="recommend2" style="width:100%">{$recommend2}</textarea><br />
+<br />
+<label>おすすめ_右</label>
+<textarea rows="3" cols="60" name="recommend3" id="recommend3" style="width:100%">{$recommend3}</textarea><br />
+<br />
+<label>タイトルメイン1</label>
+<input type="text" name="main1_ttl" id="main1_ttl" value="{$main1_ttl}" style="width:60%" /><br />
+<br />
+<label>説明文メイン1</label>
+<textarea rows="3" cols="60" name="main1_desc" id="main1_desc" style="width:100%">{$main1_desc}</textarea><br />
+<br />
+<label>説明文サブ1_左</label>
+<textarea rows="3" cols="60" name="sub1_1_desc" id="sub1_1_desc" style="width:100%">{$sub1_1_desc}</textarea><br />
+<br />
+<label>説明文サブ1_右</label>
+<textarea rows="3" cols="60" name="sub1_2_desc" id="sub1_2_desc" style="width:100%">{$sub1_2_desc}</textarea><br />
+<br />
+<label>タイトルメイン2</label>
+<input type="text" name="main2_ttl" id="main2_ttl" value="{$main2_ttl}" style="width:60%" /><br />
+<br />
+<label>説明文メイン2</label>
+<textarea rows="3" cols="60" name="main2_desc" id="main2_desc" style="width:100%">{$main2_desc}</textarea><br />
+<br />
+<label>説明文サブ2_左</label>
+<textarea rows="3" cols="60" name="sub2_1_desc" id="sub2_1_desc" style="width:100%">{$sub2_1_desc}</textarea><br />
+<br />
+<label>説明文サブ2_右</label>
+<textarea rows="3" cols="60" name="sub2_2_desc" id="sub2_2_desc" style="width:100%">{$sub2_2_desc}</textarea><br />
 <br />
 HTML;
+
 	echo $html;
 }
 function save_shop_description($post_id) {
@@ -680,25 +822,88 @@ function save_shop_description($post_id) {
 			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
 		}
 
-		$description_main = isset($_POST['description_main']) ? $_POST['description_main'] : '';
-		$description_sub1 = isset($_POST['description_sub1']) ? $_POST['description_sub1'] : '';
-		$description_sub2 = isset($_POST['description_sub2']) ? $_POST['description_sub2'] : '';
+		$gallerytext = isset($_POST['gallerytext']) ? $_POST['gallerytext'] : '';
+		$recommend_ttl = isset($_POST['recommend_ttl']) ? $_POST['recommend_ttl'] : '';
+		$recommend1 = isset($_POST['recommend1']) ? $_POST['recommend1'] : '';
+		$recommend2 = isset($_POST['recommend2']) ? $_POST['recommend2'] : '';
+		$recommend3 = isset($_POST['recommend3']) ? $_POST['recommend3'] : '';
+		$main1_ttl = isset($_POST['main1_ttl']) ? $_POST['main1_ttl'] : '';
+		$main1_desc = isset($_POST['main1_desc']) ? $_POST['main1_desc'] : '';
+		$sub1_1_desc = isset($_POST['sub1_1_desc']) ? $_POST['sub1_1_desc'] : '';
+		$sub1_2_desc = isset($_POST['sub1_2_desc']) ? $_POST['sub1_2_desc'] : '';
+		$main2_ttl = isset($_POST['main2_ttl']) ? $_POST['main2_ttl'] : '';
+		$main2_desc = isset($_POST['main2_desc']) ? $_POST['main2_desc'] : '';
+		$sub2_1_desc = isset($_POST['sub2_1_desc']) ? $_POST['sub2_1_desc'] : '';
+		$sub2_2_desc = isset($_POST['sub2_2_desc']) ? $_POST['sub2_2_desc'] : '';
 
-		// description_main
-		if (strcmp($description_main, get_post_meta($post_id, 'koutsubusstei1', true)) != 0)
-			update_post_meta($post_id, 'koutsubusstei1', $description_main);
-		elseif ($description_main == '')
+		// gallerytext
+		if (strcmp($gallerytext, get_post_meta($post_id, 'gallerytext', true)) != 0)
+			update_post_meta($post_id, 'gallerytext', $gallerytext);
+		elseif ($gallerytext == '')
+			delete_post_meta($post_id, 'gallerytext', get_post_meta($post_id, 'gallerytext', true));
+		// recommend_ttl
+		if (strcmp($recommend_ttl, get_post_meta($post_id, 'recommend_ttl', true)) != 0)
+			update_post_meta($post_id, 'recommend_ttl', $recommend_ttl);
+		elseif ($recommend_ttl == '')
+			delete_post_meta($post_id, 'recommend_ttl', get_post_meta($post_id, 'recommend_ttl', true));
+		// recommend1
+		if (strcmp($recommend1, get_post_meta($post_id, 'recommend1', true)) != 0)
+			update_post_meta($post_id, 'recommend1', $recommend1);
+		elseif ($recommend1 == '')
+			delete_post_meta($post_id, 'recommend1', get_post_meta($post_id, 'recommend1', true));
+		// recommend2
+		if (strcmp($recommend2, get_post_meta($post_id, 'recommend2', true)) != 0)
+			update_post_meta($post_id, 'recommend2', $recommend2);
+		elseif ($recommend2 == '')
+			delete_post_meta($post_id, 'recommend2', get_post_meta($post_id, 'recommend2', true));
+		// recommend3
+		if (strcmp($recommend3, get_post_meta($post_id, 'recommend3', true)) != 0)
+			update_post_meta($post_id, 'recommend3', $recommend3);
+		elseif ($recommend3 == '')
+			delete_post_meta($post_id, 'recommend3', get_post_meta($post_id, 'recommend3', true));
+
+		// main1_ttl
+		if (strcmp($main1_ttl, get_post_meta($post_id, 'main1_ttl', true)) != 0)
+			update_post_meta($post_id, 'main1_ttl', $main1_ttl);
+		elseif ($main1_ttl == '')
+			delete_post_meta($post_id, 'main1_ttl', get_post_meta($post_id, 'main1_ttl', true));
+		// main1_desc
+		if (strcmp($main1_desc, get_post_meta($post_id, 'koutsubusstei1', true)) != 0)
+			update_post_meta($post_id, 'koutsubusstei1', $main1_desc);
+		elseif ($main1_desc == '')
 			delete_post_meta($post_id, 'koutsubusstei1', get_post_meta($post_id, 'koutsubusstei1', true));
-		// description_sub1
-		if (strcmp($description_sub1, get_post_meta($post_id, 'koutsubussfun1', true)) != 0)
-			update_post_meta($post_id, 'koutsubussfun1', $description_sub1);
-		elseif ($description_sub1 == '')
+		// sub1_1_desc
+		if (strcmp($sub1_1_desc, get_post_meta($post_id, 'koutsubussfun1', true)) != 0)
+			update_post_meta($post_id, 'koutsubussfun1', $sub1_1_desc);
+		elseif ($sub1_1_desc == '')
 			delete_post_meta($post_id, 'koutsubussfun1', get_post_meta($post_id, 'koutsubussfun1', true));
-		// description_sub2
-		if (strcmp($description_sub2, get_post_meta($post_id, 'koutsutohob1f', true)) != 0)
-			update_post_meta($post_id, 'koutsutohob1f', $description_sub2);
-		elseif ($description_sub2 == '')
+		// sub1_2_desc
+		if (strcmp($sub1_2_desc, get_post_meta($post_id, 'koutsutohob1f', true)) != 0)
+			update_post_meta($post_id, 'koutsutohob1f', $sub1_2_desc);
+		elseif ($sub1_2_desc == '')
 			delete_post_meta($post_id, 'koutsutohob1f', get_post_meta($post_id, 'koutsutohob1f', true));
+
+		// main2_ttl
+		if (strcmp($main2_ttl, get_post_meta($post_id, 'main2_ttl', true)) != 0)
+			update_post_meta($post_id, 'main2_ttl', $main2_ttl);
+		elseif ($main2_ttl == '')
+			delete_post_meta($post_id, 'main2_ttl', get_post_meta($post_id, 'main2_ttl', true));
+		// main2_desc
+		if (strcmp($main2_desc, get_post_meta($post_id, 'main2_desc', true)) != 0)
+			update_post_meta($post_id, 'main2_desc', $main2_desc);
+		elseif ($main2_desc == '')
+			delete_post_meta($post_id, 'main2_desc', get_post_meta($post_id, 'main2_desc', true));
+		// sub2_1_desc
+		if (strcmp($sub2_1_desc, get_post_meta($post_id, 'sub2_1_desc', true)) != 0)
+			update_post_meta($post_id, 'sub2_1_desc', $sub2_1_desc);
+		elseif ($sub2_1_desc == '')
+			delete_post_meta($post_id, 'sub2_1_desc', get_post_meta($post_id, 'sub2_1_desc', true));
+		// sub2_2_desc
+		if (strcmp($sub2_2_desc, get_post_meta($post_id, 'sub2_2_desc', true)) != 0)
+			update_post_meta($post_id, 'sub2_2_desc', $sub2_2_desc);
+		elseif ($sub2_2_desc == '')
+			delete_post_meta($post_id, 'sub2_2_desc', get_post_meta($post_id, 'sub2_2_desc', true));
+
 	} else {
 		return $post_id;
 	}
@@ -729,9 +934,12 @@ function shop_detail_container() {
 	$hpurl = get_post_meta($post->ID, 'kanrininn', true);  // ホームページ
 	$average = get_post_meta($post->ID, 'kanrikeitai', true);  // 平均予算
 	$mobile = get_post_meta($post->ID, 'kanrikumiai', true);  // 携帯電波
+	$wifi = get_post_meta($post->ID, 'chushajobiko', true);  // WiFi
 	$credit = get_post_meta($post->ID, 'kanrikaisha', true);  // クレジット
 	$seats = get_post_meta($post->ID, 'heyakaisu', true);  // 総席数
 	$impediment = get_post_meta($post->ID, 'heyabarukoni', true);  // バリアフリー
+	$parking = get_post_meta($post->ID, 'chushajokubun', true);  // 駐車場
+	$equipment = get_post_meta($post->ID, 'chushajoryokin', true);  // その他設備
 	$notes = get_post_meta($post->ID, 'heyamuki', true);  // 備考
 
 	$html = <<<HTML
@@ -741,15 +949,15 @@ function shop_detail_container() {
 <input type="text" name="furigana" id="furigana" value="{$furigana}" /><br />
 <label for="zipcode">郵便番号</label>
 <input type="text" name="zipcode" id="zipcode" value="{$zipcode}" /><br />
+<label for="address1">住所1</label>
+<input type="text" name="address1" id="address1" value="{$address1}" /><input type="button" value="緯度経度取得" onclick="codeAddress();" /><br />
+<label for="address2">住所2</label>
+<input type="text" name="address2" id="address2" value="{$address2}" /><br />
+
 <label for="lat">緯度</label>
 <input type="text" name="lat" id="lat" value="{$lat}" /><br />
 <label for="lng">経度</label>
 <input type="text" name="lng" id="lng" value="{$lng}" /><br />
-
-<label for="address1">住所1</label>
-<input type="text" name="address1" id="address1" value="{$address1}" /><br />
-<label for="address2">住所2</label>
-<input type="text" name="address2" id="address2" value="{$address2}" /><br />
 <label for="access">アクセス</label>
 <input type="text" name="access" id="access" value="{$access}" /><br />
 <label for="landmark">ランドマーク</label>
@@ -770,6 +978,8 @@ function shop_detail_container() {
 <input type="text" name="average" id="average" value="{$average}" /><br />
 <label for="mobile">携帯電波</label>
 <input type="text" name="mobile" id="mobile" value="{$mobile}" /><br />
+<label for="mobile">WiFi</label>
+<input type="text" name="wifi" id="wifi" value="{$wifi}" /><br />
 <label for="credit">クレジット</label>
 <input type="text" name="credit" id="credit" value="{$credit}" /><br />
 <label for="seats">総席数</label>
@@ -777,6 +987,10 @@ function shop_detail_container() {
 
 <label for="impediment">バリアフリー</label>
 <input type="text" name="impediment" id="impediment" value="{$impediment}" /><br />
+<label for="impediment">駐車場</label>
+<input type="text" name="parking" id="parking" value="{$parking}" /><br />
+<label for="impediment">その他設備</label>
+<input type="text" name="equipment" id="equipment" value="{$equipment}" /><br />
 <label for="notes">備考</label>
 <textarea cols="60" rows="3" name="notes" id="notes" style="width:100%;">{$notes}</textarea><br />
 HTML;
@@ -808,9 +1022,12 @@ function save_shop_detail($post_id) {
 		$hpurl = isset($_POST['hpurl']) ? $_POST['hpurl'] : '';
 		$average = isset($_POST['average']) ? $_POST['average'] : '';
 		$mobile = isset($_POST['mobile']) ? $_POST['mobile'] : '';
+		$wifi = isset($_POST['wifi']) ? $_POST['wifi'] : '';
 		$credit = isset($_POST['credit']) ? $_POST['credit'] : '';
 		$seats = isset($_POST['seats']) ? $_POST['seats'] : '';
 		$impediment = isset($_POST['impediment']) ? $_POST['impediment'] : '';
+		$parking = isset($_POST['parking']) ? $_POST['parking'] : '';
+		$equipment = isset($_POST['equipment']) ? $_POST['equipment'] : '';
 		$notes = isset($_POST['notes']) ? $_POST['notes'] : '';
 
 		// furigana
@@ -888,6 +1105,11 @@ function save_shop_detail($post_id) {
 			update_post_meta($post_id, 'kanrikumiai', $mobile);
 		elseif ($mobile == '')
 			delete_post_meta($post_id, 'kanrikumiai', get_post_meta($post_id, 'kanrikumiai', true));
+		// wifi
+		if (strcmp($wifi, get_post_meta($post_id, 'chushajobiko', true)) != 0)
+			update_post_meta($post_id, 'chushajobiko', $wifi);
+		elseif ($wifi == '')
+			delete_post_meta($post_id, 'chushajobiko', get_post_meta($post_id, 'chushajobiko', true));
 		// credit
 		if (strcmp($credit, get_post_meta($post_id, 'kanrikaisha', true)) != 0)
 			update_post_meta($post_id, 'kanrikaisha', $credit);
@@ -903,6 +1125,16 @@ function save_shop_detail($post_id) {
 			update_post_meta($post_id, 'heyabarukoni', $impediment);
 		elseif ($impediment == '')
 			delete_post_meta($post_id, 'heyabarukoni', get_post_meta($post_id, 'heyabarukoni', true));
+		// parking
+		if (strcmp($parking, get_post_meta($post_id, 'chushajokubun', true)) != 0)
+			update_post_meta($post_id, 'chushajokubun', $parking);
+		elseif ($parking == '')
+			delete_post_meta($post_id, 'chushajokubun', get_post_meta($post_id, 'chushajokubun', true));
+		// equipment
+		if (strcmp($equipment, get_post_meta($post_id, 'chushajoryokin', true)) != 0)
+			update_post_meta($post_id, 'chushajoryokin', $equipment);
+		elseif ($equipment == '')
+			delete_post_meta($post_id, 'chushajoryokin', get_post_meta($post_id, 'chushajoryokin', true));
 		// notes
 		if (strcmp($notes, get_post_meta($post_id, 'heyamuki', true)) != 0)
 			update_post_meta($post_id, 'heyamuki', $notes);
@@ -1046,57 +1278,201 @@ function save_restaurant_detail($post_id) {
 	}
 }
 
-// 08. メニュー/コンテンツ
-add_action('admin_menu', 'attach_menu_contents');
-add_action('save_post', 'save_menu_contents');
-function attach_menu_contents() {
-	add_meta_box('menu_contents_area', 'その他店舗情報', 'menu_contents_container', 'fudo', 'advanced', 'high');
+
+
+// 08.フードメニュー
+add_action('admin_menu', 'attach_food_contents');
+add_action('save_post', 'save_food_contents');
+function attach_food_contents() {
+	add_meta_box('food_contents_area', 'フードメニュー', 'food_contents_container', 'fudo', 'advanced', 'default');
 }
-function menu_contents_container() {
+function food_contents_container() {
 	global $post;
 	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+	// food_row1_ttl
+	$food_row1_ttl = get_post_meta($post->ID, 'food_row1_ttl', true);  // metacomment
+	// food_row1_col1
+	$food_row1_col1_ttl = get_post_meta($post->ID, 'food_row1_col1_ttl', true);  // metacomment
+	$food_row1_col1_desc1 = get_post_meta($post->ID, 'food_row1_col1_desc1', true);  // metacomment
+	$food_row1_col1_desc2 = get_post_meta($post->ID, 'food_row1_col1_desc2', true);  // metacomment
+	// food_row1_col2
+	$food_row1_col2_ttl = get_post_meta($post->ID, 'food_row1_col2_ttl', true);  // metacomment
+	$food_row1_col2_desc1 = get_post_meta($post->ID, 'food_row1_col2_desc1', true);  // metacomment
+	$food_row1_col2_desc2 = get_post_meta($post->ID, 'food_row1_col2_desc2', true);  // metacomment
+	// food_row1_col3
+	$food_row1_col3_ttl = get_post_meta($post->ID, 'food_row1_col3_ttl', true);  // metacomment
+	$food_row1_col3_desc1 = get_post_meta($post->ID, 'food_row1_col3_desc1', true);  // metacomment
+	$food_row1_col3_desc2 = get_post_meta($post->ID, 'food_row1_col3_desc2', true);  // metacomment
 
-	$party_menu = get_post_meta($post->ID, 'kakakuzei', true);  // 宴会メニュー
-	$drink_menu = get_post_meta($post->ID, 'kakakutsubo', true);  // ドリンクメニュー
-	$food_menu = get_post_meta($post->ID, 'kakakukyouekihi', true);  // フードメニュー
-	$free1_title = get_post_meta($post->ID, 'kakakureikin', true);  // フリー1タイトル
-	$free1_content = get_post_meta($post->ID, 'kakakushikikin', true);  // フリー1コンテンツ
-	$free2_title = get_post_meta($post->ID, 'kakakuhoshoukin', true);  // フリー2タイトル
-	$free2_content = get_post_meta($post->ID, 'kakakukenrikin', true);  // フリー2コンテンツ
+	// food_row2_ttl
+	$food_row2_ttl = get_post_meta($post->ID, 'food_row2_ttl', true);  // metacomment
+	// food_row2_col1
+	$food_row2_col1_ttl = get_post_meta($post->ID, 'food_row2_col1_ttl', true);  // metacomment
+	$food_row2_col1_desc1 = get_post_meta($post->ID, 'food_row2_col1_desc1', true);  // metacomment
+	$food_row2_col1_desc2 = get_post_meta($post->ID, 'food_row2_col1_desc2', true);  // metacomment
+	// food_row2_col2
+	$food_row2_col2_ttl = get_post_meta($post->ID, 'food_row2_col2_ttl', true);  // metacomment
+	$food_row2_col2_desc1 = get_post_meta($post->ID, 'food_row2_col2_desc1', true);  // metacomment
+	$food_row2_col2_desc2 = get_post_meta($post->ID, 'food_row2_col2_desc2', true);  // metacomment
+	// food_row2_col3
+	$food_row2_col3_ttl = get_post_meta($post->ID, 'food_row2_col3_ttl', true);  // metacomment
+	$food_row2_col3_desc1 = get_post_meta($post->ID, 'food_row2_col3_desc1', true);  // metacomment
+	$food_row2_col3_desc2 = get_post_meta($post->ID, 'food_row2_col3_desc2', true);  // metacomment
 
-	$html = <<<HTML
-<input type="hidden" name="menu_contents_nonce" id="menu_contents_nonce" value="{$nonce}" />
+	// food_row3_ttl
+	$food_row3_ttl = get_post_meta($post->ID, 'food_row3_ttl', true);  // metacomment
+	// food_row3_col1
+	$food_row3_col1_ttl = get_post_meta($post->ID, 'food_row3_col1_ttl', true);  // metacomment
+	$food_row3_col1_desc1 = get_post_meta($post->ID, 'food_row3_col1_desc1', true);  // metacomment
+	$food_row3_col1_desc2 = get_post_meta($post->ID, 'food_row3_col1_desc2', true);  // metacomment
+	// food_row3_col2
+	$food_row3_col2_ttl = get_post_meta($post->ID, 'food_row3_col2_ttl', true);  // metacomment
+	$food_row3_col2_desc1 = get_post_meta($post->ID, 'food_row3_col2_desc1', true);  // metacomment
+	$food_row3_col2_desc2 = get_post_meta($post->ID, 'food_row3_col2_desc2', true);  // metacomment
+	// food_row3_col3
+	$food_row3_col3_ttl = get_post_meta($post->ID, 'food_row3_col3_ttl', true);  // metacomment
+	$food_row3_col3_desc1 = get_post_meta($post->ID, 'food_row3_col3_desc1', true);  // metacomment
+	$food_row3_col3_desc2 = get_post_meta($post->ID, 'food_row3_col3_desc2', true);  // metacomment
 
-<label for="party_menu">宴会メニュー</label><br />
-<textarea cols="60" rows="20" name="party_menu" id="party_menu" style="width:100%;">{$party_menu}</textarea><br />
+	// food_row4_ttl
+	$food_row4_ttl = get_post_meta($post->ID, 'food_row4_ttl', true);  // metacomment
+	// food_row4_col1
+	$food_row4_col1_ttl = get_post_meta($post->ID, 'food_row4_col1_ttl', true);  // metacomment
+	$food_row4_col1_desc1 = get_post_meta($post->ID, 'food_row4_col1_desc1', true);  // metacomment
+	$food_row4_col1_desc2 = get_post_meta($post->ID, 'food_row4_col1_desc2', true);  // metacomment
+	// food_row4_col2
+	$food_row4_col2_ttl = get_post_meta($post->ID, 'food_row4_col2_ttl', true);  // metacomment
+	$food_row4_col2_desc1 = get_post_meta($post->ID, 'food_row4_col2_desc1', true);  // metacomment
+	$food_row4_col2_desc2 = get_post_meta($post->ID, 'food_row4_col2_desc2', true);  // metacomment
+	// food_row4_col3
+	$food_row4_col3_ttl = get_post_meta($post->ID, 'food_row4_col3_ttl', true);  // metacomment
+	$food_row4_col3_desc1 = get_post_meta($post->ID, 'food_row4_col3_desc1', true);  // metacomment
+	$food_row4_col3_desc2 = get_post_meta($post->ID, 'food_row4_col3_desc2', true);  // metacomment
+
+
+	$html = '<input type="hidden" name="food_contents_nonce" id="food_contents_nonce" value="'.$nonce.'" />';
+// food_row1
+	$html .= <<<HTML
+<label for="food_row1_ttl">フード1段目_見出し</label><br />
+<input type="text" name="food_row1_ttl" id="food_row1_ttl" value="{$food_row1_ttl}" /><br />
+<label for="food_row1_col1_ttl">フード1段目_左_タイトル</label><br />
+<input type="text" name="food_row1_col1_ttl" id="food_row1_col1_ttl" value="{$food_row1_col1_ttl}" /><br />
+<label for="">フード1段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row1_col1_desc1" id="food_row1_col1_desc1" style="width:100%;">{$food_row1_col1_desc1}</textarea><br />
+<label for="">フード1段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row1_col1_desc2" id="food_row1_col1_desc2" style="width:100%;">{$food_row1_col1_desc2}</textarea><br />
 <br />
 
-<label for="">ドリンクメニュー</label><br />
-<textarea cols="60" rows="20" name="drink_menu" id="drink_menu" style="width:100%;">{$drink_menu}</textarea><br />
+<label for="food_row1_col2_ttl">フード1段目_中央_タイトル</label><br />
+<input type="text" name="food_row1_col2_ttl" id="food_row1_col2_ttl" value="{$food_row1_col2_ttl}" /><br />
+<label for="">フード1段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row1_col2_desc1" id="food_row1_col2_desc1" style="width:100%;">{$food_row1_col2_desc1}</textarea><br />
+<label for="">フード1段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row1_col2_desc2" id="food_row1_col2_desc2" style="width:100%;">{$food_row1_col2_desc2}</textarea><br />
 <br />
 
-<label for="">フードメニュー</label><br />
-<textarea cols="60" rows="20" name="food_menu" id="food_menu" style="width:100%;">{$food_menu}</textarea><br />
-<br />
-
-<label for="free1_title">フリー1タイトル</label><br />
-<input type="text" name="free1_title" id="free1_title" value="{$free1_title}" /><br />
-<label for="">フリー1コンテンツ</label><br />
-<textarea cols="60" rows="20" name="free1_content" id="free1_content" style="width:100%;">{$free1_content}</textarea><br />
-<br />
-
-<label for="free2_title">フリー2タイトル</label>
-<input type="text" name="free2_title" id="free2_title" value="{$free2_title}" /><br />
-<label for="">フリー2コンテンツ</label><br />
-<textarea cols="60" rows="20" name="free2_content" id="free2_content" style="width:100%;">{$free2_content}</textarea><br />
-<br />
+<label for="food_row1_col3_ttl">フード1段目_右_タイトル</label><br />
+<input type="text" name="food_row1_col3_ttl" id="food_row1_col3_ttl" value="{$food_row1_col3_ttl}" /><br />
+<label for="">フード1段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row1_col3_desc1" id="food_row1_col3_desc1" style="width:100%;">{$food_row1_col3_desc1}</textarea><br />
+<label for="">フード1段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row1_col3_desc2" id="food_row1_col3_desc2" style="width:100%;">{$food_row1_col3_desc2}</textarea><br />
+<hr />
 HTML;
+
+// food_row2
+	$html .= <<<HTML
+<label for="food_row2_ttl">フード2段目_見出し</label><br />
+<input type="text" name="food_row2_ttl" id="food_row2_ttl" value="{$food_row2_ttl}" /><br />
+<label for="food_row2_col1_ttl">フード2段目_左_タイトル</label><br />
+<input type="text" name="food_row2_col1_ttl" id="food_row2_col1_ttl" value="{$food_row2_col1_ttl}" /><br />
+<label for="">フード2段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row2_col1_desc1" id="food_row2_col1_desc1" style="width:100%;">{$food_row2_col1_desc1}</textarea><br />
+<label for="">フード2段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row2_col1_desc2" id="food_row2_col1_desc2" style="width:100%;">{$food_row2_col1_desc2}</textarea><br />
+<br />
+
+<label for="food_row2_col2_ttl">フード2段目_中央_タイトル</label><br />
+<input type="text" name="food_row2_col2_ttl" id="food_row2_col2_ttl" value="{$food_row2_col2_ttl}" /><br />
+<label for="">フード2段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row2_col2_desc1" id="food_row2_col2_desc1" style="width:100%;">{$food_row2_col2_desc1}</textarea><br />
+<label for="">フード2段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row2_col2_desc2" id="food_row2_col2_desc2" style="width:100%;">{$food_row2_col2_desc2}</textarea><br />
+<br />
+
+<label for="food_row2_col3_ttl">フード2段目_右_タイトル</label><br />
+<input type="text" name="food_row2_col3_ttl" id="food_row2_col3_ttl" value="{$food_row2_col3_ttl}" /><br />
+<label for="">フード2段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row2_col3_desc1" id="food_row2_col3_desc1" style="width:100%;">{$food_row2_col3_desc1}</textarea><br />
+<label for="">フード2段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row2_col3_desc2" id="food_row2_col3_desc2" style="width:100%;">{$food_row2_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// food_row3
+	$html .= <<<HTML
+<label for="food_row3_ttl">フード3段目_見出し</label><br />
+<input type="text" name="food_row3_ttl" id="food_row3_ttl" value="{$food_row3_ttl}" /><br />
+<label for="food_row3_col1_ttl">フード3段目_左_タイトル</label><br />
+<input type="text" name="food_row3_col1_ttl" id="food_row3_col1_ttl" value="{$food_row3_col1_ttl}" /><br />
+<label for="">フード3段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row3_col1_desc1" id="food_row3_col1_desc1" style="width:100%;">{$food_row3_col1_desc1}</textarea><br />
+<label for="">フード3段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row3_col1_desc2" id="food_row3_col1_desc2" style="width:100%;">{$food_row3_col1_desc2}</textarea><br />
+<br />
+
+<label for="food_row3_col2_ttl">フード3段目_中央_タイトル</label><br />
+<input type="text" name="food_row3_col2_ttl" id="food_row3_col2_ttl" value="{$food_row3_col2_ttl}" /><br />
+<label for="">フード3段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row3_col2_desc1" id="food_row3_col2_desc1" style="width:100%;">{$food_row3_col2_desc1}</textarea><br />
+<label for="">フード3段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row3_col2_desc2" id="food_row3_col2_desc2" style="width:100%;">{$food_row3_col2_desc2}</textarea><br />
+<br />
+
+<label for="food_row3_col3_ttl">フード3段目_右_タイトル</label><br />
+<input type="text" name="food_row3_col3_ttl" id="food_row3_col3_ttl" value="{$food_row3_col3_ttl}" /><br />
+<label for="">フード3段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row3_col3_desc1" id="food_row3_col3_desc1" style="width:100%;">{$food_row3_col3_desc1}</textarea><br />
+<label for="">フード3段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row3_col3_desc2" id="food_row3_col3_desc2" style="width:100%;">{$food_row3_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// food_row4
+	$html .= <<<HTML
+<label for="food_row4_ttl">フード4段目_見出し</label><br />
+<input type="text" name="food_row4_ttl" id="food_row4_ttl" value="{$food_row4_ttl}" /><br />
+<label for="food_row4_col1_ttl">フード4段目_左_タイトル</label><br />
+<input type="text" name="food_row4_col1_ttl" id="food_row4_col1_ttl" value="{$food_row4_col1_ttl}" /><br />
+<label for="">フード4段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row4_col1_desc1" id="food_row4_col1_desc1" style="width:100%;">{$food_row4_col1_desc1}</textarea><br />
+<label for="">フード4段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row4_col1_desc2" id="food_row4_col1_desc2" style="width:100%;">{$food_row4_col1_desc2}</textarea><br />
+<br />
+
+<label for="food_row4_col2_ttl">フード4段目_中央_タイトル</label><br />
+<input type="text" name="food_row4_col2_ttl" id="food_row4_col2_ttl" value="{$food_row4_col2_ttl}" /><br />
+<label for="">フード4段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row4_col2_desc1" id="food_row4_col2_desc1" style="width:100%;">{$food_row4_col2_desc1}</textarea><br />
+<label for="">フード4段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row4_col2_desc2" id="food_row4_col2_desc2" style="width:100%;">{$food_row4_col2_desc2}</textarea><br />
+<br />
+
+<label for="food_row4_col3_ttl">フード4段目_右_タイトル</label><br />
+<input type="text" name="food_row4_col3_ttl" id="food_row4_col3_ttl" value="{$food_row4_col3_ttl}" /><br />
+<label for="">フード4段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="food_row4_col3_desc1" id="food_row4_col3_desc1" style="width:100%;">{$food_row4_col3_desc1}</textarea><br />
+<label for="">フード4段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="food_row4_col3_desc2" id="food_row4_col3_desc2" style="width:100%;">{$food_row4_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
 	echo $html;
 }
 
-function save_menu_contents($post_id) {
-	if ( isset($_POST['menu_contents_nonce']) ) {
-		if ( !wp_verify_nonce( $_POST['menu_contents_nonce'], plugin_basename(__FILE__) ) ) {
+function save_food_contents($post_id) {
+	if ( isset($_POST['food_contents_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['food_contents_nonce'], plugin_basename(__FILE__) ) ) {
 			return $post_id;
 		}
 		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
@@ -1105,53 +1481,1516 @@ function save_menu_contents($post_id) {
 			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
 		}
 
-		$party_menu = isset($_POST['party_menu']) ? $_POST['party_menu'] : '';
-		$drink_menu = isset($_POST['drink_menu']) ? $_POST['drink_menu'] : '';
-		$food_menu = isset($_POST['food_menu']) ? $_POST['food_menu'] : '';
-		$free1_title = isset($_POST['free1_title']) ? $_POST['free1_title'] : '';
-		$free1_content = isset($_POST['free1_content']) ? $_POST['free1_content'] : '';
-		$free2_title = isset($_POST['free2_title']) ? $_POST['free2_title'] : '';
-		$free2_content = isset($_POST['free2_content']) ? $_POST['free2_content'] : '';
+/* get food_row1
+--------------- */
+	$food_row1_ttl = isset($_POST['food_row1_ttl']) ? $_POST['food_row1_ttl'] : '';
+	/** food_row1_col1 **/
+		$food_row1_col1_ttl = isset($_POST['food_row1_col1_ttl']) ? $_POST['food_row1_col1_ttl'] : '';
+		$food_row1_col1_desc1 = isset($_POST['food_row1_col1_desc1']) ? $_POST['food_row1_col1_desc1'] : '';
+		$food_row1_col1_desc2 = isset($_POST['food_row1_col1_desc2']) ? $_POST['food_row1_col1_desc2'] : '';
+	/** food_row2_col2 **/
+		$food_row1_col2_ttl = isset($_POST['food_row1_col2_ttl']) ? $_POST['food_row1_col2_ttl'] : '';
+		$food_row1_col2_desc1 = isset($_POST['food_row1_col2_desc1']) ? $_POST['food_row1_col2_desc1'] : '';
+		$food_row1_col2_desc2 = isset($_POST['food_row1_col2_desc2']) ? $_POST['food_row1_col2_desc2'] : '';
+	/** food_row1_col3 **/
+		$food_row1_col3_ttl = isset($_POST['food_row1_col3_ttl']) ? $_POST['food_row1_col3_ttl'] : '';
+		$food_row1_col3_desc1 = isset($_POST['food_row1_col3_desc1']) ? $_POST['food_row1_col3_desc1'] : '';
+		$food_row1_col3_desc2 = isset($_POST['food_row1_col3_desc2']) ? $_POST['food_row1_col3_desc2'] : '';
+/* get food_row2
+--------------- */
+	$food_row2_ttl = isset($_POST['food_row2_ttl']) ? $_POST['food_row2_ttl'] : '';
+	/** food_row2_col1 **/
+		$food_row2_col1_ttl = isset($_POST['food_row2_col1_ttl']) ? $_POST['food_row2_col1_ttl'] : '';
+		$food_row2_col1_desc1 = isset($_POST['food_row2_col1_desc1']) ? $_POST['food_row2_col1_desc1'] : '';
+		$food_row2_col1_desc2 = isset($_POST['food_row2_col1_desc2']) ? $_POST['food_row2_col1_desc2'] : '';
+	/** food_row2_col2 **/
+		$food_row2_col2_ttl = isset($_POST['food_row2_col2_ttl']) ? $_POST['food_row2_col2_ttl'] : '';
+		$food_row2_col2_desc1 = isset($_POST['food_row2_col2_desc1']) ? $_POST['food_row2_col2_desc1'] : '';
+		$food_row2_col2_desc2 = isset($_POST['food_row2_col2_desc2']) ? $_POST['food_row2_col2_desc2'] : '';
+	/** food_row2_col3 **/
+		$food_row2_col3_ttl = isset($_POST['food_row2_col3_ttl']) ? $_POST['food_row2_col3_ttl'] : '';
+		$food_row2_col3_desc1 = isset($_POST['food_row2_col3_desc1']) ? $_POST['food_row2_col3_desc1'] : '';
+		$food_row2_col3_desc2 = isset($_POST['food_row2_col3_desc2']) ? $_POST['food_row2_col3_desc2'] : '';
+/* get food_row3
+--------------- */
+	$food_row3_ttl = isset($_POST['food_row3_ttl']) ? $_POST['food_row3_ttl'] : '';
+	/** food_row3_col1 **/
+		$food_row3_col1_ttl = isset($_POST['food_row3_col1_ttl']) ? $_POST['food_row3_col1_ttl'] : '';
+		$food_row3_col1_desc1 = isset($_POST['food_row3_col1_desc1']) ? $_POST['food_row3_col1_desc1'] : '';
+		$food_row3_col1_desc2 = isset($_POST['food_row3_col1_desc2']) ? $_POST['food_row3_col1_desc2'] : '';
+	/** food_row3_col2 **/
+		$food_row3_col2_ttl = isset($_POST['food_row3_col2_ttl']) ? $_POST['food_row3_col2_ttl'] : '';
+		$food_row3_col2_desc1 = isset($_POST['food_row3_col2_desc1']) ? $_POST['food_row3_col2_desc1'] : '';
+		$food_row3_col2_desc2 = isset($_POST['food_row3_col2_desc2']) ? $_POST['food_row3_col2_desc2'] : '';
+	/** food_row3_col3 **/
+		$food_row3_col3_ttl = isset($_POST['food_row3_col3_ttl']) ? $_POST['food_row3_col3_ttl'] : '';
+		$food_row3_col3_desc1 = isset($_POST['food_row3_col3_desc1']) ? $_POST['food_row3_col3_desc1'] : '';
+		$food_row3_col3_desc2 = isset($_POST['food_row3_col3_desc2']) ? $_POST['food_row3_col3_desc2'] : '';
+/* get food_row4
+--------------- */
+	$food_row4_ttl = isset($_POST['food_row4_ttl']) ? $_POST['food_row4_ttl'] : '';
+	/** food_row4_col1 **/
+		$food_row4_col1_ttl = isset($_POST['food_row4_col1_ttl']) ? $_POST['food_row4_col1_ttl'] : '';
+		$food_row4_col1_desc1 = isset($_POST['food_row4_col1_desc1']) ? $_POST['food_row4_col1_desc1'] : '';
+		$food_row4_col1_desc2 = isset($_POST['food_row4_col1_desc2']) ? $_POST['food_row4_col1_desc2'] : '';
+	/** food_row4_col2 **/
+		$food_row4_col2_ttl = isset($_POST['food_row4_col2_ttl']) ? $_POST['food_row4_col2_ttl'] : '';
+		$food_row4_col2_desc1 = isset($_POST['food_row4_col2_desc1']) ? $_POST['food_row4_col2_desc1'] : '';
+		$food_row4_col2_desc2 = isset($_POST['food_row4_col2_desc2']) ? $_POST['food_row4_col2_desc2'] : '';
+	/** food_row4_col3 **/
+		$food_row4_col3_ttl = isset($_POST['food_row4_col3_ttl']) ? $_POST['food_row4_col3_ttl'] : '';
+		$food_row4_col3_desc1 = isset($_POST['food_row4_col3_desc1']) ? $_POST['food_row4_col3_desc1'] : '';
+		$food_row4_col3_desc2 = isset($_POST['food_row4_col3_desc2']) ? $_POST['food_row4_col3_desc2'] : '';
 
-		// party_menu
-		if (strcmp($party_menu, get_post_meta($post_id, 'kakakuzei', true)) != 0)
-			update_post_meta($post_id, 'kakakuzei', $party_menu);
-		elseif ($party_menu == '')
-			delete_post_meta($post_id, 'kakakuzei', get_post_meta($post_id, 'kakakuzei', true));
-		// drink_menu
-		if (strcmp($drink_menu, get_post_meta($post_id, 'kakakutsubo', true)) != 0)
-			update_post_meta($post_id, 'kakakutsubo', $drink_menu);
-		elseif ($drink_menu == '')
-			delete_post_meta($post_id, 'kakakutsubo', get_post_meta($post_id, 'kakakutsubo', true));
-		// food_menu
-		if (strcmp($food_menu, get_post_meta($post_id, 'kakakukyouekihi', true)) != 0)
-			update_post_meta($post_id, 'kakakukyouekihi', $food_menu);
-		elseif ($food_menu == '')
-			delete_post_meta($post_id, 'kakakukyouekihi', get_post_meta($post_id, 'kakakukyouekihi', true));
-		// free1_title
-		if (strcmp($free1_title, get_post_meta($post_id, 'kakakureikin', true)) != 0)
-			update_post_meta($post_id, 'kakakureikin', $free1_title);
-		elseif ($free1_title == '')
-			delete_post_meta($post_id, 'kakakureikin', get_post_meta($post_id, 'kakakureikin', true));
-		// free1_content
-		if (strcmp($free1_content, get_post_meta($post_id, 'kakakushikikin', true)) != 0)
-			update_post_meta($post_id, 'kakakushikikin', $free1_content);
-		elseif ($free1_content == '')
-			delete_post_meta($post_id, 'kakakushikikin', get_post_meta($post_id, 'kakakushikikin', true));
-		// free2_title
-		if (strcmp($free2_title, get_post_meta($post_id, 'kakakuhoshoukin', true)) != 0)
-			update_post_meta($post_id, 'kakakuhoshoukin', $free2_title);
-		elseif ($free2_title == '')
-			delete_post_meta($post_id, 'kakakuhoshoukin', get_post_meta($post_id, 'kakakuhoshoukin', true));
-		// free2_content
-		if (strcmp($free2_content, get_post_meta($post_id, 'kakakukenrikin', true)) != 0)
-			update_post_meta($post_id, 'kakakukenrikin', $free2_content);
-		elseif ($free2_content == '')
-			delete_post_meta($post_id, 'kakakukenrikin', get_post_meta($post_id, 'kakakukenrikin', true));
+/* set food_row1
+---------------------- */
+	if (strcmp($food_row1_ttl, get_post_meta($post_id, 'food_row1_ttl', true)) != 0)
+		update_post_meta($post_id, 'food_row1_ttl', $food_row1_ttl);
+	elseif ($food_row1_ttl == '')
+		delete_post_meta($post_id, 'food_row1_ttl', get_post_meta($post_id, 'food_row1_ttl', true));
+	/** set food_row1_col1 **/
+		// set food_row1_col1_ttl
+		if (strcmp($food_row1_col1_ttl, get_post_meta($post_id, 'food_row1_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col1_ttl', $food_row1_col1_ttl);
+		elseif ($food_row1_col1_ttl == '')
+			delete_post_meta($post_id, 'food_row1_col1_ttl', get_post_meta($post_id, 'food_row1_col1_ttl', true));
+		// set food_row1_col1_desc1
+		if (strcmp($food_row1_col1_desc1, get_post_meta($post_id, 'food_row1_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col1_desc1', $food_row1_col1_desc1);
+		elseif ($food_row1_col1_desc1 == '')
+			delete_post_meta($post_id, 'food_row1_col1_desc1', get_post_meta($post_id, 'food_row1_col1_desc1', true));
+		// set food_row1_col1_desc2
+		if (strcmp($food_row1_col1_desc2, get_post_meta($post_id, 'food_row1_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col1_desc2', $food_row1_col1_desc2);
+		elseif ($food_row1_col1_desc2 == '')
+			delete_post_meta($post_id, 'food_row1_col1_desc2', get_post_meta($post_id, 'food_row1_col1_desc2', true));
+	/** set food_row1_col2 **/
+		// set food_row1_col2_ttl
+		if (strcmp($food_row1_col2_ttl, get_post_meta($post_id, 'food_row1_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col2_ttl', $food_row1_col2_ttl);
+		elseif ($food_row1_col2_ttl == '')
+			delete_post_meta($post_id, 'food_row1_col2_ttl', get_post_meta($post_id, 'food_row1_col2_ttl', true));
+		// set food_row1_col2_desc1
+		if (strcmp($food_row1_col2_desc1, get_post_meta($post_id, 'food_row1_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col2_desc1', $food_row1_col2_desc1);
+		elseif ($food_row1_col2_desc1 == '')
+			delete_post_meta($post_id, 'food_row1_col2_desc1', get_post_meta($post_id, 'food_row1_col2_desc1', true));
+		// set food_row1_col2_desc2
+		if (strcmp($food_row1_col2_desc2, get_post_meta($post_id, 'food_row1_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col2_desc2', $food_row1_col2_desc2);
+		elseif ($food_row1_col2_desc2 == '')
+			delete_post_meta($post_id, 'food_row1_col2_desc2', get_post_meta($post_id, 'food_row1_col2_desc2', true));
+	/** set food_row1_col3 **/
+		// set food_row1_col3_ttl
+		if (strcmp($food_row1_col3_ttl, get_post_meta($post_id, 'food_row1_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col3_ttl', $food_row1_col3_ttl);
+		elseif ($food_row1_col3_ttl == '')
+			delete_post_meta($post_id, 'food_row1_col3_ttl', get_post_meta($post_id, 'food_row1_col3_ttl', true));
+		// set food_row1_col3_desc1
+		if (strcmp($food_row1_col3_desc1, get_post_meta($post_id, 'food_row1_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col3_desc1', $food_row1_col3_desc1);
+		elseif ($food_row1_col3_desc1 == '')
+			delete_post_meta($post_id, 'food_row1_col3_desc1', get_post_meta($post_id, 'food_row1_col3_desc1', true));
+		// set food_row1_col3_desc2
+		if (strcmp($food_row1_col3_desc2, get_post_meta($post_id, 'food_row1_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row1_col3_desc2', $food_row1_col3_desc2);
+		elseif ($food_row1_col3_desc2 == '')
+			delete_post_meta($post_id, 'food_row1_col3_desc2', get_post_meta($post_id, 'food_row1_col3_desc2', true));
+
+/* set food_row2
+---------------------- */
+	if (strcmp($food_row2_ttl, get_post_meta($post_id, 'food_row2_ttl', true)) != 0)
+		update_post_meta($post_id, 'food_row2_ttl', $food_row2_ttl);
+	elseif ($food_row2_ttl == '')
+		delete_post_meta($post_id, 'food_row2_ttl', get_post_meta($post_id, 'food_row2_ttl', true));
+	/** set food_row2_col1 **/
+		// set food_row2_col1_ttl
+		if (strcmp($food_row2_col1_ttl, get_post_meta($post_id, 'food_row2_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col1_ttl', $food_row2_col1_ttl);
+		elseif ($food_row2_col1_ttl == '')
+			delete_post_meta($post_id, 'food_row2_col1_ttl', get_post_meta($post_id, 'food_row2_col1_ttl', true));
+		// set food_row2_col1_desc1
+		if (strcmp($food_row2_col1_desc1, get_post_meta($post_id, 'food_row2_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col1_desc1', $food_row2_col1_desc1);
+		elseif ($food_row2_col1_desc1 == '')
+			delete_post_meta($post_id, 'food_row2_col1_desc1', get_post_meta($post_id, 'food_row2_col1_desc1', true));
+		// set food_row2_col1_desc2
+		if (strcmp($food_row2_col1_desc2, get_post_meta($post_id, 'food_row2_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col1_desc2', $food_row2_col1_desc2);
+		elseif ($food_row2_col1_desc2 == '')
+			delete_post_meta($post_id, 'food_row2_col1_desc2', get_post_meta($post_id, 'food_row2_col1_desc2', true));
+	/** set food_row2_col2 **/
+		// set food_row2_col2_ttl
+		if (strcmp($food_row2_col2_ttl, get_post_meta($post_id, 'food_row2_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col2_ttl', $food_row2_col2_ttl);
+		elseif ($food_row2_col2_ttl == '')
+			delete_post_meta($post_id, 'food_row2_col2_ttl', get_post_meta($post_id, 'food_row2_col2_ttl', true));
+		// set food_row2_col2_desc1
+		if (strcmp($food_row2_col2_desc1, get_post_meta($post_id, 'food_row2_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col2_desc1', $food_row2_col2_desc1);
+		elseif ($food_row2_col2_desc1 == '')
+			delete_post_meta($post_id, 'food_row2_col2_desc1', get_post_meta($post_id, 'food_row2_col2_desc1', true));
+		// set food_row2_col2_desc2
+		if (strcmp($food_row2_col2_desc2, get_post_meta($post_id, 'food_row2_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col2_desc2', $food_row2_col2_desc2);
+		elseif ($food_row2_col2_desc2 == '')
+			delete_post_meta($post_id, 'food_row2_col2_desc2', get_post_meta($post_id, 'food_row2_col2_desc2', true));
+	/** set food_row2_col3 **/
+		// set food_row2_col3_ttl
+		if (strcmp($food_row2_col3_ttl, get_post_meta($post_id, 'food_row2_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col3_ttl', $food_row2_col3_ttl);
+		elseif ($food_row2_col3_ttl == '')
+			delete_post_meta($post_id, 'food_row2_col3_ttl', get_post_meta($post_id, 'food_row2_col3_ttl', true));
+		// set food_row2_col3_desc1
+		if (strcmp($food_row2_col3_desc1, get_post_meta($post_id, 'food_row2_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col3_desc1', $food_row2_col3_desc1);
+		elseif ($food_row2_col3_desc1 == '')
+			delete_post_meta($post_id, 'food_row2_col3_desc1', get_post_meta($post_id, 'food_row2_col3_desc1', true));
+		// set food_row2_col3_desc2
+		if (strcmp($food_row2_col3_desc2, get_post_meta($post_id, 'food_row2_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row2_col3_desc2', $food_row2_col3_desc2);
+		elseif ($food_row2_col3_desc2 == '')
+			delete_post_meta($post_id, 'food_row2_col3_desc2', get_post_meta($post_id, 'food_row2_col3_desc2', true));
+
+/* set food_row3
+---------------------- */
+	if (strcmp($food_row3_ttl, get_post_meta($post_id, 'food_row3_ttl', true)) != 0)
+		update_post_meta($post_id, 'food_row3_ttl', $food_row3_ttl);
+	elseif ($food_row3_ttl == '')
+		delete_post_meta($post_id, 'food_row3_ttl', get_post_meta($post_id, 'food_row3_ttl', true));
+	/** set food_row3_col1 **/
+		// set food_row3_col1_ttl
+		if (strcmp($food_row3_col1_ttl, get_post_meta($post_id, 'food_row3_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col1_ttl', $food_row3_col1_ttl);
+		elseif ($food_row3_col1_ttl == '')
+			delete_post_meta($post_id, 'food_row3_col1_ttl', get_post_meta($post_id, 'food_row3_col1_ttl', true));
+		// set food_row3_col1_desc1
+		if (strcmp($food_row3_col1_desc1, get_post_meta($post_id, 'food_row3_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col1_desc1', $food_row3_col1_desc1);
+		elseif ($food_row3_col1_desc1 == '')
+			delete_post_meta($post_id, 'food_row3_col1_desc1', get_post_meta($post_id, 'food_row3_col1_desc1', true));
+		// set food_row3_col1_desc2
+		if (strcmp($food_row3_col1_desc2, get_post_meta($post_id, 'food_row3_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col1_desc2', $food_row3_col1_desc2);
+		elseif ($food_row3_col1_desc2 == '')
+			delete_post_meta($post_id, 'food_row3_col1_desc2', get_post_meta($post_id, 'food_row3_col1_desc2', true));
+	/** set food_row3_col2 **/
+		// set food_row3_col2_ttl
+		if (strcmp($food_row3_col2_ttl, get_post_meta($post_id, 'food_row3_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col2_ttl', $food_row3_col2_ttl);
+		elseif ($food_row3_col2_ttl == '')
+			delete_post_meta($post_id, 'food_row3_col2_ttl', get_post_meta($post_id, 'food_row3_col2_ttl', true));
+		// set food_row3_col2_desc1
+		if (strcmp($food_row3_col2_desc1, get_post_meta($post_id, 'food_row3_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col2_desc1', $food_row3_col2_desc1);
+		elseif ($food_row3_col2_desc1 == '')
+			delete_post_meta($post_id, 'food_row3_col2_desc1', get_post_meta($post_id, 'food_row3_col2_desc1', true));
+		// set food_row3_col2_desc2
+		if (strcmp($food_row3_col2_desc2, get_post_meta($post_id, 'food_row3_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col2_desc2', $food_row3_col2_desc2);
+		elseif ($food_row3_col2_desc2 == '')
+			delete_post_meta($post_id, 'food_row3_col2_desc2', get_post_meta($post_id, 'food_row3_col2_desc2', true));
+	/** set food_row3_col3 **/
+		// set food_row3_col3_ttl
+		if (strcmp($food_row3_col3_ttl, get_post_meta($post_id, 'food_row3_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col3_ttl', $food_row3_col3_ttl);
+		elseif ($food_row3_col3_ttl == '')
+			delete_post_meta($post_id, 'food_row3_col3_ttl', get_post_meta($post_id, 'food_row3_col3_ttl', true));
+		// set food_row3_col3_desc1
+		if (strcmp($food_row3_col3_desc1, get_post_meta($post_id, 'food_row3_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col3_desc1', $food_row3_col3_desc1);
+		elseif ($food_row3_col3_desc1 == '')
+			delete_post_meta($post_id, 'food_row3_col3_desc1', get_post_meta($post_id, 'food_row3_col3_desc1', true));
+		// set food_row3_col3_desc2
+		if (strcmp($food_row3_col3_desc2, get_post_meta($post_id, 'food_row3_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row3_col3_desc2', $food_row3_col3_desc2);
+		elseif ($food_row3_col3_desc2 == '')
+			delete_post_meta($post_id, 'food_row3_col3_desc2', get_post_meta($post_id, 'food_row3_col3_desc2', true));
+
+/* set food_row4
+---------------------- */
+	if (strcmp($food_row4_ttl, get_post_meta($post_id, 'food_row4_ttl', true)) != 0)
+		update_post_meta($post_id, 'food_row4_ttl', $food_row4_ttl);
+	elseif ($food_row4_ttl == '')
+		delete_post_meta($post_id, 'food_row4_ttl', get_post_meta($post_id, 'food_row4_ttl', true));
+	/** set food_row4_col1 **/
+		// set food_row4_col1_ttl
+		if (strcmp($food_row4_col1_ttl, get_post_meta($post_id, 'food_row4_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col1_ttl', $food_row4_col1_ttl);
+		elseif ($food_row4_col1_ttl == '')
+			delete_post_meta($post_id, 'food_row4_col1_ttl', get_post_meta($post_id, 'food_row4_col1_ttl', true));
+		// set food_row4_col1_desc1
+		if (strcmp($food_row4_col1_desc1, get_post_meta($post_id, 'food_row4_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col1_desc1', $food_row4_col1_desc1);
+		elseif ($food_row4_col1_desc1 == '')
+			delete_post_meta($post_id, 'food_row4_col1_desc1', get_post_meta($post_id, 'food_row4_col1_desc1', true));
+		// set food_row4_col1_desc2
+		if (strcmp($food_row4_col1_desc2, get_post_meta($post_id, 'food_row4_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col1_desc2', $food_row4_col1_desc2);
+		elseif ($food_row4_col1_desc2 == '')
+			delete_post_meta($post_id, 'food_row4_col1_desc2', get_post_meta($post_id, 'food_row4_col1_desc2', true));
+	/** set food_row4_col2 **/
+		// set food_row4_col2_ttl
+		if (strcmp($food_row4_col2_ttl, get_post_meta($post_id, 'food_row4_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col2_ttl', $food_row4_col2_ttl);
+		elseif ($food_row4_col2_ttl == '')
+			delete_post_meta($post_id, 'food_row4_col2_ttl', get_post_meta($post_id, 'food_row4_col2_ttl', true));
+		// set food_row4_col2_desc1
+		if (strcmp($food_row4_col2_desc1, get_post_meta($post_id, 'food_row4_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col2_desc1', $food_row4_col2_desc1);
+		elseif ($food_row4_col2_desc1 == '')
+			delete_post_meta($post_id, 'food_row4_col2_desc1', get_post_meta($post_id, 'food_row4_col2_desc1', true));
+		// set food_row4_col2_desc2
+		if (strcmp($food_row4_col2_desc2, get_post_meta($post_id, 'food_row4_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col2_desc2', $food_row4_col2_desc2);
+		elseif ($food_row4_col2_desc2 == '')
+			delete_post_meta($post_id, 'food_row4_col2_desc2', get_post_meta($post_id, 'food_row4_col2_desc2', true));
+	/** set food_row4_col3 **/
+		// set food_row4_col3_ttl
+		if (strcmp($food_row4_col3_ttl, get_post_meta($post_id, 'food_row4_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col3_ttl', $food_row4_col3_ttl);
+		elseif ($food_row4_col3_ttl == '')
+			delete_post_meta($post_id, 'food_row4_col3_ttl', get_post_meta($post_id, 'food_row4_col3_ttl', true));
+		// set food_row4_col3_desc1
+		if (strcmp($food_row4_col3_desc1, get_post_meta($post_id, 'food_row4_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col3_desc1', $food_row4_col3_desc1);
+		elseif ($food_row4_col3_desc1 == '')
+			delete_post_meta($post_id, 'food_row4_col3_desc1', get_post_meta($post_id, 'food_row4_col3_desc1', true));
+		// set food_row4_col3_desc2
+		if (strcmp($food_row4_col3_desc2, get_post_meta($post_id, 'food_row4_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'food_row4_col3_desc2', $food_row4_col3_desc2);
+		elseif ($food_row4_col3_desc2 == '')
+			delete_post_meta($post_id, 'food_row4_col3_desc2', get_post_meta($post_id, 'food_row4_col3_desc2', true));
 	} else {
 		return $post_id;
 	}
 }
+
+// 09.コースメニュー
+add_action('admin_menu', 'attach_course_contents');
+add_action('save_post', 'save_course_contents');
+function attach_course_contents() {
+	add_meta_box('course_contents_area', 'コースメニュー', 'course_contents_container', 'fudo', 'advanced', 'default');
+}
+function course_contents_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	// course_row1_ttl
+	$course_row1_ttl = get_post_meta($post->ID, 'course_row1_ttl', true);  // metacomment
+	// course_row1_col1
+	$course_row1_col1_ttl = get_post_meta($post->ID, 'course_row1_col1_ttl', true);  // metacomment
+	$course_row1_col1_desc = get_post_meta($post->ID, 'course_row1_col1_desc', true);  // metacomment
+	$course_row1_col1_num = get_post_meta($post->ID, 'course_row1_col1_num', true);  // metacomment
+	$course_row1_col1_price = get_post_meta($post->ID, 'course_row1_col1_price', true);  // metacomment
+
+	// course_row2_ttl
+	$course_row2_ttl = get_post_meta($post->ID, 'course_row2_ttl', true);  // metacomment
+	// course_row2_col1
+	$course_row2_col1_ttl = get_post_meta($post->ID, 'course_row2_col1_ttl', true);  // metacomment
+	$course_row2_col1_desc = get_post_meta($post->ID, 'course_row2_col1_desc', true);  // metacomment
+	$course_row2_col1_num = get_post_meta($post->ID, 'course_row2_col1_num', true);  // metacomment
+	$course_row2_col1_price = get_post_meta($post->ID, 'course_row2_col1_price', true);  // metacomment
+
+	// course_row3_ttl
+	$course_row3_ttl = get_post_meta($post->ID, 'course_row3_ttl', true);  // metacomment
+	// course_row3_col1
+	$course_row3_col1_ttl = get_post_meta($post->ID, 'course_row3_col1_ttl', true);  // metacomment
+	$course_row3_col1_desc = get_post_meta($post->ID, 'course_row3_col1_desc', true);  // metacomment
+	$course_row3_col1_num = get_post_meta($post->ID, 'course_row3_col1_num', true);  // metacomment
+	$course_row3_col1_price = get_post_meta($post->ID, 'course_row3_col1_price', true);  // metacomment
+
+	// course_row4_ttl
+	$course_row4_ttl = get_post_meta($post->ID, 'course_row4_ttl', true);  // metacomment
+	// course_row4_col1
+	$course_row4_col1_ttl = get_post_meta($post->ID, 'course_row4_col1_ttl', true);  // metacomment
+	$course_row4_col1_desc = get_post_meta($post->ID, 'course_row4_col1_desc', true);  // metacomment
+	$course_row4_col1_num = get_post_meta($post->ID, 'course_row4_col1_num', true);  // metacomment
+	$course_row4_col1_price = get_post_meta($post->ID, 'course_row4_col1_price', true);  // metacomment
+
+
+	$html = '<input type="hidden" name="course_contents_nonce" id="course_contents_nonce" value="'.$nonce.'" />';
+// course_row1
+	$html .= <<<HTML
+<label for="course_row1_ttl">コース1見出し</label><br />
+<input type="text" name="course_row1_ttl" id="course_row1_ttl" value="{$course_row1_ttl}" /><br />
+<label for="course_row1_col1_ttl">コース1タイトル</label><br />
+<input type="text" name="course_row1_col1_ttl" id="course_row1_col1_ttl" value="{$course_row1_col1_ttl}" /><br />
+<label for="">コース1説明文</label><br />
+<textarea cols="60" rows="4" name="course_row1_col1_desc" id="course_row1_col1_desc" style="width:100%;">{$course_row1_col1_desc}</textarea><br />
+<label for="">コース1品数</label>
+<input type="text" name="course_row1_col1_num" id="course_row1_col1_num" value="{$course_row1_col1_num}" />
+<label for="">コース1料金</label>
+<input type="text" name="course_row1_col1_price" id="course_row1_col1_price" value="{$course_row1_col1_price}" /><br />
+<br />
+
+<label for="course_row2_ttl">コース2見出し</label><br />
+<input type="text" name="course_row2_ttl" id="course_row2_ttl" value="{$course_row2_ttl}" /><br />
+<label for="course_row2_col1_ttl">コース2タイトル</label><br />
+<input type="text" name="course_row2_col1_ttl" id="course_row2_col1_ttl" value="{$course_row2_col1_ttl}" /><br />
+<label for="">コース2説明文</label><br />
+<textarea cols="60" rows="4" name="course_row2_col1_desc" id="course_row2_col1_desc" style="width:100%;">{$course_row2_col1_desc}</textarea><br />
+<label for="">コース2品数</label>
+<input type="text" name="course_row2_col1_num" id="course_row2_col1_num" value="{$course_row2_col1_num}" />
+<label for="">コース2料金</label>
+<input type="text" name="course_row2_col1_price" id="course_row2_col1_price" value="{$course_row2_col1_price}" /><br />
+<br />
+
+<label for="course_row3_ttl">コース3見出し</label><br />
+<input type="text" name="course_row3_ttl" id="course_row3_ttl" value="{$course_row3_ttl}" /><br />
+<label for="course_row3_col1_ttl">コース3タイトル</label><br />
+<input type="text" name="course_row3_col1_ttl" id="course_row3_col1_ttl" value="{$course_row3_col1_ttl}" /><br />
+<label for="">コース3説明文</label><br />
+<textarea cols="60" rows="4" name="course_row3_col1_desc" id="course_row3_col1_desc" style="width:100%;">{$course_row3_col1_desc}</textarea><br />
+<label for="">コース3品数</label>
+<input type="text" name="course_row3_col1_num" id="course_row3_col1_num" value="{$course_row3_col1_num}" />
+<label for="">コース3料金</label>
+<input type="text" name="course_row3_col1_price" id="course_row3_col1_price" value="{$course_row3_col1_price}" /><br />
+<br />
+
+<label for="course_row4_ttl">コース4見出し</label><br />
+<input type="text" name="course_row4_ttl" id="course_row4_ttl" value="{$course_row4_ttl}" /><br />
+<label for="course_row4_col1_ttl">コース4タイトル</label><br />
+<input type="text" name="course_row4_col1_ttl" id="course_row4_col1_ttl" value="{$course_row4_col1_ttl}" /><br />
+<label for="">コース4説明文</label><br />
+<textarea cols="60" rows="4" name="course_row4_col1_desc" id="course_row4_col1_desc" style="width:100%;">{$course_row4_col1_desc}</textarea><br />
+<label for="">コース4品数</label>
+<input type="text" name="course_row4_col1_num" id="course_row4_col1_num" value="{$course_row4_col1_num}" />
+<label for="">コース4料金</label>
+<input type="text" name="course_row4_col1_price" id="course_row4_col1_price" value="{$course_row4_col1_price}" /><br />
+<br />
+
+<hr />
+HTML;
+
+	echo $html;
+}
+
+function save_course_contents($post_id) {
+	if ( isset($_POST['course_contents_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['course_contents_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+		// course_row1_ttl
+		$course_row1_ttl = isset($_POST['course_row1_ttl']) ? $_POST['course_row1_ttl'] : '';
+		// course_row1_col1
+		$course_row1_col1_ttl = isset($_POST['course_row1_col1_ttl']) ? $_POST['course_row1_col1_ttl'] : '';
+		$course_row1_col1_desc = isset($_POST['course_row1_col1_desc']) ? $_POST['course_row1_col1_desc'] : '';
+		$course_row1_col1_num = isset($_POST['course_row1_col1_num']) ? $_POST['course_row1_col1_num'] : '';
+		$course_row1_col1_price = isset($_POST['course_row1_col1_price']) ? $_POST['course_row1_col1_price'] : '';
+		// course_row2_ttl
+		$course_row2_ttl = isset($_POST['course_row2_ttl']) ? $_POST['course_row2_ttl'] : '';
+		// course_row2_col1
+		$course_row2_col1_ttl = isset($_POST['course_row2_col1_ttl']) ? $_POST['course_row2_col1_ttl'] : '';
+		$course_row2_col1_desc = isset($_POST['course_row2_col1_desc']) ? $_POST['course_row2_col1_desc'] : '';
+		$course_row2_col1_num = isset($_POST['course_row2_col1_num']) ? $_POST['course_row2_col1_num'] : '';
+		$course_row2_col1_price = isset($_POST['course_row2_col1_price']) ? $_POST['course_row2_col1_price'] : '';
+		// course_row3_ttl
+		$course_row3_ttl = isset($_POST['course_row3_ttl']) ? $_POST['course_row3_ttl'] : '';
+		// course_row3_col1
+		$course_row3_col1_ttl = isset($_POST['course_row3_col1_ttl']) ? $_POST['course_row3_col1_ttl'] : '';
+		$course_row3_col1_desc = isset($_POST['course_row3_col1_desc']) ? $_POST['course_row3_col1_desc'] : '';
+		$course_row3_col1_num = isset($_POST['course_row3_col1_num']) ? $_POST['course_row3_col1_num'] : '';
+		$course_row3_col1_price = isset($_POST['course_row3_col1_price']) ? $_POST['course_row3_col1_price'] : '';
+		// course_row4_ttl
+		$course_row4_ttl = isset($_POST['course_row4_ttl']) ? $_POST['course_row4_ttl'] : '';
+		// course_row4_col1
+		$course_row4_col1_ttl = isset($_POST['course_row4_col1_ttl']) ? $_POST['course_row4_col1_ttl'] : '';
+		$course_row4_col1_desc = isset($_POST['course_row4_col1_desc']) ? $_POST['course_row4_col1_desc'] : '';
+		$course_row4_col1_num = isset($_POST['course_row4_col1_num']) ? $_POST['course_row4_col1_num'] : '';
+		$course_row4_col1_price = isset($_POST['course_row4_col1_price']) ? $_POST['course_row4_col1_price'] : '';
+
+
+	// course_row1
+		// course_row1_ttl
+		if (strcmp($course_row1_ttl, get_post_meta($post_id, 'course_row1_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row1_ttl', $course_row1_ttl);
+		elseif ($course_row1_ttl == '')
+			delete_post_meta($post_id, 'course_row1_ttl', get_post_meta($post_id, 'course_row1_ttl', true));
+		// course_row1_col1_ttl
+		if (strcmp($course_row1_col1_ttl, get_post_meta($post_id, 'course_row1_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row1_col1_ttl', $course_row1_col1_ttl);
+		elseif ($course_row1_col1_ttl == '')
+			delete_post_meta($post_id, 'course_row1_col1_ttl', get_post_meta($post_id, 'course_row1_col1_ttl', true));
+		// course_row1_col1_desc
+		if (strcmp($course_row1_col1_desc, get_post_meta($post_id, 'course_row1_col1_desc', true)) != 0)
+			update_post_meta($post_id, 'course_row1_col1_desc', $course_row1_col1_desc);
+		elseif ($course_row1_col1_desc == '')
+			delete_post_meta($post_id, 'course_row1_col1_desc', get_post_meta($post_id, 'course_row1_col1_desc', true));
+		// course_row1_col1_num
+		if (strcmp($course_row1_col1_num, get_post_meta($post_id, 'course_row1_col1_num', true)) != 0)
+			update_post_meta($post_id, 'course_row1_col1_num', $course_row1_col1_num);
+		elseif ($course_row1_col1_num == '')
+			delete_post_meta($post_id, 'course_row1_col1_num', get_post_meta($post_id, 'course_row1_col1_num', true));
+		// course_row1_col1_price
+		if (strcmp($course_row1_col1_price, get_post_meta($post_id, 'course_row1_col1_price', true)) != 0)
+			update_post_meta($post_id, 'course_row1_col1_price', $course_row1_col1_price);
+		elseif ($course_row1_col1_price == '')
+			delete_post_meta($post_id, 'course_row1_col1_price', get_post_meta($post_id, 'course_row1_col1_price', true));
+	// course_row2
+		// course_row2_ttl
+		if (strcmp($course_row2_ttl, get_post_meta($post_id, 'course_row2_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row2_ttl', $course_row2_ttl);
+		elseif ($course_row2_ttl == '')
+			delete_post_meta($post_id, 'course_row2_ttl', get_post_meta($post_id, 'course_row2_ttl', true));
+		// course_row2_col1_ttl
+		if (strcmp($course_row2_col1_ttl, get_post_meta($post_id, 'course_row2_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row2_col1_ttl', $course_row2_col1_ttl);
+		elseif ($course_row2_col1_ttl == '')
+			delete_post_meta($post_id, 'course_row2_col1_ttl', get_post_meta($post_id, 'course_row2_col1_ttl', true));
+		// course_row2_col1_desc
+		if (strcmp($course_row2_col1_desc, get_post_meta($post_id, 'course_row2_col1_desc', true)) != 0)
+			update_post_meta($post_id, 'course_row2_col1_desc', $course_row2_col1_desc);
+		elseif ($course_row2_col1_desc == '')
+			delete_post_meta($post_id, 'course_row2_col1_desc', get_post_meta($post_id, 'course_row2_col1_desc', true));
+		// course_row2_col1_num
+		if (strcmp($course_row2_col1_num, get_post_meta($post_id, 'course_row2_col1_num', true)) != 0)
+			update_post_meta($post_id, 'course_row2_col1_num', $course_row2_col1_num);
+		elseif ($course_row2_col1_num == '')
+			delete_post_meta($post_id, 'course_row2_col1_num', get_post_meta($post_id, 'course_row2_col1_num', true));
+		// course_row2_col1_price
+		if (strcmp($course_row2_col1_price, get_post_meta($post_id, 'course_row2_col1_price', true)) != 0)
+			update_post_meta($post_id, 'course_row2_col1_price', $course_row2_col1_price);
+		elseif ($course_row2_col1_price == '')
+			delete_post_meta($post_id, 'course_row2_col1_price', get_post_meta($post_id, 'course_row2_col1_price', true));
+	// course_row3
+		// course_row3_ttl
+		if (strcmp($course_row3_ttl, get_post_meta($post_id, 'course_row3_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row3_ttl', $course_row3_ttl);
+		elseif ($course_row3_ttl == '')
+			delete_post_meta($post_id, 'course_row3_ttl', get_post_meta($post_id, 'course_row3_ttl', true));
+		// course_row3_col1_ttl
+		if (strcmp($course_row3_col1_ttl, get_post_meta($post_id, 'course_row3_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row3_col1_ttl', $course_row3_col1_ttl);
+		elseif ($course_row3_col1_ttl == '')
+			delete_post_meta($post_id, 'course_row3_col1_ttl', get_post_meta($post_id, 'course_row3_col1_ttl', true));
+		// course_row3_col1_desc
+		if (strcmp($course_row3_col1_desc, get_post_meta($post_id, 'course_row3_col1_desc', true)) != 0)
+			update_post_meta($post_id, 'course_row3_col1_desc', $course_row3_col1_desc);
+		elseif ($course_row3_col1_desc == '')
+			delete_post_meta($post_id, 'course_row3_col1_desc', get_post_meta($post_id, 'course_row3_col1_desc', true));
+		// course_row3_col1_num
+		if (strcmp($course_row3_col1_num, get_post_meta($post_id, 'course_row3_col1_num', true)) != 0)
+			update_post_meta($post_id, 'course_row3_col1_num', $course_row3_col1_num);
+		elseif ($course_row3_col1_num == '')
+			delete_post_meta($post_id, 'course_row3_col1_num', get_post_meta($post_id, 'course_row3_col1_num', true));
+		// course_row3_col1_price
+		if (strcmp($course_row3_col1_price, get_post_meta($post_id, 'course_row3_col1_price', true)) != 0)
+			update_post_meta($post_id, 'course_row3_col1_price', $course_row3_col1_price);
+		elseif ($course_row3_col1_price == '')
+			delete_post_meta($post_id, 'course_row3_col1_price', get_post_meta($post_id, 'course_row3_col1_price', true));
+	// course_row4
+		// course_row4_ttl
+		if (strcmp($course_row4_ttl, get_post_meta($post_id, 'course_row4_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row4_ttl', $course_row4_ttl);
+		elseif ($course_row4_ttl == '')
+			delete_post_meta($post_id, 'course_row4_ttl', get_post_meta($post_id, 'course_row4_ttl', true));
+		// course_row4_col1_ttl
+		if (strcmp($course_row4_col1_ttl, get_post_meta($post_id, 'course_row4_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'course_row4_col1_ttl', $course_row4_col1_ttl);
+		elseif ($course_row4_col1_ttl == '')
+			delete_post_meta($post_id, 'course_row4_col1_ttl', get_post_meta($post_id, 'course_row4_col1_ttl', true));
+		// course_row4_col1_desc
+		if (strcmp($course_row4_col1_desc, get_post_meta($post_id, 'course_row4_col1_desc', true)) != 0)
+			update_post_meta($post_id, 'course_row4_col1_desc', $course_row4_col1_desc);
+		elseif ($course_row4_col1_desc == '')
+			delete_post_meta($post_id, 'course_row4_col1_desc', get_post_meta($post_id, 'course_row4_col1_desc', true));
+		// course_row4_col1_num
+		if (strcmp($course_row4_col1_num, get_post_meta($post_id, 'course_row4_col1_num', true)) != 0)
+			update_post_meta($post_id, 'course_row4_col1_num', $course_row4_col1_num);
+		elseif ($course_row4_col1_num == '')
+			delete_post_meta($post_id, 'course_row4_col1_num', get_post_meta($post_id, 'course_row4_col1_num', true));
+		// course_row4_col1_price
+		if (strcmp($course_row4_col1_price, get_post_meta($post_id, 'course_row4_col1_price', true)) != 0)
+			update_post_meta($post_id, 'course_row4_col1_price', $course_row4_col1_price);
+		elseif ($course_row4_col1_price == '')
+			delete_post_meta($post_id, 'course_row4_col1_price', get_post_meta($post_id, 'course_row4_col1_price', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 10.ドリンクメニュー
+add_action('admin_menu', 'attach_drink_contents');
+add_action('save_post', 'save_drink_contents');
+function attach_drink_contents() {
+	add_meta_box('drink_contents_area', 'ドリンクメニュー', 'drink_contents_container', 'fudo', 'advanced', 'default');
+}
+function drink_contents_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	// drink_row1_ttl
+	$drink_row1_ttl = get_post_meta($post->ID, 'drink_row1_ttl', true);  // metacomment
+	// drink_row1_col1
+	$drink_row1_col1_ttl = get_post_meta($post->ID, 'drink_row1_col1_ttl', true);  // metacomment
+	$drink_row1_col1_desc1 = get_post_meta($post->ID, 'drink_row1_col1_desc1', true);  // metacomment
+	$drink_row1_col1_desc2 = get_post_meta($post->ID, 'drink_row1_col1_desc2', true);  // metacomment
+	// drink_row1_col2
+	$drink_row1_col2_ttl = get_post_meta($post->ID, 'drink_row1_col2_ttl', true);  // metacomment
+	$drink_row1_col2_desc1 = get_post_meta($post->ID, 'drink_row1_col2_desc1', true);  // metacomment
+	$drink_row1_col2_desc2 = get_post_meta($post->ID, 'drink_row1_col2_desc2', true);  // metacomment
+	// drink_row1_col3
+	$drink_row1_col3_ttl = get_post_meta($post->ID, 'drink_row1_col3_ttl', true);  // metacomment
+	$drink_row1_col3_desc1 = get_post_meta($post->ID, 'drink_row1_col3_desc1', true);  // metacomment
+	$drink_row1_col3_desc2 = get_post_meta($post->ID, 'drink_row1_col3_desc2', true);  // metacomment
+
+	// drink_row2_ttl
+	$drink_row2_ttl = get_post_meta($post->ID, 'drink_row2_ttl', true);  // metacomment
+	// drink_row2_col1
+	$drink_row2_col1_ttl = get_post_meta($post->ID, 'drink_row2_col1_ttl', true);  // metacomment
+	$drink_row2_col1_desc1 = get_post_meta($post->ID, 'drink_row2_col1_desc1', true);  // metacomment
+	$drink_row2_col1_desc2 = get_post_meta($post->ID, 'drink_row2_col1_desc2', true);  // metacomment
+	// drink_row2_col2
+	$drink_row2_col2_ttl = get_post_meta($post->ID, 'drink_row2_col2_ttl', true);  // metacomment
+	$drink_row2_col2_desc1 = get_post_meta($post->ID, 'drink_row2_col2_desc1', true);  // metacomment
+	$drink_row2_col2_desc2 = get_post_meta($post->ID, 'drink_row2_col2_desc2', true);  // metacomment
+	// drink_row2_col3
+	$drink_row2_col3_ttl = get_post_meta($post->ID, 'drink_row2_col3_ttl', true);  // metacomment
+	$drink_row2_col3_desc1 = get_post_meta($post->ID, 'drink_row2_col3_desc1', true);  // metacomment
+	$drink_row2_col3_desc2 = get_post_meta($post->ID, 'drink_row2_col3_desc2', true);  // metacomment
+
+	// drink_row3_ttl
+	$drink_row3_ttl = get_post_meta($post->ID, 'drink_row3_ttl', true);  // metacomment
+	// drink_row3_col1
+	$drink_row3_col1_ttl = get_post_meta($post->ID, 'drink_row3_col1_ttl', true);  // metacomment
+	$drink_row3_col1_desc1 = get_post_meta($post->ID, 'drink_row3_col1_desc1', true);  // metacomment
+	$drink_row3_col1_desc2 = get_post_meta($post->ID, 'drink_row3_col1_desc2', true);  // metacomment
+	// drink_row3_col2
+	$drink_row3_col2_ttl = get_post_meta($post->ID, 'drink_row3_col2_ttl', true);  // metacomment
+	$drink_row3_col2_desc1 = get_post_meta($post->ID, 'drink_row3_col2_desc1', true);  // metacomment
+	$drink_row3_col2_desc2 = get_post_meta($post->ID, 'drink_row3_col2_desc2', true);  // metacomment
+	// drink_row3_col3
+	$drink_row3_col3_ttl = get_post_meta($post->ID, 'drink_row3_col3_ttl', true);  // metacomment
+	$drink_row3_col3_desc1 = get_post_meta($post->ID, 'drink_row3_col3_desc1', true);  // metacomment
+	$drink_row3_col3_desc2 = get_post_meta($post->ID, 'drink_row3_col3_desc2', true);  // metacomment
+
+	// drink_row4_ttl
+	$drink_row4_ttl = get_post_meta($post->ID, 'drink_row4_ttl', true);  // metacomment
+	// drink_row4_col1
+	$drink_row4_col1_ttl = get_post_meta($post->ID, 'drink_row4_col1_ttl', true);  // metacomment
+	$drink_row4_col1_desc1 = get_post_meta($post->ID, 'drink_row4_col1_desc1', true);  // metacomment
+	$drink_row4_col1_desc2 = get_post_meta($post->ID, 'drink_row4_col1_desc2', true);  // metacomment
+	// drink_row4_col2
+	$drink_row4_col2_ttl = get_post_meta($post->ID, 'drink_row4_col2_ttl', true);  // metacomment
+	$drink_row4_col2_desc1 = get_post_meta($post->ID, 'drink_row4_col2_desc1', true);  // metacomment
+	$drink_row4_col2_desc2 = get_post_meta($post->ID, 'drink_row4_col2_desc2', true);  // metacomment
+	// drink_row4_col3
+	$drink_row4_col3_ttl = get_post_meta($post->ID, 'drink_row4_col3_ttl', true);  // metacomment
+	$drink_row4_col3_desc1 = get_post_meta($post->ID, 'drink_row4_col3_desc1', true);  // metacomment
+	$drink_row4_col3_desc2 = get_post_meta($post->ID, 'drink_row4_col3_desc2', true);  // metacomment
+
+
+	$html = '<input type="hidden" name="drink_contents_nonce" id="drink_contents_nonce" value="'.$nonce.'" />';
+// drink_row1
+	$html .= <<<HTML
+<label for="drink_row1_ttl">ドリンク1段目_見出し</label><br />
+<input type="text" name="drink_row1_ttl" id="drink_row1_ttl" value="{$drink_row1_ttl}" /><br />
+<label for="drink_row1_col1_ttl">ドリンク1段目_左_タイトル</label><br />
+<input type="text" name="drink_row1_col1_ttl" id="drink_row1_col1_ttl" value="{$drink_row1_col1_ttl}" /><br />
+<label for="">ドリンク1段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col1_desc1" id="drink_row1_col1_desc1" style="width:100%;">{$drink_row1_col1_desc1}</textarea><br />
+<label for="">ドリンク1段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col1_desc2" id="drink_row1_col1_desc2" style="width:100%;">{$drink_row1_col1_desc2}</textarea><br />
+<br />
+
+<label for="drink_row1_col2_ttl">ドリンク1段目_中央_タイトル</label><br />
+<input type="text" name="drink_row1_col2_ttl" id="drink_row1_col2_ttl" value="{$drink_row1_col2_ttl}" /><br />
+<label for="">ドリンク1段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col2_desc1" id="drink_row1_col2_desc1" style="width:100%;">{$drink_row1_col2_desc1}</textarea><br />
+<label for="">ドリンク1段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col2_desc2" id="drink_row1_col2_desc2" style="width:100%;">{$drink_row1_col2_desc2}</textarea><br />
+<br />
+
+<label for="drink_row1_col3_ttl">ドリンク1段目_右_タイトル</label><br />
+<input type="text" name="drink_row1_col3_ttl" id="drink_row1_col3_ttl" value="{$drink_row1_col3_ttl}" /><br />
+<label for="">ドリンク1段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col3_desc1" id="drink_row1_col3_desc1" style="width:100%;">{$drink_row1_col3_desc1}</textarea><br />
+<label for="">ドリンク1段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row1_col3_desc2" id="drink_row1_col3_desc2" style="width:100%;">{$drink_row1_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// drink_row2
+	$html .= <<<HTML
+<label for="drink_row2_ttl">ドリンク2段目_見出し</label><br />
+<input type="text" name="drink_row2_ttl" id="drink_row2_ttl" value="{$drink_row2_ttl}" /><br />
+<label for="drink_row2_col1_ttl">ドリンク2段目_左_タイトル</label><br />
+<input type="text" name="drink_row2_col1_ttl" id="drink_row2_col1_ttl" value="{$drink_row2_col1_ttl}" /><br />
+<label for="">ドリンク2段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col1_desc1" id="drink_row2_col1_desc1" style="width:100%;">{$drink_row2_col1_desc1}</textarea><br />
+<label for="">ドリンク2段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col1_desc2" id="drink_row2_col1_desc2" style="width:100%;">{$drink_row2_col1_desc2}</textarea><br />
+<br />
+
+<label for="drink_row2_col2_ttl">ドリンク2段目_中央_タイトル</label><br />
+<input type="text" name="drink_row2_col2_ttl" id="drink_row2_col2_ttl" value="{$drink_row2_col2_ttl}" /><br />
+<label for="">ドリンク2段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col2_desc1" id="drink_row2_col2_desc1" style="width:100%;">{$drink_row2_col2_desc1}</textarea><br />
+<label for="">ドリンク2段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col2_desc2" id="drink_row2_col2_desc2" style="width:100%;">{$drink_row2_col2_desc2}</textarea><br />
+<br />
+
+<label for="drink_row2_col3_ttl">ドリンク2段目_右_タイトル</label><br />
+<input type="text" name="drink_row2_col3_ttl" id="drink_row2_col3_ttl" value="{$drink_row2_col3_ttl}" /><br />
+<label for="">ドリンク2段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col3_desc1" id="drink_row2_col3_desc1" style="width:100%;">{$drink_row2_col3_desc1}</textarea><br />
+<label for="">ドリンク2段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row2_col3_desc2" id="drink_row2_col3_desc2" style="width:100%;">{$drink_row2_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// drink_row3
+	$html .= <<<HTML
+<label for="drink_row3_ttl">ドリンク3段目_見出し</label><br />
+<input type="text" name="drink_row3_ttl" id="drink_row3_ttl" value="{$drink_row3_ttl}" /><br />
+<label for="drink_row3_col1_ttl">ドリンク3段目_左_タイトル</label><br />
+<input type="text" name="drink_row3_col1_ttl" id="drink_row3_col1_ttl" value="{$drink_row3_col1_ttl}" /><br />
+<label for="">ドリンク3段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col1_desc1" id="drink_row3_col1_desc1" style="width:100%;">{$drink_row3_col1_desc1}</textarea><br />
+<label for="">ドリンク3段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col1_desc2" id="drink_row3_col1_desc2" style="width:100%;">{$drink_row3_col1_desc2}</textarea><br />
+<br />
+
+<label for="drink_row3_col2_ttl">ドリンク3段目_中央_タイトル</label><br />
+<input type="text" name="drink_row3_col2_ttl" id="drink_row3_col2_ttl" value="{$drink_row3_col2_ttl}" /><br />
+<label for="">ドリンク3段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col2_desc1" id="drink_row3_col2_desc1" style="width:100%;">{$drink_row3_col2_desc1}</textarea><br />
+<label for="">ドリンク3段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col2_desc2" id="drink_row3_col2_desc2" style="width:100%;">{$drink_row3_col2_desc2}</textarea><br />
+<br />
+
+<label for="drink_row3_col3_ttl">ドリンク3段目_右_タイトル</label><br />
+<input type="text" name="drink_row3_col3_ttl" id="drink_row3_col3_ttl" value="{$drink_row3_col3_ttl}" /><br />
+<label for="">ドリンク3段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col3_desc1" id="drink_row3_col3_desc1" style="width:100%;">{$drink_row3_col3_desc1}</textarea><br />
+<label for="">ドリンク3段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row3_col3_desc2" id="drink_row3_col3_desc2" style="width:100%;">{$drink_row3_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// drink_row4
+	$html .= <<<HTML
+<label for="drink_row4_ttl">ドリンク4段目_見出し</label><br />
+<input type="text" name="drink_row4_ttl" id="drink_row4_ttl" value="{$drink_row4_ttl}" /><br />
+<label for="drink_row4_col1_ttl">ドリンク4段目_左_タイトル</label><br />
+<input type="text" name="drink_row4_col1_ttl" id="drink_row4_col1_ttl" value="{$drink_row4_col1_ttl}" /><br />
+<label for="">ドリンク4段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col1_desc1" id="drink_row4_col1_desc1" style="width:100%;">{$drink_row4_col1_desc1}</textarea><br />
+<label for="">ドリンク4段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col1_desc2" id="drink_row4_col1_desc2" style="width:100%;">{$drink_row4_col1_desc2}</textarea><br />
+<br />
+
+<label for="drink_row4_col2_ttl">ドリンク4段目_中央_タイトル</label><br />
+<input type="text" name="drink_row4_col2_ttl" id="drink_row4_col2_ttl" value="{$drink_row4_col2_ttl}" /><br />
+<label for="">ドリンク4段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col2_desc1" id="drink_row4_col2_desc1" style="width:100%;">{$drink_row4_col2_desc1}</textarea><br />
+<label for="">ドリンク4段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col2_desc2" id="drink_row4_col2_desc2" style="width:100%;">{$drink_row4_col2_desc2}</textarea><br />
+<br />
+
+<label for="drink_row4_col3_ttl">ドリンク4段目_右_タイトル</label><br />
+<input type="text" name="drink_row4_col3_ttl" id="drink_row4_col3_ttl" value="{$drink_row4_col3_ttl}" /><br />
+<label for="">ドリンク4段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col3_desc1" id="drink_row4_col3_desc1" style="width:100%;">{$drink_row4_col3_desc1}</textarea><br />
+<label for="">ドリンク4段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="drink_row4_col3_desc2" id="drink_row4_col3_desc2" style="width:100%;">{$drink_row4_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+	echo $html;
+}
+
+function save_drink_contents($post_id) {
+	if ( isset($_POST['drink_contents_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['drink_contents_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+/* get drink_row1
+--------------- */
+	$drink_row1_ttl = isset($_POST['drink_row1_ttl']) ? $_POST['drink_row1_ttl'] : '';
+	/** drink_row1_col1 **/
+		$drink_row1_col1_ttl = isset($_POST['drink_row1_col1_ttl']) ? $_POST['drink_row1_col1_ttl'] : '';
+		$drink_row1_col1_desc1 = isset($_POST['drink_row1_col1_desc1']) ? $_POST['drink_row1_col1_desc1'] : '';
+		$drink_row1_col1_desc2 = isset($_POST['drink_row1_col1_desc2']) ? $_POST['drink_row1_col1_desc2'] : '';
+	/** drink_row2_col2 **/
+		$drink_row1_col2_ttl = isset($_POST['drink_row1_col2_ttl']) ? $_POST['drink_row1_col2_ttl'] : '';
+		$drink_row1_col2_desc1 = isset($_POST['drink_row1_col2_desc1']) ? $_POST['drink_row1_col2_desc1'] : '';
+		$drink_row1_col2_desc2 = isset($_POST['drink_row1_col2_desc2']) ? $_POST['drink_row1_col2_desc2'] : '';
+	/** drink_row1_col3 **/
+		$drink_row1_col3_ttl = isset($_POST['drink_row1_col3_ttl']) ? $_POST['drink_row1_col3_ttl'] : '';
+		$drink_row1_col3_desc1 = isset($_POST['drink_row1_col3_desc1']) ? $_POST['drink_row1_col3_desc1'] : '';
+		$drink_row1_col3_desc2 = isset($_POST['drink_row1_col3_desc2']) ? $_POST['drink_row1_col3_desc2'] : '';
+/* get drink_row2
+--------------- */
+	$drink_row2_ttl = isset($_POST['drink_row2_ttl']) ? $_POST['drink_row2_ttl'] : '';
+	/** drink_row2_col1 **/
+		$drink_row2_col1_ttl = isset($_POST['drink_row2_col1_ttl']) ? $_POST['drink_row2_col1_ttl'] : '';
+		$drink_row2_col1_desc1 = isset($_POST['drink_row2_col1_desc1']) ? $_POST['drink_row2_col1_desc1'] : '';
+		$drink_row2_col1_desc2 = isset($_POST['drink_row2_col1_desc2']) ? $_POST['drink_row2_col1_desc2'] : '';
+	/** drink_row2_col2 **/
+		$drink_row2_col2_ttl = isset($_POST['drink_row2_col2_ttl']) ? $_POST['drink_row2_col2_ttl'] : '';
+		$drink_row2_col2_desc1 = isset($_POST['drink_row2_col2_desc1']) ? $_POST['drink_row2_col2_desc1'] : '';
+		$drink_row2_col2_desc2 = isset($_POST['drink_row2_col2_desc2']) ? $_POST['drink_row2_col2_desc2'] : '';
+	/** drink_row2_col3 **/
+		$drink_row2_col3_ttl = isset($_POST['drink_row2_col3_ttl']) ? $_POST['drink_row2_col3_ttl'] : '';
+		$drink_row2_col3_desc1 = isset($_POST['drink_row2_col3_desc1']) ? $_POST['drink_row2_col3_desc1'] : '';
+		$drink_row2_col3_desc2 = isset($_POST['drink_row2_col3_desc2']) ? $_POST['drink_row2_col3_desc2'] : '';
+/* get drink_row3
+--------------- */
+	$drink_row3_ttl = isset($_POST['drink_row3_ttl']) ? $_POST['drink_row3_ttl'] : '';
+	/** drink_row3_col1 **/
+		$drink_row3_col1_ttl = isset($_POST['drink_row3_col1_ttl']) ? $_POST['drink_row3_col1_ttl'] : '';
+		$drink_row3_col1_desc1 = isset($_POST['drink_row3_col1_desc1']) ? $_POST['drink_row3_col1_desc1'] : '';
+		$drink_row3_col1_desc2 = isset($_POST['drink_row3_col1_desc2']) ? $_POST['drink_row3_col1_desc2'] : '';
+	/** drink_row3_col2 **/
+		$drink_row3_col2_ttl = isset($_POST['drink_row3_col2_ttl']) ? $_POST['drink_row3_col2_ttl'] : '';
+		$drink_row3_col2_desc1 = isset($_POST['drink_row3_col2_desc1']) ? $_POST['drink_row3_col2_desc1'] : '';
+		$drink_row3_col2_desc2 = isset($_POST['drink_row3_col2_desc2']) ? $_POST['drink_row3_col2_desc2'] : '';
+	/** drink_row3_col3 **/
+		$drink_row3_col3_ttl = isset($_POST['drink_row3_col3_ttl']) ? $_POST['drink_row3_col3_ttl'] : '';
+		$drink_row3_col3_desc1 = isset($_POST['drink_row3_col3_desc1']) ? $_POST['drink_row3_col3_desc1'] : '';
+		$drink_row3_col3_desc2 = isset($_POST['drink_row3_col3_desc2']) ? $_POST['drink_row3_col3_desc2'] : '';
+/* get drink_row4
+--------------- */
+	$drink_row4_ttl = isset($_POST['drink_row4_ttl']) ? $_POST['drink_row4_ttl'] : '';
+	/** drink_row4_col1 **/
+		$drink_row4_col1_ttl = isset($_POST['drink_row4_col1_ttl']) ? $_POST['drink_row4_col1_ttl'] : '';
+		$drink_row4_col1_desc1 = isset($_POST['drink_row4_col1_desc1']) ? $_POST['drink_row4_col1_desc1'] : '';
+		$drink_row4_col1_desc2 = isset($_POST['drink_row4_col1_desc2']) ? $_POST['drink_row4_col1_desc2'] : '';
+	/** drink_row4_col2 **/
+		$drink_row4_col2_ttl = isset($_POST['drink_row4_col2_ttl']) ? $_POST['drink_row4_col2_ttl'] : '';
+		$drink_row4_col2_desc1 = isset($_POST['drink_row4_col2_desc1']) ? $_POST['drink_row4_col2_desc1'] : '';
+		$drink_row4_col2_desc2 = isset($_POST['drink_row4_col2_desc2']) ? $_POST['drink_row4_col2_desc2'] : '';
+	/** drink_row4_col3 **/
+		$drink_row4_col3_ttl = isset($_POST['drink_row4_col3_ttl']) ? $_POST['drink_row4_col3_ttl'] : '';
+		$drink_row4_col3_desc1 = isset($_POST['drink_row4_col3_desc1']) ? $_POST['drink_row4_col3_desc1'] : '';
+		$drink_row4_col3_desc2 = isset($_POST['drink_row4_col3_desc2']) ? $_POST['drink_row4_col3_desc2'] : '';
+
+/* set drink_row1
+---------------------- */
+	if (strcmp($drink_row1_ttl, get_post_meta($post_id, 'drink_row1_ttl', true)) != 0)
+		update_post_meta($post_id, 'drink_row1_ttl', $drink_row1_ttl);
+	elseif ($drink_row1_ttl == '')
+		delete_post_meta($post_id, 'drink_row1_ttl', get_post_meta($post_id, 'drink_row1_ttl', true));
+	/** set drink_row1_col1 **/
+		// set drink_row1_col1_ttl
+		if (strcmp($drink_row1_col1_ttl, get_post_meta($post_id, 'drink_row1_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col1_ttl', $drink_row1_col1_ttl);
+		elseif ($drink_row1_col1_ttl == '')
+			delete_post_meta($post_id, 'drink_row1_col1_ttl', get_post_meta($post_id, 'drink_row1_col1_ttl', true));
+		// set drink_row1_col1_desc1
+		if (strcmp($drink_row1_col1_desc1, get_post_meta($post_id, 'drink_row1_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col1_desc1', $drink_row1_col1_desc1);
+		elseif ($drink_row1_col1_desc1 == '')
+			delete_post_meta($post_id, 'drink_row1_col1_desc1', get_post_meta($post_id, 'drink_row1_col1_desc1', true));
+		// set drink_row1_col1_desc2
+		if (strcmp($drink_row1_col1_desc2, get_post_meta($post_id, 'drink_row1_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col1_desc2', $drink_row1_col1_desc2);
+		elseif ($drink_row1_col1_desc2 == '')
+			delete_post_meta($post_id, 'drink_row1_col1_desc2', get_post_meta($post_id, 'drink_row1_col1_desc2', true));
+	/** set drink_row1_col2 **/
+		// set drink_row1_col2_ttl
+		if (strcmp($drink_row1_col2_ttl, get_post_meta($post_id, 'drink_row1_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col2_ttl', $drink_row1_col2_ttl);
+		elseif ($drink_row1_col2_ttl == '')
+			delete_post_meta($post_id, 'drink_row1_col2_ttl', get_post_meta($post_id, 'drink_row1_col2_ttl', true));
+		// set drink_row1_col2_desc1
+		if (strcmp($drink_row1_col2_desc1, get_post_meta($post_id, 'drink_row1_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col2_desc1', $drink_row1_col2_desc1);
+		elseif ($drink_row1_col2_desc1 == '')
+			delete_post_meta($post_id, 'drink_row1_col2_desc1', get_post_meta($post_id, 'drink_row1_col2_desc1', true));
+		// set drink_row1_col2_desc2
+		if (strcmp($drink_row1_col2_desc2, get_post_meta($post_id, 'drink_row1_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col2_desc2', $drink_row1_col2_desc2);
+		elseif ($drink_row1_col2_desc2 == '')
+			delete_post_meta($post_id, 'drink_row1_col2_desc2', get_post_meta($post_id, 'drink_row1_col2_desc2', true));
+	/** set drink_row1_col3 **/
+		// set drink_row1_col3_ttl
+		if (strcmp($drink_row1_col3_ttl, get_post_meta($post_id, 'drink_row1_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col3_ttl', $drink_row1_col3_ttl);
+		elseif ($drink_row1_col3_ttl == '')
+			delete_post_meta($post_id, 'drink_row1_col3_ttl', get_post_meta($post_id, 'drink_row1_col3_ttl', true));
+		// set drink_row1_col3_desc1
+		if (strcmp($drink_row1_col3_desc1, get_post_meta($post_id, 'drink_row1_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col3_desc1', $drink_row1_col3_desc1);
+		elseif ($drink_row1_col3_desc1 == '')
+			delete_post_meta($post_id, 'drink_row1_col3_desc1', get_post_meta($post_id, 'drink_row1_col3_desc1', true));
+		// set drink_row1_col3_desc2
+		if (strcmp($drink_row1_col3_desc2, get_post_meta($post_id, 'drink_row1_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row1_col3_desc2', $drink_row1_col3_desc2);
+		elseif ($drink_row1_col3_desc2 == '')
+			delete_post_meta($post_id, 'drink_row1_col3_desc2', get_post_meta($post_id, 'drink_row1_col3_desc2', true));
+
+/* set drink_row2
+---------------------- */
+	if (strcmp($drink_row2_ttl, get_post_meta($post_id, 'drink_row2_ttl', true)) != 0)
+		update_post_meta($post_id, 'drink_row2_ttl', $drink_row2_ttl);
+	elseif ($drink_row2_ttl == '')
+		delete_post_meta($post_id, 'drink_row2_ttl', get_post_meta($post_id, 'drink_row2_ttl', true));
+	/** set drink_row2_col1 **/
+		// set drink_row2_col1_ttl
+		if (strcmp($drink_row2_col1_ttl, get_post_meta($post_id, 'drink_row2_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col1_ttl', $drink_row2_col1_ttl);
+		elseif ($drink_row2_col1_ttl == '')
+			delete_post_meta($post_id, 'drink_row2_col1_ttl', get_post_meta($post_id, 'drink_row2_col1_ttl', true));
+		// set drink_row2_col1_desc1
+		if (strcmp($drink_row2_col1_desc1, get_post_meta($post_id, 'drink_row2_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col1_desc1', $drink_row2_col1_desc1);
+		elseif ($drink_row2_col1_desc1 == '')
+			delete_post_meta($post_id, 'drink_row2_col1_desc1', get_post_meta($post_id, 'drink_row2_col1_desc1', true));
+		// set drink_row2_col1_desc2
+		if (strcmp($drink_row2_col1_desc2, get_post_meta($post_id, 'drink_row2_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col1_desc2', $drink_row2_col1_desc2);
+		elseif ($drink_row2_col1_desc2 == '')
+			delete_post_meta($post_id, 'drink_row2_col1_desc2', get_post_meta($post_id, 'drink_row2_col1_desc2', true));
+	/** set drink_row2_col2 **/
+		// set drink_row2_col2_ttl
+		if (strcmp($drink_row2_col2_ttl, get_post_meta($post_id, 'drink_row2_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col2_ttl', $drink_row2_col2_ttl);
+		elseif ($drink_row2_col2_ttl == '')
+			delete_post_meta($post_id, 'drink_row2_col2_ttl', get_post_meta($post_id, 'drink_row2_col2_ttl', true));
+		// set drink_row2_col2_desc1
+		if (strcmp($drink_row2_col2_desc1, get_post_meta($post_id, 'drink_row2_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col2_desc1', $drink_row2_col2_desc1);
+		elseif ($drink_row2_col2_desc1 == '')
+			delete_post_meta($post_id, 'drink_row2_col2_desc1', get_post_meta($post_id, 'drink_row2_col2_desc1', true));
+		// set drink_row2_col2_desc2
+		if (strcmp($drink_row2_col2_desc2, get_post_meta($post_id, 'drink_row2_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col2_desc2', $drink_row2_col2_desc2);
+		elseif ($drink_row2_col2_desc2 == '')
+			delete_post_meta($post_id, 'drink_row2_col2_desc2', get_post_meta($post_id, 'drink_row2_col2_desc2', true));
+	/** set drink_row2_col3 **/
+		// set drink_row2_col3_ttl
+		if (strcmp($drink_row2_col3_ttl, get_post_meta($post_id, 'drink_row2_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col3_ttl', $drink_row2_col3_ttl);
+		elseif ($drink_row2_col3_ttl == '')
+			delete_post_meta($post_id, 'drink_row2_col3_ttl', get_post_meta($post_id, 'drink_row2_col3_ttl', true));
+		// set drink_row2_col3_desc1
+		if (strcmp($drink_row2_col3_desc1, get_post_meta($post_id, 'drink_row2_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col3_desc1', $drink_row2_col3_desc1);
+		elseif ($drink_row2_col3_desc1 == '')
+			delete_post_meta($post_id, 'drink_row2_col3_desc1', get_post_meta($post_id, 'drink_row2_col3_desc1', true));
+		// set drink_row2_col3_desc2
+		if (strcmp($drink_row2_col3_desc2, get_post_meta($post_id, 'drink_row2_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row2_col3_desc2', $drink_row2_col3_desc2);
+		elseif ($drink_row2_col3_desc2 == '')
+			delete_post_meta($post_id, 'drink_row2_col3_desc2', get_post_meta($post_id, 'drink_row2_col3_desc2', true));
+
+/* set drink_row3
+---------------------- */
+	if (strcmp($drink_row3_ttl, get_post_meta($post_id, 'drink_row3_ttl', true)) != 0)
+		update_post_meta($post_id, 'drink_row3_ttl', $drink_row3_ttl);
+	elseif ($drink_row3_ttl == '')
+		delete_post_meta($post_id, 'drink_row3_ttl', get_post_meta($post_id, 'drink_row3_ttl', true));
+	/** set drink_row3_col1 **/
+		// set drink_row3_col1_ttl
+		if (strcmp($drink_row3_col1_ttl, get_post_meta($post_id, 'drink_row3_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col1_ttl', $drink_row3_col1_ttl);
+		elseif ($drink_row3_col1_ttl == '')
+			delete_post_meta($post_id, 'drink_row3_col1_ttl', get_post_meta($post_id, 'drink_row3_col1_ttl', true));
+		// set drink_row3_col1_desc1
+		if (strcmp($drink_row3_col1_desc1, get_post_meta($post_id, 'drink_row3_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col1_desc1', $drink_row3_col1_desc1);
+		elseif ($drink_row3_col1_desc1 == '')
+			delete_post_meta($post_id, 'drink_row3_col1_desc1', get_post_meta($post_id, 'drink_row3_col1_desc1', true));
+		// set drink_row3_col1_desc2
+		if (strcmp($drink_row3_col1_desc2, get_post_meta($post_id, 'drink_row3_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col1_desc2', $drink_row3_col1_desc2);
+		elseif ($drink_row3_col1_desc2 == '')
+			delete_post_meta($post_id, 'drink_row3_col1_desc2', get_post_meta($post_id, 'drink_row3_col1_desc2', true));
+	/** set drink_row3_col2 **/
+		// set drink_row3_col2_ttl
+		if (strcmp($drink_row3_col2_ttl, get_post_meta($post_id, 'drink_row3_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col2_ttl', $drink_row3_col2_ttl);
+		elseif ($drink_row3_col2_ttl == '')
+			delete_post_meta($post_id, 'drink_row3_col2_ttl', get_post_meta($post_id, 'drink_row3_col2_ttl', true));
+		// set drink_row3_col2_desc1
+		if (strcmp($drink_row3_col2_desc1, get_post_meta($post_id, 'drink_row3_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col2_desc1', $drink_row3_col2_desc1);
+		elseif ($drink_row3_col2_desc1 == '')
+			delete_post_meta($post_id, 'drink_row3_col2_desc1', get_post_meta($post_id, 'drink_row3_col2_desc1', true));
+		// set drink_row3_col2_desc2
+		if (strcmp($drink_row3_col2_desc2, get_post_meta($post_id, 'drink_row3_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col2_desc2', $drink_row3_col2_desc2);
+		elseif ($drink_row3_col2_desc2 == '')
+			delete_post_meta($post_id, 'drink_row3_col2_desc2', get_post_meta($post_id, 'drink_row3_col2_desc2', true));
+	/** set drink_row3_col3 **/
+		// set drink_row3_col3_ttl
+		if (strcmp($drink_row3_col3_ttl, get_post_meta($post_id, 'drink_row3_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col3_ttl', $drink_row3_col3_ttl);
+		elseif ($drink_row3_col3_ttl == '')
+			delete_post_meta($post_id, 'drink_row3_col3_ttl', get_post_meta($post_id, 'drink_row3_col3_ttl', true));
+		// set drink_row3_col3_desc1
+		if (strcmp($drink_row3_col3_desc1, get_post_meta($post_id, 'drink_row3_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col3_desc1', $drink_row3_col3_desc1);
+		elseif ($drink_row3_col3_desc1 == '')
+			delete_post_meta($post_id, 'drink_row3_col3_desc1', get_post_meta($post_id, 'drink_row3_col3_desc1', true));
+		// set drink_row3_col3_desc2
+		if (strcmp($drink_row3_col3_desc2, get_post_meta($post_id, 'drink_row3_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row3_col3_desc2', $drink_row3_col3_desc2);
+		elseif ($drink_row3_col3_desc2 == '')
+			delete_post_meta($post_id, 'drink_row3_col3_desc2', get_post_meta($post_id, 'drink_row3_col3_desc2', true));
+
+/* set drink_row4
+---------------------- */
+	if (strcmp($drink_row4_ttl, get_post_meta($post_id, 'drink_row4_ttl', true)) != 0)
+		update_post_meta($post_id, 'drink_row4_ttl', $drink_row4_ttl);
+	elseif ($drink_row4_ttl == '')
+		delete_post_meta($post_id, 'drink_row4_ttl', get_post_meta($post_id, 'drink_row4_ttl', true));
+	/** set drink_row4_col1 **/
+		// set drink_row4_col1_ttl
+		if (strcmp($drink_row4_col1_ttl, get_post_meta($post_id, 'drink_row4_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col1_ttl', $drink_row4_col1_ttl);
+		elseif ($drink_row4_col1_ttl == '')
+			delete_post_meta($post_id, 'drink_row4_col1_ttl', get_post_meta($post_id, 'drink_row4_col1_ttl', true));
+		// set drink_row4_col1_desc1
+		if (strcmp($drink_row4_col1_desc1, get_post_meta($post_id, 'drink_row4_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col1_desc1', $drink_row4_col1_desc1);
+		elseif ($drink_row4_col1_desc1 == '')
+			delete_post_meta($post_id, 'drink_row4_col1_desc1', get_post_meta($post_id, 'drink_row4_col1_desc1', true));
+		// set drink_row4_col1_desc2
+		if (strcmp($drink_row4_col1_desc2, get_post_meta($post_id, 'drink_row4_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col1_desc2', $drink_row4_col1_desc2);
+		elseif ($drink_row4_col1_desc2 == '')
+			delete_post_meta($post_id, 'drink_row4_col1_desc2', get_post_meta($post_id, 'drink_row4_col1_desc2', true));
+	/** set drink_row4_col2 **/
+		// set drink_row4_col2_ttl
+		if (strcmp($drink_row4_col2_ttl, get_post_meta($post_id, 'drink_row4_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col2_ttl', $drink_row4_col2_ttl);
+		elseif ($drink_row4_col2_ttl == '')
+			delete_post_meta($post_id, 'drink_row4_col2_ttl', get_post_meta($post_id, 'drink_row4_col2_ttl', true));
+		// set drink_row4_col2_desc1
+		if (strcmp($drink_row4_col2_desc1, get_post_meta($post_id, 'drink_row4_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col2_desc1', $drink_row4_col2_desc1);
+		elseif ($drink_row4_col2_desc1 == '')
+			delete_post_meta($post_id, 'drink_row4_col2_desc1', get_post_meta($post_id, 'drink_row4_col2_desc1', true));
+		// set drink_row4_col2_desc2
+		if (strcmp($drink_row4_col2_desc2, get_post_meta($post_id, 'drink_row4_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col2_desc2', $drink_row4_col2_desc2);
+		elseif ($drink_row4_col2_desc2 == '')
+			delete_post_meta($post_id, 'drink_row4_col2_desc2', get_post_meta($post_id, 'drink_row4_col2_desc2', true));
+	/** set drink_row4_col3 **/
+		// set drink_row4_col3_ttl
+		if (strcmp($drink_row4_col3_ttl, get_post_meta($post_id, 'drink_row4_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col3_ttl', $drink_row4_col3_ttl);
+		elseif ($drink_row4_col3_ttl == '')
+			delete_post_meta($post_id, 'drink_row4_col3_ttl', get_post_meta($post_id, 'drink_row4_col3_ttl', true));
+		// set drink_row4_col3_desc1
+		if (strcmp($drink_row4_col3_desc1, get_post_meta($post_id, 'drink_row4_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col3_desc1', $drink_row4_col3_desc1);
+		elseif ($drink_row4_col3_desc1 == '')
+			delete_post_meta($post_id, 'drink_row4_col3_desc1', get_post_meta($post_id, 'drink_row4_col3_desc1', true));
+		// set drink_row4_col3_desc2
+		if (strcmp($drink_row4_col3_desc2, get_post_meta($post_id, 'drink_row4_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'drink_row4_col3_desc2', $drink_row4_col3_desc2);
+		elseif ($drink_row4_col3_desc2 == '')
+			delete_post_meta($post_id, 'drink_row4_col3_desc2', get_post_meta($post_id, 'drink_row4_col3_desc2', true));
+	} else {
+		return $post_id;
+	}
+}
+
+// 11.概観メニュー
+add_action('admin_menu', 'attach_views_contents');
+add_action('save_post', 'save_views_contents');
+function attach_views_contents() {
+	add_meta_box('views_contents_area', '概観メニュー', 'views_contents_container', 'fudo', 'advanced', 'default');
+}
+function views_contents_container() {
+	global $post;
+	$nonce = wp_create_nonce(plugin_basename(__FILE__));
+
+	// views_row1_ttl
+	$views_row1_ttl = get_post_meta($post->ID, 'views_row1_ttl', true);  // metacomment
+	// views_row1_col1
+	$views_row1_col1_ttl = get_post_meta($post->ID, 'views_row1_col1_ttl', true);  // metacomment
+	$views_row1_col1_desc1 = get_post_meta($post->ID, 'views_row1_col1_desc1', true);  // metacomment
+	$views_row1_col1_desc2 = get_post_meta($post->ID, 'views_row1_col1_desc2', true);  // metacomment
+	// views_row1_col2
+	$views_row1_col2_ttl = get_post_meta($post->ID, 'views_row1_col2_ttl', true);  // metacomment
+	$views_row1_col2_desc1 = get_post_meta($post->ID, 'views_row1_col2_desc1', true);  // metacomment
+	$views_row1_col2_desc2 = get_post_meta($post->ID, 'views_row1_col2_desc2', true);  // metacomment
+	// views_row1_col3
+	$views_row1_col3_ttl = get_post_meta($post->ID, 'views_row1_col3_ttl', true);  // metacomment
+	$views_row1_col3_desc1 = get_post_meta($post->ID, 'views_row1_col3_desc1', true);  // metacomment
+	$views_row1_col3_desc2 = get_post_meta($post->ID, 'views_row1_col3_desc2', true);  // metacomment
+
+	// views_row2_ttl
+	$views_row2_ttl = get_post_meta($post->ID, 'views_row2_ttl', true);  // metacomment
+	// views_row2_col1
+	$views_row2_col1_ttl = get_post_meta($post->ID, 'views_row2_col1_ttl', true);  // metacomment
+	$views_row2_col1_desc1 = get_post_meta($post->ID, 'views_row2_col1_desc1', true);  // metacomment
+	$views_row2_col1_desc2 = get_post_meta($post->ID, 'views_row2_col1_desc2', true);  // metacomment
+	// views_row2_col2
+	$views_row2_col2_ttl = get_post_meta($post->ID, 'views_row2_col2_ttl', true);  // metacomment
+	$views_row2_col2_desc1 = get_post_meta($post->ID, 'views_row2_col2_desc1', true);  // metacomment
+	$views_row2_col2_desc2 = get_post_meta($post->ID, 'views_row2_col2_desc2', true);  // metacomment
+	// views_row2_col3
+	$views_row2_col3_ttl = get_post_meta($post->ID, 'views_row2_col3_ttl', true);  // metacomment
+	$views_row2_col3_desc1 = get_post_meta($post->ID, 'views_row2_col3_desc1', true);  // metacomment
+	$views_row2_col3_desc2 = get_post_meta($post->ID, 'views_row2_col3_desc2', true);  // metacomment
+
+	// views_row3_ttl
+	$views_row3_ttl = get_post_meta($post->ID, 'views_row3_ttl', true);  // metacomment
+	// views_row3_col1
+	$views_row3_col1_ttl = get_post_meta($post->ID, 'views_row3_col1_ttl', true);  // metacomment
+	$views_row3_col1_desc1 = get_post_meta($post->ID, 'views_row3_col1_desc1', true);  // metacomment
+	$views_row3_col1_desc2 = get_post_meta($post->ID, 'views_row3_col1_desc2', true);  // metacomment
+	// views_row3_col2
+	$views_row3_col2_ttl = get_post_meta($post->ID, 'views_row3_col2_ttl', true);  // metacomment
+	$views_row3_col2_desc1 = get_post_meta($post->ID, 'views_row3_col2_desc1', true);  // metacomment
+	$views_row3_col2_desc2 = get_post_meta($post->ID, 'views_row3_col2_desc2', true);  // metacomment
+	// views_row3_col3
+	$views_row3_col3_ttl = get_post_meta($post->ID, 'views_row3_col3_ttl', true);  // metacomment
+	$views_row3_col3_desc1 = get_post_meta($post->ID, 'views_row3_col3_desc1', true);  // metacomment
+	$views_row3_col3_desc2 = get_post_meta($post->ID, 'views_row3_col3_desc2', true);  // metacomment
+
+	// views_row4_ttl
+	$views_row4_ttl = get_post_meta($post->ID, 'views_row4_ttl', true);  // metacomment
+	// views_row4_col1
+	$views_row4_col1_ttl = get_post_meta($post->ID, 'views_row4_col1_ttl', true);  // metacomment
+	$views_row4_col1_desc1 = get_post_meta($post->ID, 'views_row4_col1_desc1', true);  // metacomment
+	$views_row4_col1_desc2 = get_post_meta($post->ID, 'views_row4_col1_desc2', true);  // metacomment
+	// views_row4_col2
+	$views_row4_col2_ttl = get_post_meta($post->ID, 'views_row4_col2_ttl', true);  // metacomment
+	$views_row4_col2_desc1 = get_post_meta($post->ID, 'views_row4_col2_desc1', true);  // metacomment
+	$views_row4_col2_desc2 = get_post_meta($post->ID, 'views_row4_col2_desc2', true);  // metacomment
+	// views_row4_col3
+	$views_row4_col3_ttl = get_post_meta($post->ID, 'views_row4_col3_ttl', true);  // metacomment
+	$views_row4_col3_desc1 = get_post_meta($post->ID, 'views_row4_col3_desc1', true);  // metacomment
+	$views_row4_col3_desc2 = get_post_meta($post->ID, 'views_row4_col3_desc2', true);  // metacomment
+
+
+	$html = '<input type="hidden" name="views_contents_nonce" id="views_contents_nonce" value="'.$nonce.'" />';
+// views_row1
+	$html .= <<<HTML
+<label for="views_row1_ttl">概観1段目_見出し</label><br />
+<input type="text" name="views_row1_ttl" id="views_row1_ttl" value="{$views_row1_ttl}" /><br />
+<label for="views_row1_col1_ttl">概観1段目_左_タイトル</label><br />
+<input type="text" name="views_row1_col1_ttl" id="views_row1_col1_ttl" value="{$views_row1_col1_ttl}" /><br />
+<label for="">概観1段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row1_col1_desc1" id="views_row1_col1_desc1" style="width:100%;">{$views_row1_col1_desc1}</textarea><br />
+<label for="">概観1段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row1_col1_desc2" id="views_row1_col1_desc2" style="width:100%;">{$views_row1_col1_desc2}</textarea><br />
+<br />
+
+<label for="views_row1_col2_ttl">概観1段目_中央_タイトル</label><br />
+<input type="text" name="views_row1_col2_ttl" id="views_row1_col2_ttl" value="{$views_row1_col2_ttl}" /><br />
+<label for="">概観1段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row1_col2_desc1" id="views_row1_col2_desc1" style="width:100%;">{$views_row1_col2_desc1}</textarea><br />
+<label for="">概観1段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row1_col2_desc2" id="views_row1_col2_desc2" style="width:100%;">{$views_row1_col2_desc2}</textarea><br />
+<br />
+
+<label for="views_row1_col3_ttl">概観1段目_右_タイトル</label><br />
+<input type="text" name="views_row1_col3_ttl" id="views_row1_col3_ttl" value="{$views_row1_col3_ttl}" /><br />
+<label for="">概観1段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row1_col3_desc1" id="views_row1_col3_desc1" style="width:100%;">{$views_row1_col3_desc1}</textarea><br />
+<label for="">概観1段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row1_col3_desc2" id="views_row1_col3_desc2" style="width:100%;">{$views_row1_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// views_row2
+	$html .= <<<HTML
+<label for="views_row2_ttl">概観2段目_見出し</label><br />
+<input type="text" name="views_row2_ttl" id="views_row2_ttl" value="{$views_row2_ttl}" /><br />
+<label for="views_row2_col1_ttl">概観2段目_左_タイトル</label><br />
+<input type="text" name="views_row2_col1_ttl" id="views_row2_col1_ttl" value="{$views_row2_col1_ttl}" /><br />
+<label for="">概観2段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row2_col1_desc1" id="views_row2_col1_desc1" style="width:100%;">{$views_row2_col1_desc1}</textarea><br />
+<label for="">概観2段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row2_col1_desc2" id="views_row2_col1_desc2" style="width:100%;">{$views_row2_col1_desc2}</textarea><br />
+<br />
+
+<label for="views_row2_col2_ttl">概観2段目_中央_タイトル</label><br />
+<input type="text" name="views_row2_col2_ttl" id="views_row2_col2_ttl" value="{$views_row2_col2_ttl}" /><br />
+<label for="">概観2段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row2_col2_desc1" id="views_row2_col2_desc1" style="width:100%;">{$views_row2_col2_desc1}</textarea><br />
+<label for="">概観2段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row2_col2_desc2" id="views_row2_col2_desc2" style="width:100%;">{$views_row2_col2_desc2}</textarea><br />
+<br />
+
+<label for="views_row2_col3_ttl">概観2段目_右_タイトル</label><br />
+<input type="text" name="views_row2_col3_ttl" id="views_row2_col3_ttl" value="{$views_row2_col3_ttl}" /><br />
+<label for="">概観2段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row2_col3_desc1" id="views_row2_col3_desc1" style="width:100%;">{$views_row2_col3_desc1}</textarea><br />
+<label for="">概観2段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row2_col3_desc2" id="views_row2_col3_desc2" style="width:100%;">{$views_row2_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// views_row3
+	$html .= <<<HTML
+<label for="views_row3_ttl">概観3段目_見出し</label><br />
+<input type="text" name="views_row3_ttl" id="views_row3_ttl" value="{$views_row3_ttl}" /><br />
+<label for="views_row3_col1_ttl">概観3段目_左_タイトル</label><br />
+<input type="text" name="views_row3_col1_ttl" id="views_row3_col1_ttl" value="{$views_row3_col1_ttl}" /><br />
+<label for="">概観3段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row3_col1_desc1" id="views_row3_col1_desc1" style="width:100%;">{$views_row3_col1_desc1}</textarea><br />
+<label for="">概観3段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row3_col1_desc2" id="views_row3_col1_desc2" style="width:100%;">{$views_row3_col1_desc2}</textarea><br />
+<br />
+
+<label for="views_row3_col2_ttl">概観3段目_中央_タイトル</label><br />
+<input type="text" name="views_row3_col2_ttl" id="views_row3_col2_ttl" value="{$views_row3_col2_ttl}" /><br />
+<label for="">概観3段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row3_col2_desc1" id="views_row3_col2_desc1" style="width:100%;">{$views_row3_col2_desc1}</textarea><br />
+<label for="">概観3段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row3_col2_desc2" id="views_row3_col2_desc2" style="width:100%;">{$views_row3_col2_desc2}</textarea><br />
+<br />
+
+<label for="views_row3_col3_ttl">概観3段目_右_タイトル</label><br />
+<input type="text" name="views_row3_col3_ttl" id="views_row3_col3_ttl" value="{$views_row3_col3_ttl}" /><br />
+<label for="">概観3段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row3_col3_desc1" id="views_row3_col3_desc1" style="width:100%;">{$views_row3_col3_desc1}</textarea><br />
+<label for="">概観3段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row3_col3_desc2" id="views_row3_col3_desc2" style="width:100%;">{$views_row3_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+// views_row4
+	$html .= <<<HTML
+<label for="views_row4_ttl">概観4段目_見出し</label><br />
+<input type="text" name="views_row4_ttl" id="views_row4_ttl" value="{$views_row4_ttl}" /><br />
+<label for="views_row4_col1_ttl">概観4段目_左_タイトル</label><br />
+<input type="text" name="views_row4_col1_ttl" id="views_row4_col1_ttl" value="{$views_row4_col1_ttl}" /><br />
+<label for="">概観4段目_左_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row4_col1_desc1" id="views_row4_col1_desc1" style="width:100%;">{$views_row4_col1_desc1}</textarea><br />
+<label for="">概観4段目_左_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row4_col1_desc2" id="views_row4_col1_desc2" style="width:100%;">{$views_row4_col1_desc2}</textarea><br />
+<br />
+
+<label for="views_row4_col2_ttl">概観4段目_中央_タイトル</label><br />
+<input type="text" name="views_row4_col2_ttl" id="views_row4_col2_ttl" value="{$views_row4_col2_ttl}" /><br />
+<label for="">概観4段目_中央_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row4_col2_desc1" id="views_row4_col2_desc1" style="width:100%;">{$views_row4_col2_desc1}</textarea><br />
+<label for="">概観4段目_中央_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row4_col2_desc2" id="views_row4_col2_desc2" style="width:100%;">{$views_row4_col2_desc2}</textarea><br />
+<br />
+
+<label for="views_row4_col3_ttl">概観4段目_右_タイトル</label><br />
+<input type="text" name="views_row4_col3_ttl" id="views_row4_col3_ttl" value="{$views_row4_col3_ttl}" /><br />
+<label for="">概観4段目_右_説明1</label><br />
+<textarea cols="60" rows="4" name="views_row4_col3_desc1" id="views_row4_col3_desc1" style="width:100%;">{$views_row4_col3_desc1}</textarea><br />
+<label for="">概観4段目_右_説明2</label><br />
+<textarea cols="60" rows="4" name="views_row4_col3_desc2" id="views_row4_col3_desc2" style="width:100%;">{$views_row4_col3_desc2}</textarea><br />
+<hr />
+HTML;
+
+	echo $html;
+}
+
+function save_views_contents($post_id) {
+	if ( isset($_POST['views_contents_nonce']) ) {
+		if ( !wp_verify_nonce( $_POST['views_contents_nonce'], plugin_basename(__FILE__) ) ) {
+			return $post_id;
+		}
+		if ( isset($_POST['post_type']) && 'fudo' == $_POST['post_type'] ) {
+			if ( !current_user_can( 'edit_page', $post_id )) return $post_id;
+		} else {
+			if ( !current_user_can( 'edit_post', $post_id )) return $post_id;
+		}
+
+/* get views_row1
+--------------- */
+	$views_row1_ttl = isset($_POST['views_row1_ttl']) ? $_POST['views_row1_ttl'] : '';
+	/** views_row1_col1 **/
+		$views_row1_col1_ttl = isset($_POST['views_row1_col1_ttl']) ? $_POST['views_row1_col1_ttl'] : '';
+		$views_row1_col1_desc1 = isset($_POST['views_row1_col1_desc1']) ? $_POST['views_row1_col1_desc1'] : '';
+		$views_row1_col1_desc2 = isset($_POST['views_row1_col1_desc2']) ? $_POST['views_row1_col1_desc2'] : '';
+	/** views_row2_col2 **/
+		$views_row1_col2_ttl = isset($_POST['views_row1_col2_ttl']) ? $_POST['views_row1_col2_ttl'] : '';
+		$views_row1_col2_desc1 = isset($_POST['views_row1_col2_desc1']) ? $_POST['views_row1_col2_desc1'] : '';
+		$views_row1_col2_desc2 = isset($_POST['views_row1_col2_desc2']) ? $_POST['views_row1_col2_desc2'] : '';
+	/** views_row1_col3 **/
+		$views_row1_col3_ttl = isset($_POST['views_row1_col3_ttl']) ? $_POST['views_row1_col3_ttl'] : '';
+		$views_row1_col3_desc1 = isset($_POST['views_row1_col3_desc1']) ? $_POST['views_row1_col3_desc1'] : '';
+		$views_row1_col3_desc2 = isset($_POST['views_row1_col3_desc2']) ? $_POST['views_row1_col3_desc2'] : '';
+/* get views_row2
+--------------- */
+	$views_row2_ttl = isset($_POST['views_row2_ttl']) ? $_POST['views_row2_ttl'] : '';
+	/** views_row2_col1 **/
+		$views_row2_col1_ttl = isset($_POST['views_row2_col1_ttl']) ? $_POST['views_row2_col1_ttl'] : '';
+		$views_row2_col1_desc1 = isset($_POST['views_row2_col1_desc1']) ? $_POST['views_row2_col1_desc1'] : '';
+		$views_row2_col1_desc2 = isset($_POST['views_row2_col1_desc2']) ? $_POST['views_row2_col1_desc2'] : '';
+	/** views_row2_col2 **/
+		$views_row2_col2_ttl = isset($_POST['views_row2_col2_ttl']) ? $_POST['views_row2_col2_ttl'] : '';
+		$views_row2_col2_desc1 = isset($_POST['views_row2_col2_desc1']) ? $_POST['views_row2_col2_desc1'] : '';
+		$views_row2_col2_desc2 = isset($_POST['views_row2_col2_desc2']) ? $_POST['views_row2_col2_desc2'] : '';
+	/** views_row2_col3 **/
+		$views_row2_col3_ttl = isset($_POST['views_row2_col3_ttl']) ? $_POST['views_row2_col3_ttl'] : '';
+		$views_row2_col3_desc1 = isset($_POST['views_row2_col3_desc1']) ? $_POST['views_row2_col3_desc1'] : '';
+		$views_row2_col3_desc2 = isset($_POST['views_row2_col3_desc2']) ? $_POST['views_row2_col3_desc2'] : '';
+/* get views_row3
+--------------- */
+	$views_row3_ttl = isset($_POST['views_row3_ttl']) ? $_POST['views_row3_ttl'] : '';
+	/** views_row3_col1 **/
+		$views_row3_col1_ttl = isset($_POST['views_row3_col1_ttl']) ? $_POST['views_row3_col1_ttl'] : '';
+		$views_row3_col1_desc1 = isset($_POST['views_row3_col1_desc1']) ? $_POST['views_row3_col1_desc1'] : '';
+		$views_row3_col1_desc2 = isset($_POST['views_row3_col1_desc2']) ? $_POST['views_row3_col1_desc2'] : '';
+	/** views_row3_col2 **/
+		$views_row3_col2_ttl = isset($_POST['views_row3_col2_ttl']) ? $_POST['views_row3_col2_ttl'] : '';
+		$views_row3_col2_desc1 = isset($_POST['views_row3_col2_desc1']) ? $_POST['views_row3_col2_desc1'] : '';
+		$views_row3_col2_desc2 = isset($_POST['views_row3_col2_desc2']) ? $_POST['views_row3_col2_desc2'] : '';
+	/** views_row3_col3 **/
+		$views_row3_col3_ttl = isset($_POST['views_row3_col3_ttl']) ? $_POST['views_row3_col3_ttl'] : '';
+		$views_row3_col3_desc1 = isset($_POST['views_row3_col3_desc1']) ? $_POST['views_row3_col3_desc1'] : '';
+		$views_row3_col3_desc2 = isset($_POST['views_row3_col3_desc2']) ? $_POST['views_row3_col3_desc2'] : '';
+/* get views_row4
+--------------- */
+	$views_row4_ttl = isset($_POST['views_row4_ttl']) ? $_POST['views_row4_ttl'] : '';
+	/** views_row4_col1 **/
+		$views_row4_col1_ttl = isset($_POST['views_row4_col1_ttl']) ? $_POST['views_row4_col1_ttl'] : '';
+		$views_row4_col1_desc1 = isset($_POST['views_row4_col1_desc1']) ? $_POST['views_row4_col1_desc1'] : '';
+		$views_row4_col1_desc2 = isset($_POST['views_row4_col1_desc2']) ? $_POST['views_row4_col1_desc2'] : '';
+	/** views_row4_col2 **/
+		$views_row4_col2_ttl = isset($_POST['views_row4_col2_ttl']) ? $_POST['views_row4_col2_ttl'] : '';
+		$views_row4_col2_desc1 = isset($_POST['views_row4_col2_desc1']) ? $_POST['views_row4_col2_desc1'] : '';
+		$views_row4_col2_desc2 = isset($_POST['views_row4_col2_desc2']) ? $_POST['views_row4_col2_desc2'] : '';
+	/** views_row4_col3 **/
+		$views_row4_col3_ttl = isset($_POST['views_row4_col3_ttl']) ? $_POST['views_row4_col3_ttl'] : '';
+		$views_row4_col3_desc1 = isset($_POST['views_row4_col3_desc1']) ? $_POST['views_row4_col3_desc1'] : '';
+		$views_row4_col3_desc2 = isset($_POST['views_row4_col3_desc2']) ? $_POST['views_row4_col3_desc2'] : '';
+
+/* set views_row1
+---------------------- */
+	if (strcmp($views_row1_ttl, get_post_meta($post_id, 'views_row1_ttl', true)) != 0)
+		update_post_meta($post_id, 'views_row1_ttl', $views_row1_ttl);
+	elseif ($views_row1_ttl == '')
+		delete_post_meta($post_id, 'views_row1_ttl', get_post_meta($post_id, 'views_row1_ttl', true));
+	/** set views_row1_col1 **/
+		// set views_row1_col1_ttl
+		if (strcmp($views_row1_col1_ttl, get_post_meta($post_id, 'views_row1_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col1_ttl', $views_row1_col1_ttl);
+		elseif ($views_row1_col1_ttl == '')
+			delete_post_meta($post_id, 'views_row1_col1_ttl', get_post_meta($post_id, 'views_row1_col1_ttl', true));
+		// set views_row1_col1_desc1
+		if (strcmp($views_row1_col1_desc1, get_post_meta($post_id, 'views_row1_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col1_desc1', $views_row1_col1_desc1);
+		elseif ($views_row1_col1_desc1 == '')
+			delete_post_meta($post_id, 'views_row1_col1_desc1', get_post_meta($post_id, 'views_row1_col1_desc1', true));
+		// set views_row1_col1_desc2
+		if (strcmp($views_row1_col1_desc2, get_post_meta($post_id, 'views_row1_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col1_desc2', $views_row1_col1_desc2);
+		elseif ($views_row1_col1_desc2 == '')
+			delete_post_meta($post_id, 'views_row1_col1_desc2', get_post_meta($post_id, 'views_row1_col1_desc2', true));
+	/** set views_row1_col2 **/
+		// set views_row1_col2_ttl
+		if (strcmp($views_row1_col2_ttl, get_post_meta($post_id, 'views_row1_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col2_ttl', $views_row1_col2_ttl);
+		elseif ($views_row1_col2_ttl == '')
+			delete_post_meta($post_id, 'views_row1_col2_ttl', get_post_meta($post_id, 'views_row1_col2_ttl', true));
+		// set views_row1_col2_desc1
+		if (strcmp($views_row1_col2_desc1, get_post_meta($post_id, 'views_row1_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col2_desc1', $views_row1_col2_desc1);
+		elseif ($views_row1_col2_desc1 == '')
+			delete_post_meta($post_id, 'views_row1_col2_desc1', get_post_meta($post_id, 'views_row1_col2_desc1', true));
+		// set views_row1_col2_desc2
+		if (strcmp($views_row1_col2_desc2, get_post_meta($post_id, 'views_row1_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col2_desc2', $views_row1_col2_desc2);
+		elseif ($views_row1_col2_desc2 == '')
+			delete_post_meta($post_id, 'views_row1_col2_desc2', get_post_meta($post_id, 'views_row1_col2_desc2', true));
+	/** set views_row1_col3 **/
+		// set views_row1_col3_ttl
+		if (strcmp($views_row1_col3_ttl, get_post_meta($post_id, 'views_row1_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col3_ttl', $views_row1_col3_ttl);
+		elseif ($views_row1_col3_ttl == '')
+			delete_post_meta($post_id, 'views_row1_col3_ttl', get_post_meta($post_id, 'views_row1_col3_ttl', true));
+		// set views_row1_col3_desc1
+		if (strcmp($views_row1_col3_desc1, get_post_meta($post_id, 'views_row1_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col3_desc1', $views_row1_col3_desc1);
+		elseif ($views_row1_col3_desc1 == '')
+			delete_post_meta($post_id, 'views_row1_col3_desc1', get_post_meta($post_id, 'views_row1_col3_desc1', true));
+		// set views_row1_col3_desc2
+		if (strcmp($views_row1_col3_desc2, get_post_meta($post_id, 'views_row1_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row1_col3_desc2', $views_row1_col3_desc2);
+		elseif ($views_row1_col3_desc2 == '')
+			delete_post_meta($post_id, 'views_row1_col3_desc2', get_post_meta($post_id, 'views_row1_col3_desc2', true));
+
+/* set views_row2
+---------------------- */
+	if (strcmp($views_row2_ttl, get_post_meta($post_id, 'views_row2_ttl', true)) != 0)
+		update_post_meta($post_id, 'views_row2_ttl', $views_row2_ttl);
+	elseif ($views_row2_ttl == '')
+		delete_post_meta($post_id, 'views_row2_ttl', get_post_meta($post_id, 'views_row2_ttl', true));
+	/** set views_row2_col1 **/
+		// set views_row2_col1_ttl
+		if (strcmp($views_row2_col1_ttl, get_post_meta($post_id, 'views_row2_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col1_ttl', $views_row2_col1_ttl);
+		elseif ($views_row2_col1_ttl == '')
+			delete_post_meta($post_id, 'views_row2_col1_ttl', get_post_meta($post_id, 'views_row2_col1_ttl', true));
+		// set views_row2_col1_desc1
+		if (strcmp($views_row2_col1_desc1, get_post_meta($post_id, 'views_row2_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col1_desc1', $views_row2_col1_desc1);
+		elseif ($views_row2_col1_desc1 == '')
+			delete_post_meta($post_id, 'views_row2_col1_desc1', get_post_meta($post_id, 'views_row2_col1_desc1', true));
+		// set views_row2_col1_desc2
+		if (strcmp($views_row2_col1_desc2, get_post_meta($post_id, 'views_row2_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col1_desc2', $views_row2_col1_desc2);
+		elseif ($views_row2_col1_desc2 == '')
+			delete_post_meta($post_id, 'views_row2_col1_desc2', get_post_meta($post_id, 'views_row2_col1_desc2', true));
+	/** set views_row2_col2 **/
+		// set views_row2_col2_ttl
+		if (strcmp($views_row2_col2_ttl, get_post_meta($post_id, 'views_row2_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col2_ttl', $views_row2_col2_ttl);
+		elseif ($views_row2_col2_ttl == '')
+			delete_post_meta($post_id, 'views_row2_col2_ttl', get_post_meta($post_id, 'views_row2_col2_ttl', true));
+		// set views_row2_col2_desc1
+		if (strcmp($views_row2_col2_desc1, get_post_meta($post_id, 'views_row2_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col2_desc1', $views_row2_col2_desc1);
+		elseif ($views_row2_col2_desc1 == '')
+			delete_post_meta($post_id, 'views_row2_col2_desc1', get_post_meta($post_id, 'views_row2_col2_desc1', true));
+		// set views_row2_col2_desc2
+		if (strcmp($views_row2_col2_desc2, get_post_meta($post_id, 'views_row2_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col2_desc2', $views_row2_col2_desc2);
+		elseif ($views_row2_col2_desc2 == '')
+			delete_post_meta($post_id, 'views_row2_col2_desc2', get_post_meta($post_id, 'views_row2_col2_desc2', true));
+	/** set views_row2_col3 **/
+		// set views_row2_col3_ttl
+		if (strcmp($views_row2_col3_ttl, get_post_meta($post_id, 'views_row2_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col3_ttl', $views_row2_col3_ttl);
+		elseif ($views_row2_col3_ttl == '')
+			delete_post_meta($post_id, 'views_row2_col3_ttl', get_post_meta($post_id, 'views_row2_col3_ttl', true));
+		// set views_row2_col3_desc1
+		if (strcmp($views_row2_col3_desc1, get_post_meta($post_id, 'views_row2_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col3_desc1', $views_row2_col3_desc1);
+		elseif ($views_row2_col3_desc1 == '')
+			delete_post_meta($post_id, 'views_row2_col3_desc1', get_post_meta($post_id, 'views_row2_col3_desc1', true));
+		// set views_row2_col3_desc2
+		if (strcmp($views_row2_col3_desc2, get_post_meta($post_id, 'views_row2_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row2_col3_desc2', $views_row2_col3_desc2);
+		elseif ($views_row2_col3_desc2 == '')
+			delete_post_meta($post_id, 'views_row2_col3_desc2', get_post_meta($post_id, 'views_row2_col3_desc2', true));
+
+/* set views_row3
+---------------------- */
+	if (strcmp($views_row3_ttl, get_post_meta($post_id, 'views_row3_ttl', true)) != 0)
+		update_post_meta($post_id, 'views_row3_ttl', $views_row3_ttl);
+	elseif ($views_row3_ttl == '')
+		delete_post_meta($post_id, 'views_row3_ttl', get_post_meta($post_id, 'views_row3_ttl', true));
+	/** set views_row3_col1 **/
+		// set views_row3_col1_ttl
+		if (strcmp($views_row3_col1_ttl, get_post_meta($post_id, 'views_row3_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col1_ttl', $views_row3_col1_ttl);
+		elseif ($views_row3_col1_ttl == '')
+			delete_post_meta($post_id, 'views_row3_col1_ttl', get_post_meta($post_id, 'views_row3_col1_ttl', true));
+		// set views_row3_col1_desc1
+		if (strcmp($views_row3_col1_desc1, get_post_meta($post_id, 'views_row3_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col1_desc1', $views_row3_col1_desc1);
+		elseif ($views_row3_col1_desc1 == '')
+			delete_post_meta($post_id, 'views_row3_col1_desc1', get_post_meta($post_id, 'views_row3_col1_desc1', true));
+		// set views_row3_col1_desc2
+		if (strcmp($views_row3_col1_desc2, get_post_meta($post_id, 'views_row3_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col1_desc2', $views_row3_col1_desc2);
+		elseif ($views_row3_col1_desc2 == '')
+			delete_post_meta($post_id, 'views_row3_col1_desc2', get_post_meta($post_id, 'views_row3_col1_desc2', true));
+	/** set views_row3_col2 **/
+		// set views_row3_col2_ttl
+		if (strcmp($views_row3_col2_ttl, get_post_meta($post_id, 'views_row3_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col2_ttl', $views_row3_col2_ttl);
+		elseif ($views_row3_col2_ttl == '')
+			delete_post_meta($post_id, 'views_row3_col2_ttl', get_post_meta($post_id, 'views_row3_col2_ttl', true));
+		// set views_row3_col2_desc1
+		if (strcmp($views_row3_col2_desc1, get_post_meta($post_id, 'views_row3_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col2_desc1', $views_row3_col2_desc1);
+		elseif ($views_row3_col2_desc1 == '')
+			delete_post_meta($post_id, 'views_row3_col2_desc1', get_post_meta($post_id, 'views_row3_col2_desc1', true));
+		// set views_row3_col2_desc2
+		if (strcmp($views_row3_col2_desc2, get_post_meta($post_id, 'views_row3_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col2_desc2', $views_row3_col2_desc2);
+		elseif ($views_row3_col2_desc2 == '')
+			delete_post_meta($post_id, 'views_row3_col2_desc2', get_post_meta($post_id, 'views_row3_col2_desc2', true));
+	/** set views_row3_col3 **/
+		// set views_row3_col3_ttl
+		if (strcmp($views_row3_col3_ttl, get_post_meta($post_id, 'views_row3_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col3_ttl', $views_row3_col3_ttl);
+		elseif ($views_row3_col3_ttl == '')
+			delete_post_meta($post_id, 'views_row3_col3_ttl', get_post_meta($post_id, 'views_row3_col3_ttl', true));
+		// set views_row3_col3_desc1
+		if (strcmp($views_row3_col3_desc1, get_post_meta($post_id, 'views_row3_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col3_desc1', $views_row3_col3_desc1);
+		elseif ($views_row3_col3_desc1 == '')
+			delete_post_meta($post_id, 'views_row3_col3_desc1', get_post_meta($post_id, 'views_row3_col3_desc1', true));
+		// set views_row3_col3_desc2
+		if (strcmp($views_row3_col3_desc2, get_post_meta($post_id, 'views_row3_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row3_col3_desc2', $views_row3_col3_desc2);
+		elseif ($views_row3_col3_desc2 == '')
+			delete_post_meta($post_id, 'views_row3_col3_desc2', get_post_meta($post_id, 'views_row3_col3_desc2', true));
+
+/* set views_row4
+---------------------- */
+	if (strcmp($views_row4_ttl, get_post_meta($post_id, 'views_row4_ttl', true)) != 0)
+		update_post_meta($post_id, 'views_row4_ttl', $views_row4_ttl);
+	elseif ($views_row4_ttl == '')
+		delete_post_meta($post_id, 'views_row4_ttl', get_post_meta($post_id, 'views_row4_ttl', true));
+	/** set views_row4_col1 **/
+		// set views_row4_col1_ttl
+		if (strcmp($views_row4_col1_ttl, get_post_meta($post_id, 'views_row4_col1_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col1_ttl', $views_row4_col1_ttl);
+		elseif ($views_row4_col1_ttl == '')
+			delete_post_meta($post_id, 'views_row4_col1_ttl', get_post_meta($post_id, 'views_row4_col1_ttl', true));
+		// set views_row4_col1_desc1
+		if (strcmp($views_row4_col1_desc1, get_post_meta($post_id, 'views_row4_col1_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col1_desc1', $views_row4_col1_desc1);
+		elseif ($views_row4_col1_desc1 == '')
+			delete_post_meta($post_id, 'views_row4_col1_desc1', get_post_meta($post_id, 'views_row4_col1_desc1', true));
+		// set views_row4_col1_desc2
+		if (strcmp($views_row4_col1_desc2, get_post_meta($post_id, 'views_row4_col1_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col1_desc2', $views_row4_col1_desc2);
+		elseif ($views_row4_col1_desc2 == '')
+			delete_post_meta($post_id, 'views_row4_col1_desc2', get_post_meta($post_id, 'views_row4_col1_desc2', true));
+	/** set views_row4_col2 **/
+		// set views_row4_col2_ttl
+		if (strcmp($views_row4_col2_ttl, get_post_meta($post_id, 'views_row4_col2_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col2_ttl', $views_row4_col2_ttl);
+		elseif ($views_row4_col2_ttl == '')
+			delete_post_meta($post_id, 'views_row4_col2_ttl', get_post_meta($post_id, 'views_row4_col2_ttl', true));
+		// set views_row4_col2_desc1
+		if (strcmp($views_row4_col2_desc1, get_post_meta($post_id, 'views_row4_col2_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col2_desc1', $views_row4_col2_desc1);
+		elseif ($views_row4_col2_desc1 == '')
+			delete_post_meta($post_id, 'views_row4_col2_desc1', get_post_meta($post_id, 'views_row4_col2_desc1', true));
+		// set views_row4_col2_desc2
+		if (strcmp($views_row4_col2_desc2, get_post_meta($post_id, 'views_row4_col2_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col2_desc2', $views_row4_col2_desc2);
+		elseif ($views_row4_col2_desc2 == '')
+			delete_post_meta($post_id, 'views_row4_col2_desc2', get_post_meta($post_id, 'views_row4_col2_desc2', true));
+	/** set views_row4_col3 **/
+		// set views_row4_col3_ttl
+		if (strcmp($views_row4_col3_ttl, get_post_meta($post_id, 'views_row4_col3_ttl', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col3_ttl', $views_row4_col3_ttl);
+		elseif ($views_row4_col3_ttl == '')
+			delete_post_meta($post_id, 'views_row4_col3_ttl', get_post_meta($post_id, 'views_row4_col3_ttl', true));
+		// set views_row4_col3_desc1
+		if (strcmp($views_row4_col3_desc1, get_post_meta($post_id, 'views_row4_col3_desc1', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col3_desc1', $views_row4_col3_desc1);
+		elseif ($views_row4_col3_desc1 == '')
+			delete_post_meta($post_id, 'views_row4_col3_desc1', get_post_meta($post_id, 'views_row4_col3_desc1', true));
+		// set views_row4_col3_desc2
+		if (strcmp($views_row4_col3_desc2, get_post_meta($post_id, 'views_row4_col3_desc2', true)) != 0)
+			update_post_meta($post_id, 'views_row4_col3_desc2', $views_row4_col3_desc2);
+		elseif ($views_row4_col3_desc2 == '')
+			delete_post_meta($post_id, 'views_row4_col3_desc2', get_post_meta($post_id, 'views_row4_col3_desc2', true));
+	} else {
+		return $post_id;
+	}
+}
+
+
 // Left関数//左からn文字取得して返す
 function myLeft($str,$n){
 	if(mb_strlen($str,"utf-8") <= $n){
@@ -1167,28 +3006,726 @@ function myRight($str,$n){
 	return mb_substr($str,($n)*-1);
 }
 
-add_action('init', 'myposttype_rewrite');
-function myposttype_rewrite() {
-    global $wp_rewrite;
+/**
+ * exca関数
+ */
 
-    $wp_rewrite->add_rewrite_tag('%pid%', '([^/]+)', 'post_type=fudo&p=');
-    $wp_rewrite->add_permastruct('fudo', '/%pid%.html', false);
 
+// 設定 稼働時には適切なものにする必要があります。
+function ekpt_get_opt( $optLabel ) {
+    $optValue = '' ;
+    if ( $optLabel == 'EKPTHOME' ) {
+        $optValue = EKPTDEF_HOME ;
+    } elseif ( $optLabel == 'EKPTHOMEAPICHECKTOKEN' ) {
+        $optValue = EKPTDEF_HOMEAPICHECKTOKEN ;
+    } elseif ( $optLabel == 'EKPTGFHOME' ) {
+        $optValue = home_url(EKPTDEF_GFHOME) ;
+    } elseif ( $optLabel == 'EKPTAPI') {
+        $optValue = home_url(EKPTDEF_API) ;
+    } elseif ( $optLabel == 'EKPTAPITRADE') {
+        $optValue = home_url(EKPTDEF_TRADEAPI) ;
+    } elseif ( $optLabel == 'EKPTLOGIN') {
+        $optValue = EKPTDEF_LOGIN;
+    } elseif ( $optLabel == 'EKPTGFAPI') {
+        $optValue = EKPTDEF_GFAPI;
+    } elseif ( $optLabel == 'EKPTUSER') {
+        get_currentuserinfo() ;
+        $optValue = $GLOBALS['ekpt_mem_id'] ;
+        if ( $optValue == '' ) {
+            $optValue = EKPTDEF_USER;
+        }
+    }
+	// echo '<br>' . $optLabel . '=' . $optValue ;
+    return $optValue ;
 }
 
-add_filter('post_type_link', 'myposttype_permalink', 1, 3);
-function myposttype_permalink($post_link, $id = 0, $leavename) {
-    global $wp_rewrite;
+
+function ekpt_get_link_param( $params = array() ) {
+
+	// ディフォルトセット
+	$retstr = '?token='.$GLOBALS['ekpt_token'] ;
+	foreach ( $params as $key => $value ) {
+		$retstr .= '&' . $key . '=' . $value ;
+	}
+	return $retstr ;
+}
+
+function ekpt_get_mem_infos( $members ) {
+	//
+	$memDisplays = array() ;
+    // APIから情報を取得
+	$token = $GLOBALS['ekpt_token'] ;
+    //
+	if ( $token <> '' ) {
+		$param = array(
+						"token" => $token,
+						"members" => $members
+						) ;
+		// if ( WP_DEBUG ) print_r($param) ;
+		$ret = ekpt_istown_login('',$param) ;
+        print_r($ret) ;
+		$ret_members = $ret['members'] ;
+        $memDisplay = array() ;
+        foreach ( $ret_members as $ret_member ) {
+            $memDisplay['mem_id'] = $ret_members['mem_id'] ;
+            $memDisplay['nickname'] = $ret_members['nickname'] ;
+            if ( trim($memDisplay['nickname']) == '' ) {
+                $memDisplay['nickname'] = '未設定…';
+            }
+            $memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
+            if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
+                $memDisplay['image'] = '<span">未設定</span>' ;
+            }
+            $memDisplays[] = $memDisplay ;
+        }
+        // print_r($members);
+        // print_r($memDisplays);
+	}
+	// イメージ取得
+	return $memDisplays ;
+}
+
+function ekpt_get_mem_info( $mem_id ) {
+	//
+	$memDisplay = array (
+							'mem_id' => $mem_id,
+							'nickname' => '',
+							'image' => '',
+							'dummy' => 0
+						) ;
+	// APIから情報を取得
+	$token = $GLOBALS['ekpt_token'] ;
+	$members = $mem_id ;
+	if ( $token <> '' ) {
+		$param = array(
+						"token" => $token,
+						"members" => $members
+						) ;
+		// if ( WP_DEBUG ) print_r($param) ;
+         $ret = ekpt_istown_login('',$param) ;
+		$ret_members = $ret['members'][0] ;
+		$memDisplay['mem_id'] = $ret_members['mem_id'] ;
+		$memDisplay['nickname'] = $ret_members['nickname'] ;
+		if ( trim($memDisplay['nickname']) == '' ) {
+			$memDisplay['nickname'] = '未設定…';
+		}
+		$memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
+		if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
+			$memDisplay['image'] = '<span">未設定</span>' ;
+		}
+	}
+	// イメージ取得
+	return $memDisplay ;
+}
+
+function ekpt_get_mem_imagepath( $imagePath ) {
+	return str_replace('/cache','http://town.ekupo.jp/cache',$imagePath) ;
+}
+
+/**
+ * リクエストデータ取得
+ */
+function req($key) {
+    return(isset($_REQUEST[$key]) ? $_REQUEST[$key] : '');
+}
+
+function ekpt_istown_login( $urldef = '', $param = array(),  $base_url = '' ) {
+
+    if ( $base_url == '' ) {
+        $base_url = ekpt_get_opt('EKPTHOMEAPICHECKTOKEN') ;
+    }
+
+    $search_url = $base_url . $urldef . "/";
+    $retdata = array() ;
+    //apiから検索結果をjsonでもらう
+    $timeout = 30;
+    ekpt_log_message($search_url) ;
+    // if ( WP_DEBUG ) print_r($param);
+    $ch = curl_init();
+    curl_setopt( $ch, CURLOPT_URL, $search_url );
+    curl_setopt( $ch, CURLOPT_HEADER, false );
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch, CURLOPT_POST, 1);
+    if ( is_array($param) && count($param) > 0) {
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);
+    }
+    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+    // SSL対応
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
+    //
+    $json = curl_exec( $ch );
+    curl_close( $ch );
+
+    //もらったjsonを連想配列に変換
+    // print_r($param);
+    if ( $json ) {
+        $retdata = json_decode( $json , true );
+    }
+    // print_r($retdata) ;
+    return $retdata ;
+}
+
+// ログインチェック
+function ekpt_login($cookie = false) {
+
+	global $post;
+
+	// 変数初期化
+	$ok = true ;
+	$resArr = false;
+	$token = '' ;
+	$ret = array() ;
+	$GLOBALS['ekpt_session_id'] = '';
+	$GLOBALS['ekpt_token'] = '' ;
+	$GLOBALS['ekpt_mem_id'] = '' ;
+	$GLOBALS['ekpt_nickname'] = '' ;
+	$GLOBALS['ekpt_image'] = '' ;
+    $GLOBALS['ekpt_token_reply'] = array() ;
+
+	// ログインチェック
+	if ( $cookie ) {
+
+		$resArr = get_session($cookie);
+
+		if ( isset($resArr['ekpt_token'])) {
+
+			$param = array('token' => $resArr['ekpt_token']);
+			$ret = ekpt_istown_login('',$param) ;
+
+			if ( !isset( $ret['status'] ) || $ret['status'] != 0 ) {
+				$resArr = false ;
+			} else {
+				// if ( WP_DEBUG ) print_r($ret) ;
+				$ret_data = $ret['data'] ;
+				$GLOBALS['ekpt_session_id'] = $cookie;
+				$GLOBALS['ekpt_token'] = $resArr['ekpt_token'] ;
+				$GLOBALS['ekpt_mem_id'] = $ret_data['mem_id'] ;
+				$GLOBALS['ekpt_nickname'] = $ret_data['nickname'] ;
+				$GLOBALS['ekpt_image'] = $ret_data['image'] ;
+				$GLOBALS['ekpt_token_reply'] = $ret_data ;
+			}
+		}
+	}
+
+	return $resArr ;
+}
+
+// ログアウト
+function ekpt_logout() {
+
+	$ok = session_delete();
+
+	return $ok;
+}
+/**
+ * init_sessions()
+ *
+ * @uses session_id()
+ * @uses session_start()
+ */
+function init_sessions() {
+    if (!session_id()) {
+        session_start();
+		session_regenerate_id();
+    }
+}
+add_action('init', 'init_sessions');
+
+// リダイレクト指定
+function ekpt_redirect_fix(){
+	// if ( WP_DEBUG ) echo 'Caled' ;
+	$redirect_to = ekpt_get_opt('EKPTHOME') ;
+    // wp_safe_redirect($rwdirect_to);
+	header("HTTP/1.1 301 Moved Permanently");
+  	header("Location:".$redirect_to);
+  	exit();
+}
+
+/* EKPT Start */
+function ekpt_log_message($output, $path = null) {
+    $str = date('y/m/d h:i:s') . ' ' .var_export($output, true);
+    $path = isset($path) ? $path : TEMPLATEPATH . '/ekptlog.txt';
+    $fp = fopen($path, 'a');
+    fwrite($fp, "{$str}\n");
+    fclose($fp);
+    // print_r('OK!'.$path);
+    // print_r($fp);
+}
+
+function ekpt_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
+
+    //twitter apiの検索URL
+    if ( $base_url == '' ) {
+        $base_url = ekpt_get_opt('EKPTAPI') ;
+    }
+
+    $search_url = $base_url . '' . $urldef . '/';
+    $retdata = array() ;
+
+    //apiから検索結果をjsonでもらう
+    $timeout = 30;
+    ekpt_log_message($search_url) ;
+
+    $ch = curl_init();
+    curl_setopt( $ch, CURLOPT_URL, $search_url );
+    curl_setopt( $ch, CURLOPT_HEADER, false );
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch, CURLOPT_POST, 1);
+    if ( is_array($param) && count($param) > 0) {
+            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);
+    }
+    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+    // SSL対応
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
+    $json = curl_exec( $ch );
+    curl_close( $ch );
+
+    if ( $json ) {
+        $retdata = json_decode( $json , true );
+    }
+    return $retdata ;
+}
+
+
+// pager()関数関連の定義
+// ページ情報となる変数名の設定
+// define(PAGE_VALUE , "id");
+// ページをいくつで区切るか？
+// 100件ごとに区切りたいなら100を指定
+// define(PER_PAGE,10);
+// ページメニューの数の幅
+// ページ総数 59 / VIEW_PAGE_MENU_WIDTH = 5の場合
+// 26ページ目を表示しているときは下記のように表示される
+// < 21 22 23 24 25 26 27 28 29 30 31 >
+// 26 の前5つ分(21まで)と後ろ5つ分(31まで）を表示する
+// define(VIEW_PAGE_MENU_WIDTH , 5);
+// 前に戻るときのマーク 「< (&lt;)」とか「前」とか「←」とか指定
+// define(PREV_MARK , "&lt;");
+// 次に行くときのマーク 「< (&gt;)」とか「次」とか「→」とか指定
+// define(NEXT_MARK , "&gt;");
+// pager()関数ここから
+
+function ekpt_pager( $idname, $countRe, $perPage = 0, $viewPageMenuWidth = 0, $offsetKey = '' ) {
+	// 現在のページ情報を取得
+	parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], PHP_URL_QUERY), $qry);
+	preg_match('/([a-z]+\.html)/', $_SERVER['REQUEST_URI'], $matches);
+	$match = isset($matches[1]) ? $matches[1] : '';
+	$PHP_SELF = get_bloginfo('url').'/'.$match;
+	$other_param = $startMore = $endMore = '';
+	$id = isset($qry[$idname]) ? $qry[$idname] : '';
+	// ページ数の指定がなければページ数を1にセット
+	if( $id == "" ) $id=1;
+	$prevMark = "&lt;&lt;" ;
+	$nextMark = "&gt;&gt;" ;
+	if ( $perPage == 0 ) $perPage = 2 ;
+	if ( $viewPageMenuWidth == 0 ) $viewPageMenuWidth = 4 ;
+	if ( $offsetKey == '' ) $offsetKey = "offset";
+	// ページ情報以外のパラメータを補完し、$other_paramにセット
+	foreach($qry as $key => $value){
+		// $idname 以外のGETメソッドのパラメータを $other_param に再構築
+		if ($key != $idname and $key != $offsetKey){
+			// リンクさせるためにurlencodeする.
+			$other_param .= "&".$key."=".urlencode($value);
+		}
+	}
+	// $other_param = urlencode($other_param) ;
+	// 最終ページを計算する
+	// 総Hit数をページング単位で割ると総ページ数が計算される
+	// ページング単位PER_PAGEを10とすると最終ページ数$maxPageは
+	// 総Hit数 / PER_PAGEを切り上げたものとなる。
+	// 検索結果205件 PER_PAGE:10の場合 $maxPage = ceil(205 / 10) = 21
+	$maxPage=ceil($countRe / $perPage);
+	// maxPage=1の場合(PER_PAGEより少ない検索結果)
+	// 選択したページ数(id)よりもmaxPageが小さいときはfalse
+	if( ($maxPage == 1) or ($maxPage < $id) ) return false;
+
+	$startPage = intval(($id - 1) / $viewPageMenuWidth) * $viewPageMenuWidth + 1;
+	$maybeEndPage = $startPage + $viewPageMenuWidth - 1;
+	$endPage = $maybeEndPage < $maxPage ? $maybeEndPage : $maxPage;
+	if ($id <= $viewPageMenuWidth) {
+		$offsetParam = '&'.$offsetKey.'='.urlencode($endPage * $perPage);
+		if ($maxPage > $viewPageMenuWidth) {
+			$endMore = '<a href="'.$PHP_SELF.'?'.$idname.'='.($endPage + 1).$other_param.$offsetParam.'">'.$nextMark.'</a>';
+		}
+	} else if ($endPage == $maxPage) {
+		$offsetParam = '&'.$offsetKey.'='.urlencode(($startPage - 2) * $perPage);
+		$startMore = '<a href="'.$PHP_SELF.'?'.$idname.'='.($startPage - 1).$other_param.$offsetParam.'">'.$prevMark.'</a>';
+	} else {
+		$offsetParam = '&'.$offsetKey.'='.urlencode(($startPage - 2) * $perPage);
+		$startMore = '<a href="'.$PHP_SELF.'?'.$idname.'='.($startPage - 1).$other_param.$offsetParam.'">'.$prevMark.'</a>';
+		$offsetParam = '&'.$offsetKey.'='.urlencode($endPage * $perPage);
+		$endMore = '<a href="'.$PHP_SELF.'?'.$idname.'='.($endPage + 1).$other_param.$offsetParam.'">'.$nextMark.'</a>';
+	}
+
+	// 選択したページ数がVIEW_PAGE_MENU_WIDTHより大きいとき
+	/*
+	if($id > $viewPageMenuWidth + 1){
+		// スタートページは選択ページからVIEW_PAGE_MENU_WIDTHを
+		// 引いたもの程度出せばよい
+		$startPage = $id - $viewPageMenuWidth;
+		$offSet = ( ($startPage - 1) - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);
+		// より小さいもの「 < 」の部分はさらにその$startPageから1を引いたもの
+		$startMore = "<a href=\"$PHP_SELF?".$idname."=".($startPage - 1).$other_param.$offSetParam."\">".$prevMark." </a>";
+	}else{
+		// そうでなければ$startPage=1(一番はじめのページ = 1)になる
+		$startPage = 1;
+	}
+	 */
+	// 選択したページ数に5を足したものより、更に$maxPage
+	// （最大ページ)が大きければ
+	/*
+	if($id + $viewPageMenuWidth < $maxPage){
+		// 表示される最終ページは選択したページに
+		// VIEW_PAGE_MENU_WIDTHを足したものになる
+		$endPage = $id + $viewPageMenuWidth;
+		$offSet = ( ($endPage + 1) - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
+		$endMore = "  <a href=\"$PHP_SELF?".$idname."=".($endPage + 1).$other_param.$offSetParam."\"> ".$nextMark."</a>";
+	}else{
+		// そうでなければ、$endPageは最終ページになる
+		$endPage = $maxPage;
+	}
+	 */
+	// ここまでで、計算されたのは
+	// $id        : 現在選択しているページ番号
+	// $maxPage   : 検索の最終ページ
+	// $startPage : 表示されるはじめのページ
+	// $endPage   : 表示される最後のページ
+	// $page_footer="" として$page_footerを初期化
+	$page_footer="";
+	// $startPage から $endPageまで繰り返し
+	for($i = $startPage ; $i <= $endPage ; $i++){
+		// $i = $idだったら選択されたページなので、fontsizeを大きくする
+		// その際、リンクはなし
+		// そうでなければ、id=$iをリンクにセットする
+		$offSet = ( $i - 1 ) * $perPage ;
+		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
+		$page_footer.= " ".(($id==$i)?"<span style='font-Size:150%; font-weight:bold;'>$i</span>":"<a href=\"$PHP_SELF?$idname=$i$other_param$offSetParam\">$i</a>");
+	}
+	// $startMoreと$endMoreを$page_footerの前後に付け足す
+	$page_footer = $startMore.$page_footer.$endMore.'';
+	// $page_footerを表示
+	return $page_footer;
+}
+
+/**
+ * デバッグ用関数 by kuwana
+ * == Print Array ==
+ */
+function parr($array, $var_dump = '') {
+	echo '<!--<pre style="white-space: pre; background-color: #eee;display:hidden;">';
+	echo '==デバッグエリア START==<br>';
+	if ($var_dump == false) {
+		print_r($array);
+	} else {
+		var_dump($array);
+	}
+	echo '<br>==デバッグエリア END==';
+	echo '</pre>-->';
+}
+
+
+/* EKPT Start */
+
+add_shortcode('get_coupon_list', 'get_coupon_list');
+function get_coupon_list($atts = array()) {
+	// EKPT独自ログインチェック
+	$redirect = false ;
+	$token = '' ;
+	$ret = array() ;
+	$ok = true ;
+	$mem_id = ekpt_get_opt("EKPTUSER");
+	$param = array('mem_id' => $mem_id);
+	$sendurl = EKPTDEF_GFAPI;
+
+	$retdata  = ekpt_get_json('RtCoupon/GetCouponsByMem', $param, $sendurl);
+	$jdata = json_encode($retdata);
+
+	return $jdata;
+}
+
+// セッション(token)保存
+function session_save($session_id, $userInfo = array()) {
+
 	global $wpdb;
-    $post = &get_post($id);
-    if ( is_wp_error( $post ) )
-        return $post;
-	$sql = "SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $post->ID AND meta_key = 'kaiin'";
-	$alias = $wpdb->get_row($sql);
-    $newlink = $wp_rewrite->get_extra_permastruct($post->post_type);
-    //$newlink = str_replace('%pid%', $post->ID, $newlink);
-    $newlink = str_replace('%pid%', $alias->meta_value, $newlink);
-    $newlink = home_url(user_trailingslashit($newlink));
-	var_dump($newlink);
-    return $newlink;
+
+	if ($userInfo) {
+		$wp_session = $wpdb->query($wpdb->prepare("
+			INSERT INTO session (session_id, nickname, member_pic_url, created, ekpt_token) VALUES ('%s','%s','%s',now(),'%s')
+			", $session_id, $userInfo['nickname'], $userInfo['member_pic_url'], $userInfo['token']));
+
+		$res = $wpdb->prepare("
+			\n INSERT INTO session (session_id, nickname, member_pic_url, created, ekpt_token) VALUES ('%s','%s','%s',now(),'%s')
+			", $session_id, $userInfo['nickname'], $userInfo['member_pic_url'], $userInfo['token']);
+
+		if ( ! $wp_session) {
+			trigger_error('ログイン失敗: DBに問題があります。');
+			return false;
+		}
+	}
+
+	return true;
+}
+// セッション(token)破棄
+function session_delete() {
+
+	global $wpdb;
+
+	// CookieとSession削除
+	$ok_1 = $ok_2 = $ok = false;
+
+	$_SESSION = array();
+
+	setcookie('ekpt_session_id', '', time() - 3600);
+
+	if (isset($_COOKIE[session_name()])) {
+		$ok_1 = setcookie(session_name(), '', time() - 3600, '/');
+	}
+	$ok_2 = session_destroy();
+
+	if($ok_1 && $ok_2) {
+		header('Location: '.get_bloginfo('url'));
+		exit;
+	} else {
+		$ok = false;
+	}
+
+	return false;
+}
+// セッション(token)チェック用
+function get_session($ekpt_session_id) {
+
+	global $wpdb;
+
+	$wp_session = $wpdb->get_row($wpdb->prepare("
+		SELECT * FROM session WHERE session_id = '%s'
+	", $ekpt_session_id), ARRAY_A);
+
+	if ( ! $wp_session) {
+		return false;
+	}
+	return $wp_session;
+}
+
+// いいねボタン
+function submit_like($shop_id) {
+
+	// EKPT独自ログインチェック
+	$redirect = false ;
+	$token = '' ;
+	$ok = true ;
+	$action_type = 'L';
+	$mem_id     = ekpt_get_opt("EKPTUSER");
+
+	if ($mem_id == '1' && empty($GLOBALS['ekpt_token'])) {
+		$mem_id = '0';
+	}
+	if ( ! $shop_id) {
+		$shop_id = '0';
+	}
+	$ekpt_session_id = isset($GLOBALS['ekpt_session_id']) ? $GLOBALS['ekpt_session_id'] : 0;
+
+	// ログインしていない。不正利用等
+	$ok = ekpt_login($ekpt_session_id) ;
+	if ( $ok == false ) {
+		//ekpt_redirect_fix() ;
+		return false;
+	}
+
+	// 投票チェック
+	$check = check_vote($mem_id, $shop_id, $action_type);
+
+	return $check;
+
+}
+// お気に入りボタン
+function submit_favo($shop_memid) {
+
+	// EKPT独自ログインチェック
+	$redirect = false ;
+	$token = '' ;
+	$ok = true ;
+	$action_type = 'F';
+	$mem_id     = ekpt_get_opt("EKPTUSER");
+
+	if ($mem_id == '1' && empty($GLOBALS['ekpt_token'])) {
+		$mem_id = '0';
+	}
+	if ( ! $shop_memid) {
+		$shop_memid = '0';
+	}
+
+	// ログインしていない。不正利用等
+	$ok = ekpt_login($GLOBALS['ekpt_session_id']) ;
+	if ( $ok == false ) {
+		//ekpt_redirect_fix() ;
+		return false;
+	}
+
+	// 投票チェック
+	$check = check_vote($mem_id, $shop_memid, $action_type);
+
+	return $check;
+}
+
+// クーポン取得通知
+function successed_get_coupon($atts = array()) {
+	global $wpdb, $rtc_id, $token;
+	$html =  '';
+	$refere = empty($_SERVER['HTTP_REFERER']) ? get_bloginfo('url') : $_SERVER['HTTP_REFERER'];
+	$mem_id = ekpt_get_opt('EKPTUSER');
+	if ($mem_id == '1' && empty($GLOBALS['ekpt_token'])) {
+		$mem_id = 0;
+	}
+	if (!$mem_id || !$rtc_id) {
+		$html .= '<div class="backto"><a href="'.$refere.'" class="a_btn_coupon_01">店舗詳細ページへ戻る</a></div>';
+		return $html;
+	}
+	$param = array('mem_id' => $mem_id, 'rtc_id' => $rtc_id);
+	//$sendurl = EKPTDEF_GFAPI;
+	$sendurl = 'http://ekptgfapi-testing.smartec.co.jp/';
+	$retdatas = ekpt_get_json('RtCoupon/SendForMem', $param, $sendurl);
+	if ( $retdatas['status_code'] === 400 ) {
+		$html .= '<div class="backto"><a href="'.$refere.'" class="a_btn_coupon_01">店舗詳細ページへ戻る</a></div>';
+		return $html;
+	} else if ( $retdatas['status_code'] === 200) {
+		$rtc = $retdatas['data']['rtc'][0];
+		$mem_rtc = $retdatas['data']['mem_rtc'][0];
+	}
+	// get image src.
+	$q1 = $wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = 'fudo' LIMIT 1", $rtc['shop_alias']);
+	$postid = $wpdb->get_var($q1);
+	$mainimg = substr(get_post_meta($postid, 'fudoimg1', true), 0, -4);
+	$q2 = $wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts WHERE post_title = %s AND post_type = 'attachment' LIMIT 1", $mainimg);
+	$attachid = $wpdb->get_var($q2);
+	$imgsrcs = wp_get_attachment_image_src($attachid, 'thumbnail');
+	$src = $imgsrcs[0];
+	// get coupon type.
+	$ctype_arr = array('10' => 'otameshi', '20' => 'timesale');
+	$ctype = $ctype_arr[$rtc['rtc_type']];
+	// set html.
+	$html .= '<div id="couponInfo">';
+	$html .= '<img src="'.WP_PLUGIN_URL.'/fudou/themes/images/ui/'.$ctype.'.png" />';
+	$html .= '	<p class="shop-name">'.$rtc['shop_name'].'</p>';
+	$html .= '	<img src="'.$src.'">';
+	$html .= '	<p class="coupon-title">'.$rtc['rtc_discount_text'].'</p>';
+	$html .= '	<p>【ご利用条件など】</p>';
+	$html .= '	<p>'.$rtc['rtc_use_desc'].'</p>';
+	$html .= '	<p>'.$rtc['rtc_desc'].'</p>';
+	$html .= '	<p id="small-p">【ご注意！】<br>対象店舗ご来店時にまずお店スタッフにクーポン画面をご提示下さい。ご提示が遅れますと、クーポンをご利用頂けないことがあります。</p>';
+	$html .= '</div>';
+	$html .= '<div class="backto"><a href="'.$refere.'" class="a_btn_coupon_01">店舗詳細ページへ戻る</a></div>';
+
+	return $html;
+}
+add_shortcode('successed_get_coupon', 'successed_get_coupon');
+
+
+// ユーザーの投票チェック(いいね、お気に入り)
+// 初アクションかどうかチェック, 初ならAPIとDB Insert実行
+// TODO: 後にAPI化する
+function check_vote($mem_id, $shop_id, $action_type) {
+
+	global $wpdb;
+
+	// パラメタ設定
+	if ($mem_id == '1' && empty($GLOBALS['ekpt_token'])) {
+		$mem_id = '0';
+	}
+	if ($action_type == 'L') {
+		//$param = array('FromMemId' => $mem_id, 'ToMemId' => $shop_id);
+		$param = array('mem_id' => $mem_id, 'target_id' => $shop_id, 'type' => 1);
+		$sendurl = EKPTDEF_HOME ;
+		$arrdata = ekpt_get_json('/Api/sendLike', $param, $sendurl);
+		$vdata = $arrdata['response']['data'];
+
+		// 一日のいいねできる制限回数を越えた
+		if ($arrdata['response']['status_code'] == 400) {
+			// リジェクトDB (C = Cancel)
+			$wp_updatelike = $wpdb->query($wpdb->prepare("
+				UPDATE user_do SET action_type = %s WHERE FromMemId = %d AND ToMemId = %d
+				", 'C', $shop_id, $mem_id));
+
+			return $arrdata['response'];
+		}
+
+	} else if ($action_type == 'F') {
+		$param = array('FromMemId' => $mem_id, 'ToMemId' => $shop_id, 'MessageText' => 'from exca');
+		$sendurl = EKPTDEF_HOME ;
+		$arrdata = ekpt_get_json('/Api/becomeFriend', $param, $sendurl);
+var_dump($arrdata);
+		if ($arrdata['status'] === 'success') {
+			$vdata['seq_no'] = 0;
+		} else if ($arrdata['response'] == 'Both IDs are already friend.') {
+			$vdata = 'already';
+		} else {
+			$vdata = false;
+		}
+	}
+
+	return $vdata;
+
+}
+// チェックだけする
+// ボタン押さなくても呼ばれる
+function check_only_vote($shop_id, $action_type) {
+
+	global $wpdb;
+
+	// パラメタ設定
+	$mem_id = ekpt_get_opt("EKPTUSER");
+
+	if ($mem_id == '1' && empty($GLOBALS['ekpt_token'])) {
+		$mem_id = '0';
+	}
+	//$mem_id = 16;
+
+	// タウンのAPIでチェック
+	$statusCode_L = $statusCode_F = '';
+	if ( $action_type == 'L' ) {
+		// いいね
+		$sendurl = ekpt_get_opt("EKPTHOME");
+		$param   = array('mem_id' => $mem_id, 'target_id' => $shop_id, 'type' => '1');
+		$retdata = ekpt_get_json('Api/checkLikeStatus', $param, $sendurl);
+		$statusCode_L = $retdata['status_code'];
+	}
+	if ( $action_type == 'F' ) {
+		// お気に入り
+		$sendurl = ekpt_get_opt("EKPTHOME");
+		$param   = array('mem_id' => $mem_id, 'target_id' => $shop_id, 'type' => 1);
+		$retdata = ekpt_get_json('Api/checkShopRelationStatus', $param, $sendurl);
+		$statusCode_F = $retdata['status_code'];
+	}
+
+	if ( $statusCode_L == 1 || $statusCode_F == 1 ) {
+		return 'already';
+	} else {
+		return true;
+	}
+}
+
+function get_shop_images($path, $slug) {
+	$maxlen = 12;  // filename length of limit
+	$items = $list = array();
+	$target = opendir($path);
+
+	while (false !== $item = readdir($target)) {
+		if ($item == '.' || $item == '..')  continue;
+		if (is_dir($path.'/'.$item)) {
+			$items = get_shop_images($path.'/'.$item, $slug);
+			$list = array_merge($list, $items);
+		} else {
+			if (strlen($item) > $maxlen || strpos($item, $slug) === false)  continue;
+			$dirs = explode('/', $path);
+			$len = count($dirs);
+			$path = get_bloginfo('url').'/wp-content/uploads/'.$dirs[$len-2].'/'.$dirs[$len-1];
+			$list[] = $path.'/'.$item;
+		}
+	}
+	closedir($target);
+
+	return $list;
 }

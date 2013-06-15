@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/home/takuya/dev/shell/maidchan.sh &

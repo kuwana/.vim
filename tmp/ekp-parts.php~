@@ -1,0 +1,415 @@
+<?php
+/*
+Plugin Name: ekp-parts
+Version: 1.0
+Author: t.kuwana
+
+ exca.jpのthe-content埋め込み用ショートコードの登録プラグイン
+
+*/
+
+add_shortcode('store_search_result', 'store_search_result');
+add_shortcode('store_search_form', 'store_search_form');
+
+
+
+/**
+ * 店舗検索結果
+ * arg: region(地域)
+ */
+function store_search_result($atts = '') {
+
+	global $wpdb;
+
+	// 属性を取り出す
+	extract(shortcode_atts(array(
+		'region' => '',
+		'genre'  => '',
+		'budget'  => '',
+		'purpose' => '',
+		'point' => ''
+	), $atts));
+
+	//SQL 条件検索
+	$nowym= date('Ym');
+	$meta_dat = $sql = $cls = '';
+	$next_sql = true;
+	$perPage = 9;
+	$viewPageMenuWidth = 10;
+
+	parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], PHP_URL_QUERY), $qry);
+	$offset = isset($qry['offset']) ? $qry['offset'] : 0;
+
+	$sql  = "SELECT DISTINCT(P.ID), P.post_name FROM ".$wpdb->posts." AS P";
+
+	// ポイント店舗(直リンクの為なし)
+	/*
+	if ( $point != '' ){
+		$sql .=   " INNER JOIN " . $wpdb->postmeta . " AS PM_1 ON P.ID = PM_1.post_id";
+		$cls .=   " AND PM_1.meta_key = 'tatemonomenseki' AND PM_1.meta_value = 'point'";
+	}
+	else {
+		$sql .=   " INNER JOIN " . $wpdb->postmeta . " AS PM_1 ON P.ID = PM_1.post_id";
+		$cls .=   " AND PM_1.meta_key = 'tatemonomenseki' AND PM_1.meta_value = 'coupon'";
+	}
+	 */
+	// 予算
+	if ( $budget != '' && $budget != 'none' ){
+		$sql .=   " INNER JOIN " . $wpdb->postmeta . " AS PM_2 ON P.ID = PM_2.post_id";
+		$cls .=   " AND PM_2.meta_key = 'kakakukoushin' AND PM_2.meta_value = '".$budget."'";
+	}
+	// ジャンル
+	if ( $genre != '' ){
+		$sql .=   " INNER JOIN " . $wpdb->postmeta . " AS PM_3 ON P.ID = PM_3.post_id";
+		$cls .=   " AND PM_3.meta_key = 'madorisyurui' AND PM_3.meta_value LIKE '%".$genre."%'";
+	}
+	// 目的
+	if ( $purpose != '' ){
+		$sql .=   " INNER JOIN " . $wpdb->postmeta . " AS PM_4 ON P.ID = PM_4.post_id";
+		$cls .=   " AND PM_4.meta_key = 'madorisu' AND PM_4.meta_value LIKE '%".$purpose."%'";
+	}
+	// エリア
+	if ($region != '' && $budget != '') {
+		$sql .=   " INNER JOIN " . $wpdb->term_relationships . " AS TR ON TR.object_id = P.ID";
+		$sql .=   " INNER JOIN " . $wpdb->terms              . " AS T  ON TR.term_taxonomy_id = T.term_id";
+		$region = explode(',', $region);
+		$region2 = '';
+		foreach($region as $key => $value) { // カンマ区切りを分割してシングルクォートしてまた結合
+			if (count($region) != $key+1) {
+			  $region2 .= "'" . $value . "',";
+			} else {
+				$region2 .= "'" . $value . "'"; // 最後は,付けない
+			}
+		}
+		if ($region2 != '') {
+			$cls .= " AND T.slug IN(" . $region2 . ")";
+		}
+
+	}
+	$cls .= " AND P.post_status = 'publish'";
+	$metas = $wpdb->get_results($sql.' WHERE 1 '.$cls);
+
+	if ( isset($_GET['page_id']) ) {
+		$page  = get_page($_GET['page_id']);
+		$page_title  = '<span>' . $page->post_title . '</span>';
+		$page_parent = get_page( $page->post_parent );
+	} else {
+		$page_title  = '<span>詳細検索結果</span>';
+		$page_parent = '';
+	}
+	// クーポンデータ取得 (API)
+	$jdatas = get_coupon_list();
+	$dcdatas = json_decode($jdatas, true);
+	$coupons = $dcdatas['data']['coupons'];
+
+	// クーポン絞り込み
+	$cnt = 0;
+	$extracts = $timesaleMeta = $otameshiMeta = $nomalMeta = array();
+	if (isset($qry['ctype']) && $qry['ctype'] == '10') {
+		foreach ($metas as $meta) {
+			foreach ($coupons as $coupon) {
+				if ($coupon['rtc_type'] == '10' && $coupon['shop_alias'] == $meta->post_name) {
+					$extracts[] = $meta;
+					$cnt++;
+				}
+			}
+		}
+		unset($metas);
+		$metas = $extracts;
+
+	} else if (isset($qry['ctype']) && $qry['ctype'] == '20') {
+		foreach ($metas as $meta) {
+			foreach ($coupons as $coupon) {
+				if ($coupon['rtc_type'] == '20' && $coupon['shop_alias'] == $meta->post_name) {
+					$extracts[] = $meta;
+					$cnt++;
+				}
+			}
+		}
+		unset($metas);
+		$metas = $extracts;
+
+	} else {
+		foreach ($metas as $meta) {
+			foreach ($coupons as $coupon) {
+				if ($coupon['rtc_type'] == '20' && $coupon['shop_alias'] == $meta->post_name) {
+					$timesaleMeta[] = $meta;
+					$cnt++;
+				}
+				else if ($coupon['rtc_type'] == '10' && $coupon['shop_alias'] == $meta->post_name) {
+					$otameshiMeta[] = $meta;
+					$cnt++;
+				}
+			}
+			$nomalMeta[] = $meta;
+			$cnt++;
+		}
+		unset($metas);
+		$metas = array_merge($timesaleMeta, $otameshiMeta, $nomalMeta);
+	}
+
+	// ページャ生成
+	$pager = ekpt_pager('page', $cnt, $perPage, $viewPageMenuWidth);
+
+	// 見出し文(SEO)
+	$html = '';
+	$html .= '<p class="area_description">' . $page_title . 'のエクポカードが使える店舗情報を掲載しております。';
+
+	if ( $page_parent->post_name == 'region' || $page_parent->post_name == 'genre' ) {
+		$html .= '完全個室、食べ放題あり、宴会・パーティーができる店舗を数多く掲載しております。';
+	}
+	if ( $page->post_name != 'all' && $page->post_name != 'others' && $page_parent->post_name != 'budget' ) {
+		$html .=  $page_title . 'は多彩なシーンで活躍するグルメが魅力です。';
+	}
+	$html .= '</p>'; // area_description END;
+	$html .= '<ul class="ul_queryVars01 clearfix">';
+	$html .= '	<li><a class="style_trials" href="?ctype=10">お試しクーポン</a></li>';
+	$html .= '	<li><a class="style_timesales" href="?ctype=20">タイムセールクーポン</a></li>';
+	$html .= '	<li><a class="style_commons" href="?ctype=5">通常クーポン</a></li>';
+	$html .= '	<li><a class="style_point" href="//mktg.ekupo.jp/cc/ekp2ymd/" target="_blank">ポイント交換</a></li>';
+	$html .= '</ul>';
+
+	$html .= '<ul class="ul_entryList02 clearfix">';
+	//loop SQL
+	//parr($metas);
+	if (!empty($metas)) {
+		// if (!isset($qry['offset']))  shuffle($metas);
+		$limit = $cnt > ($offset + $perPage) ? $offset + $perPage : $cnt;
+
+		for ($i = $offset; $i < $limit; $i++) {
+			$html .= _search_result_tpl($metas[$i], $dcdatas);
+		}
+	} else {
+		$html .= "<p><?php _e( 'Sorry, but nothing matched your search criteria. Please try again with some different keywords.', 'twentyeleven' ); ?></p>";
+		$html .= "<p class=\"nothingSorry\">" . get_search_form() . "</p>";
+	}
+	//loop SQL END
+	$html .= '</ul><!-- ul_entryList02 -->';
+	$html .= '<div id="pager">'.$pager.'</div>';;
+
+// 下部テキストの設置(SEO)
+$html .= '<p class="area_description">' . $page_title . 'のグルメ・クーポンは共通ポイントカードのエクポ<br><br>エクポーカードは' . $page_title . 'の飲食店(居酒屋/ダイニングバー/和食/洋食)から美容院・リラクゼーション・レジャーなどでクーポン・共通ポイントが貯まるお得なカードです。' . $page_title . 'の店舗情報を掲載しております。完全個室、食べ放題あり、宴会・パーティーができる店舗など、お客様のニーズに合った情報を提供いたします。';
+$html .= '</p>'; // area_description END;
+
+	return $html;
+}
+
+/**
+* store_search_result内で使う検索結果表示用テンプレート
+* 【使ってる場所】
+*   @archive-fudo.php
+*   @this->store_sarch_result()
+*   @content_search.php
+*/
+function _search_result_tpl($meta, $cpdatas = array()) {
+
+global $wpdb, $lb_genre;
+
+$html = $attachmentids = '';
+
+	$meta_id = $meta->ID;	//post_id
+	$meta_data = get_post( $meta_id );
+	$meta_title =  $meta_data->post_title;
+	parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], PHP_URL_QUERY), $qry);
+
+	// 店舗個々のクーポンデータを抽出
+	if ($cpdatas) {
+		$coupon = $coupinfo = '';
+		$cpdatas = $cpdatas['data']['coupons'];
+	}
+	// Illegal offset type対策の初期化
+	$coupon['rtc_link'] = '';
+	// タイムセールクーポン、お試しクーポンが使える店舗であれば、その内容を表示
+	if (!isset($qry['ctype']) || (isset($qry['ctype']) && $qry['ctype'] != '5')) {
+		foreach($cpdatas as $cpdata) {
+			if ($cpdata['shop_alias'] == $meta_data->post_name && $cpdata['coupon_status'] != '11') {
+				$coupon = $cpdata;
+				// タイムセールクーポン
+				if ( isset($coupon['rtc_type'] ) && $coupon['rtc_type'] == 20 ) {
+					if (isset($qry['ctype']) && $qry['ctype'] != 20)    continue;
+                    $coupon['rtc_link'] = '<li class="p_entryTitle01 style_timesales">タイムセールクーポン</li>';
+                    $className = 'timesales';
+					if ($coupon['rtc_discount_pct']) {
+						$coupon['rtc_img']  = '<img src="' . WP_PLUGIN_URL . '/fudou/themes/images/ui/coupon_timesale_' . $coupon['rtc_discount_pct'] . 'per.png" />';
+					} else {
+						$coupon['rtc_img']  = '<img src="' . WP_PLUGIN_URL . '/fudou/themes/images/ui/coupon_timesale_plain.png" />';
+					}
+				}
+				// お試しクーポン
+				else if ( isset($coupon['rtc_type'] ) && $coupon['rtc_type'] == 10 ) {
+					if (isset($qry['ctype']) && $qry['ctype'] != 10)    continue;
+                    $coupon['rtc_link'] = '<li class="p_entryTitle01 style_trials">お試しクーポン</li>';
+                    $className = 'trials';
+					if ($coupon['rtc_discount_pct']) {
+						$coupon['rtc_img']  = '<img src="' . WP_PLUGIN_URL . '/fudou/themes/images/ui/coupon_trial_' . $coupon['rtc_discount_pct'] . 'per.png" />';
+					} else {
+						$coupon['rtc_img']  = '<img src="' . WP_PLUGIN_URL . '/fudou/themes/images/ui/coupon_trial_plain.png" />';
+					}
+				}
+
+
+				$sql = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
+					$meta_data->post_name.'oblong', $meta_data->post_name.'a');
+				$attachmentid = $wpdb->get_var($sql);
+				//thumbnail、original、large、full
+				$mainimg = wp_get_attachment_image_src( $attachmentid, 'original');
+				$mainimg = $mainimg[0] ? $mainimg[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
+				// アクセス
+				$access   = get_post_meta($meta_id, 'tochisetsudomaguchi1', true);
+				// ふりがな
+				$ruby     = get_post_meta($meta_id, 'kakakushikibiki', true);
+				// 営業時間
+				$opentime = get_post_meta($meta_id, 'tatemononobeyukamenseki', true);
+				// 平均予算
+				$budget   = get_post_meta($meta_id, 'kakakukoushin', true);
+				// ジャンル
+				$genre    = get_post_meta($meta_id, 'madorisyurui', true);
+				//
+				$store_url = get_bloginfo('url') . '/' . $meta_data->post_name . '.html';
+
+				// レンダリング
+				$html .= '<li>';
+				$html .= '<h3 class="' . $className . '"><span>&nbsp;</span><a href="' . $store_url . '">' . $meta_title . '</a></h3>';
+				$html .= '<p class="genre"><span>' . $lb_genre[$genre] . '</span></p>';
+				$html .= '<ul class="ul_entryListDesc01 clearfix">';
+				$html .= '<li><a href="' . $store_url . '"><img src="' . $mainimg . '" /></a></li>';
+				$html .= '<li class="discount">' . $coupon['rtc_img'] . '</li>';
+				$html .= $coupon['rtc_link'];
+				$html .= '<li>' . $coupon['date_time_text'] . '</li>';
+				if ($coupon['rtc_type'] == 10 ) { $html .= '<li class="cpn_description">' . $coupon['rtc_discount_text'] . '</li>'; }
+				$html .= '</ul>';
+				$html .= '</li>';
+			}
+		}
+	}
+	if ( ! $coupon['rtc_link'] ) {
+		$q = "
+			SELECT P.post_title, PM.post_id, PM.meta_value mv1, PM2.meta_value mv2, PM3.meta_value mv3
+			FROM wp_posts P INNER JOIN wp_postmeta PM ON P.ID = PM.post_id
+			INNER JOIN wp_postmeta PM2 ON P.ID = PM2.post_id
+			INNER JOIN wp_postmeta PM3 ON P.ID = PM3.post_id
+			WHERE P.post_name  = '" . $meta_data->post_name ."'
+			AND   PM.meta_key  = 'jyoutai'
+			AND   PM2.meta_key = 'shikibesu'
+			AND   PM3.meta_key = 'shozaichimeisho3'";
+		$res = $wpdb->get_results($q, ARRAY_A);
+		     if ( !empty($res[0]['mv1']) ) $coupon['rtc_discount_text'] = $res[0]['mv1'];
+		else if ( !empty($res[0]['mv2']) ) $coupon['rtc_discount_text'] = $res[0]['mv2'];
+		else if ( !empty($res[0]['mv3']) ) $coupon['rtc_discount_text'] = $res[0]['mv3'];
+		$coupon['date_time_text'] = '時間制限なし';
+		$coupon['rtc_link'] = '<p class="p_entryTitle01 style_commons">通常クーポン</p>';
+		$coupon['rtc_img']  = '';
+		// 未使用変数の初期化
+		if ( ! isset($coupon['date_time_text']) )    $coupon['date_time_text'] = '';
+		if ( ! isset($coupon['rtc_discount_text']) ) $coupon['rtc_discount_text'] = '';
+		$sql = $wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
+			$meta_data->post_name.'oblong', $meta_data->post_name.'a');
+		$attachmentid = $wpdb->get_var($sql);
+		//thumbnail、medium、large、full
+		$mainimg = wp_get_attachment_image_src( $attachmentid, 'original');
+		$mainimg = $mainimg[0] ? $mainimg[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
+		// アクセス
+		$access   = get_post_meta($meta_id, 'tochisetsudomaguchi1', true);
+		// ふりがな
+		$ruby     = get_post_meta($meta_id, 'kakakushikibiki', true);
+		// 営業時間
+		$opentime = get_post_meta($meta_id, 'tatemononobeyukamenseki', true);
+		// 平均予算
+		$budget   = get_post_meta($meta_id, 'kakakukoushin', true);
+		// ジャンル
+		$genre    = get_post_meta($meta_id, 'madorisyurui', true);
+		// 店舗詳細リンク
+		$store_url = get_bloginfo('url') . '/' . $meta_data->post_name . '.html';
+		// レンダリング
+		$html .= '<li>';
+		$html .= '<h3 class="commons"><span>&nbsp;</span><a href="' . $store_url . '">' . $meta_title . '</a></h3>';
+		$html .= '<p class="genre"><span>' . $lb_genre[$genre] . '</span></p>';
+		$html .= '<ul class="ul_entryListDesc01 clearfix">';
+		$html .= '<li><a href="' . $store_url . '"><img src="' . $mainimg . '" /></a></li>';
+		$html .= '<li class="discount">' . $coupon['rtc_img'] . '</li>';
+		$html .= $coupon['rtc_link'];
+		//$html .= '<li class="cpn_description_2">' . $coupon['date_time_text'] . '</li>';
+		$html .= '<li class="cpn_description_2">' . $coupon['rtc_discount_text'] . '</li>';
+		$html .= '<li class="cpn_description_2"><a href="'. $store_url .'">詳細へ &gt;&gt;</a></li>';
+		$html .= '</ul>';
+		$html .= '</li>';
+	}
+
+	return $html;
+}
+/**
+ * 店舗検索フォーム
+ * arg: none
+ */
+function store_search_form() {
+
+	// TODO: まだ動かないでござる
+
+	global $wpdb;
+
+	$sql = $html = '';
+	$sql .= "SELECT T.term_id, T.name, T.slug, TT.parent";
+	$sql .= " FROM $wpdb->terms AS T";
+	$sql .= " INNER JOIN $wpdb->term_taxonomy AS TT";
+	$sql .= " ON T.term_id = TT.term_id";
+	$sql .= " WHERE TT.taxonomy = 'bukken'";
+	$metas = $wpdb->get_results($sql, ARRAY_A);
+	//$html .= '<h3>店舗選定'.$shub_txt.'</h3>';
+	//$html .= 'ご希望の条件を選択して下さい(複数可)<br />';
+
+	$site = site_url( '/' );
+	$html .= '<form method="get" id="searchpage" name="searchpage" action="'.$site.'" >';
+	$html .= '<input type="hidden" name="bukken" value="jsearch" >';
+	$html .= '<dl>';
+	$html .= '<dt>ポイント</dt>';
+	$html .= '<dd><input type="checkbox" id="point" name="point" value="point"><label for="point">ポイント導入店舗</label></dd>';
+	$html .= '<dt>エリア</dt>';
+	$html .= '<dd><select name="region">';
+	$html .= '<option value="none">こだわらない</option>';
+	foreach ($metas as $v) {
+		if ($v['parent'] === 0)  continue;
+		$html .= '<option value="'.$v["slug"].'">'.$v["name"].'</option>'."\n";
+	}
+	$html .= '</select></dd>';
+	$html .= '<dt>予算</dt>';
+	$html .= '<dd><select name="budget">';
+	$html .= '<option value="none">こだわらない</option>';
+	foreach ($budget as $k => $v) {
+		$html .= '<option value="'.$k.'">'.$v.'</option>'."\n";
+	}
+	$html .= '</select></dd>';
+	$html .= '<dt>ジャンル</dt>';
+	$html .= '<dd>';
+	$html .= '<table>';
+	$html .= '<tr>';
+	$i = 1;
+	foreach ($genre as $k => $v) {
+		$html .= '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="genre[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+		if ($i % 4 == 0) {
+			$html .= '</tr><tr>';
+		}
+		$i++;
+	}
+	$html .= '</tr>';
+	$html .= '</table>';
+	$html .= '</dd>';
+	$html .= '<dt>目的</dt>';
+	$html .= '<dd>';
+	$html .= '<table><tr>';
+	$i = 1;
+	foreach ($purpose as $k => $v) {
+		$html .= '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="purpose[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+		if ($i % 4 == 0) {
+			$html .= '</tr><tr>';
+		}
+		$i++;
+	}
+	$html .= '</tr></table>';
+	$html .= '</dd>';
+	$html .= '</dl>';
+
+	$html .= '<div class="submit" style="text-align:center;"><input type="submit" value="店舗検索" /></div>';
+	$html .= '</form>';
+
+	return $html;
+}

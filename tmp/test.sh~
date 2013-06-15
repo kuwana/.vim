@@ -1,6 +1,8 @@
-#!/bin/sh
-if [ " $1" = "kuwana" ] ; then
-	echo "tensai!"
-else
-	echo "none"
-fi
+#!/bin/bash
+
+while read i
+do
+	sed 's/\///g' | sed 's/^\.//g'
+done
+
+exit 0

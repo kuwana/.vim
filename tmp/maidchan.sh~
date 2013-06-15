@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# TODO: 秒指定と分指定を分ける
+#       ランダムでメイドちゃんのコメントを表示する
+#       コメントに応じて画像を変える（喜怒哀楽）
+
+(notify-send -i maidchan "タイマーを$1分で設定しました〜！"
+
+sleep $1m && notify-send -i maidchan "時間です♪" "$1分経ちました〜！" && aplay /usr/lib/libreoffice/share/gallery/sounds/apert.wav > /dev/null 2> /dev/null) &

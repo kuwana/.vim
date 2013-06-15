@@ -91,17 +91,28 @@ alias l='ls -CF'
 
 # Add alias by takuya
 alias gvim='gvim --remote-tab'
-alias jexec='/home/takuya/dev/jexec.sh'
+alias jexec='/home/takuya/dev/shell/jexec.sh'
 alias peep='/home/takuya/apps/peep/peep'
 alias play='/home/takuya/dev/play-2.0.4/play'
 alias idm='wine /home/takuya/Dropbox/idm/IDM.exe &'
 alias javadoc='w3m -F http://docs.oracle.com/javase/jp/6/api/'
 alias phpmanual='w3m -F http://www.php.net/manual/ja/'
+alias errorlog='tail -f /var/log/apache2/error.log'
+alias accesslog='tail -f /var/log/apache2/access.log'
+alias yp='pwd | xsel -i'
+alias count='ls -l | wc -l'
+alias lsdu='ls -a | sudo xargs du -sh'
+alias rejpg='/home/takuya/dev/shell/alias.sh'
+alias readimg='/home/takuya/dev/shell/read_image.sh'
+alias libreoffice="libreoffice $1 &"
+alias gip='wget -q -O - ipcheck.ieserver.net; echo -e "\n"' # Get global IP
+
 
 # ssh
 alias si-media='ssh kuwana@si-media.biz'
 alias 6219ub='ssh root@www6219ub.sakura.ne.jp'
 alias 12313ue='ssh kuwana@www12313ue.sakura.ne.jp'
+alias bar='/home/takuya/dev/shell/bar-1.4/bar'
 
 # env
 # gisty

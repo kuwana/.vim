@@ -1,0 +1,121 @@
+<?php
+/**
+ * Template Name: ekupo-top
+ */
+
+get_header();
+the_post();
+?>
+	<div id="contents">
+		<dl class="dl_queryVars01 clearfix">
+			<dt>ジャンル：</dt>
+			<dd><ul>
+				<li>すべて</li>
+				<li>グルメ</li>
+				<li>美容</li>
+				<li>レジャー</li>
+				<li>旅行</li>
+			</ul></dd>
+		</dl>
+		<ul class="ul_queryVars01 clearfix">
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn01.jpg" alt="タイムセールクーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn02.jpg" alt="お試しクーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn03.jpg" alt="通常クーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn04.jpg" alt="無双クーポン" /></a></li>
+		</ul>
+		<div id="main">
+			<ul class="ul_entryList01 clearfix">
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>17時&#12316;18時限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_trials">お試しクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_80peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+			</ul>
+			<ul class="ul_entryList02 clearfix">
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_trials">お試しクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_80peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_trials">お試しクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_80peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_trials">お試しクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_80peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+				<li>
+					<p class="p_entryTitle01 style_timesales">タイムセールクーポン<span>グルメ</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="store_top.html"><img src="wp-content/themes/twentyeleven/images/ui/s0216a.jpg" /></a></li>
+						<li><img src="wp-content/themes/twentyeleven/images/ui/img_50peroff01.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="store_top.html">串焼き・もつ鍋黒田 新宿店</a></h3>ああああああああああああああああああああああああああああああああああああああああ</li>
+					</ul>
+				</li>
+			</ul>
+		<!-- /#main --></div>
+	<!-- /#contents --></div>
+<?php get_footer(); ?>

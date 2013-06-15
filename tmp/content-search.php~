@@ -1,0 +1,80 @@
+<?php
+/**
+ * The default template for displaying content
+ *
+ * @package WordPress
+ * @subpackage Twenty_Eleven
+ * @since Twenty Eleven 1.0
+ */
+?>
+<?php // 画像
+echo 'testsetstsetste';
+echo _search_result_tpl($post);
+/*
+$attachmentids = array();
+$guid_urls = array();
+$imgdata = get_post_meta($post->ID, "fudoimg1", true);
+$sql = '';
+$metas = '';
+$sql .=  "SELECT P.ID,P.guid";
+$sql .=  " FROM $wpdb->posts as P";
+$sql .=  " WHERE P.post_type ='attachment' AND P.guid LIKE '%/$imgdata' ";
+$metas = $wpdb->get_row( $sql );
+
+if( !empty($metas) ){
+	$attachmentids  =  $metas->ID;
+	$guid_url  =  $metas->guid;
+}
+//thumbnail、medium、large、full
+$mainimg = wp_get_attachment_image_src( $attachmentids, 'medium');
+//var_dump($mainimg);
+
+
+// アクセス
+	$access   = get_post_meta($post->ID, 'tochisetsudomaguchi1', true);
+// ふりがな
+	$ruby     = get_post_meta($post->ID, 'kakakushikibiki', true);
+// 営業時間
+	$opentime = get_post_meta($post->ID, 'tatemononobeyukamenseki', true);
+// 平均予算
+	$budget   = get_post_meta($post->ID, 'kakakukoushin', true);
+	switch($budget) {
+		case 'u1000': $budget = '1000円以下'; break;
+		case 'u2000': $budget = '2000円以下'; break;
+		case 'u3000': $budget = '3000円以下'; break;
+		case 'u4000': $budget = '4000円以下'; break;
+		case 'u5000': $budget = '5000円以下'; break;
+		case 'u6000': $budget = '6000円以下'; break;
+		case 'u7000': $budget = '7000円以下'; break;
+		case 'u8000': $budget = '8000円以下'; break;
+		case 'u9000': $budget = '9000円以下'; break;
+		case 'u10000': $budget = '10000円以下'; break;
+		case 'a10000': $budget = '10000円以上'; break;
+	}
+?>
+
+<!-- ul class="ul_searchList01 clearfix" -->
+<?php //$store_url = get_bloginfo('url') . '?post_type=fudo&p=' . $post->ID; ?>
+<?php $store_url = get_bloginfo('url') . '/' . $post->post_name . '.html'; ?>
+	<li>
+		<p class="p_searchTitle01 style_timesales">
+			<span>グルメ</span>
+			<p class="ruby01"><?php echo $ruby; ?></p>
+			<h2 class="search-title">
+				<a href="<?php echo $store_url; ?>"><?php the_title(); ?></a>
+			</h2>
+			<p id="imgmain" style="text-align: center;"><img src="<?php echo $mainimg[0]; ?>"></p>
+		</p>
+		<ul class="ul_entryListDesc01 clearfix">
+			<li>
+				<h3><a href="<?php echo $store_url; ?>"><?php echo $meta_title; ?></a></h3>
+				<dl>
+					<dt>アクセス</dt><dd><?php echo $access;   ?></dd>
+					<dt>営業時間</dt><dd><?php echo $opentime; ?></dd>
+					<dt>平均予算</dt><dd><?php echo $budget;   ?></dd>
+				</dl>
+			</li>
+		</ul>
+	</li>
+<!-- /ul -->
+ */?>

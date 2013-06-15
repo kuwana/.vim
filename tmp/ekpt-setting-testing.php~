@@ -1,0 +1,25 @@
+<?php
+// 本来
+define ('EKPTDEF_HOME', 'https://town-dev-money.smartec.co.jp/') ;
+// ベータ時 
+// define ('EKPTDEF_HOME', 'http://cms04.ekupo.jp/') ;
+// 本来
+define ('EKPTDEF_HOMEAPICHECKTOKEN', 'https://town.ekupo.jp/Api/checkToken') ;
+// ベータ時 
+// define ('EKPTDEF_HOMEAPICHECKTOKEN', 'http://cms04.ekupo.jp/Api/checkToken') ;
+define ('EKPTDEF_GFHOME', '/') ;
+define ('EKPTDEF_API', '/api/ekpt/') ;
+define ('EKPTDEF_TRADEAPI', '/api/ekpttrade/') ;
+define ('EKPTDEF_GFAPI', 'http://ekptgfapi04.ekupo.jp/') ;
+define ('EKPTDEF_LOGIN', 'http://loginpanel-dev.smartec.co.jp/') ;
+#define ('EKPTDEF_GFAPI', 'http://mktg.ekupo.jp/gfapi');
+define ('EKPTDEF_USER', 1) ;
+define ('EKPTDEF_IMAGEHOME', 'wp-content/uploads/ekpt/itemimages/') ;
+define ('EKPTDEF_ICONHOME', 'wp-content/themes/ekpt/images/icons1209/') ;
+define ('EKPTDEF_CCHOME', 'http://mktg.ekupo.jp/cc/') ;
+define ('EKPTDEF_GUIDEHOME', 'http://tutorial.ekupo.jp/guide/') ;
+define ('EKPTDEF_HOMEITEM_MSG01', 'ガチャを引いてGET力を強化しよう！！！') ;
+define ('EKPTDEF_GIFT_LINK', 'http://tutorial.ekupo.jp/guide/') ;
+define ('EKPTDEF_CC_HOME', 'http://mktg.ekupo.jp/cc/') ;
+define ('EKPTDEF_TOWN_IMG_CACHE', 'http://town.ekupo.jp/cache' );
+define ('EKPTDEF_COUPON_GUIDE', 'http://tutorial.ekupo.jp/campaign/opening/couponlist.php');

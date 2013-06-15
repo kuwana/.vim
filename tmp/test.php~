@@ -1,30 +1,9 @@
 <?php
 
-class FizzBuzz {
+$a = array('name' => 'takuya', 'age' => 27, 'tall' => 164, 'IQ' => 200);
+$b = array('kuwana takuya');
+$d = array('rarararara');
 
-	public static function main($argv) {
+$c = array_merge($a, $b, $d);
 
-		// $argc => コマンドライン引数の数
-		// $argv => コマンドライン引数が格納された配列
-
-		for ($i = 1; $i <= $argv; $i++) {
-
-			if ($i % 3 == 0 && $i % 5 == 0) {
-				echo "fizzbuzz\n";
-			}
-			else if ($i % 3 == 0) {
-				echo "fizz\n";
-			}
-			else if ($i % 5 == 0) {
-				echo "buzz\n";
-			}
-			else {
-				echo $i . "\n";
-			}
-
-		}
-	}
-}
-
-
-FizzBuzz::main($argv[1]);
+var_export( $c );

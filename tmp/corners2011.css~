@@ -86,7 +86,7 @@ a:active { color: #666; }  /* 選択中のリンク */
 
 #branding { border: none; z-index: 0;}
 
-#branding img { border-top: 3px solid #4A535D; }
+#branding img { /* border-top: 3px solid #4A535D; */ }
 
 #branding hgroup {
 	margin: 0 0 0 10px;
@@ -96,7 +96,7 @@ a:active { color: #666; }  /* 選択中のリンク */
 
 #branding #searchform {
 	right: 2.5%;
-	top: 1.5em;
+	/* top: 1.5em; */
 }
 #branding #s {
 	font-size: 12px;
@@ -1145,26 +1145,10 @@ text-indent:10px;}
 		display: table;
 		width: 100%;
 	}
-		#tabs>ul>li {
-			display: table-cell;
-			padding: 0.5em 0;
-			background: #e2e2e2; /* Old browsers */
-			/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-			background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UyZTJlMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2RiZGJkYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZWZlZmUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-			background: -moz-linear-gradient(top,  #e2e2e2 0%, #dbdbdb 50%, #fefefe 100%); /* FF3.6+ */
-			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(50%,#dbdbdb), color-stop(100%,#fefefe)); /* Chrome,Safari4+ */
-			background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Chrome10+,Safari5.1+ */
-			background: -o-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Opera 11.10+ */
-			background: -ms-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* IE10+ */
-			background: linear-gradient(to bottom,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* W3C */
-			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-8 */
-			border: 1px solid #ddd;
-			border-radius: 5px;
-			text-align: center;
-		}
 	#tabs>div {
 		margin-top: 1em;
 	}
+
 #tabcontainer {
 	overflow: hidden;
 	padding-top: 4em;
@@ -1185,49 +1169,6 @@ text-indent:10px;}
 	margin: 0 auto;
 }
 
-#tabAreaA p {
-	margin-right: 330px;
-}
-
-#tabAreaA ul {
-	display: table;
-}
-	#tabAreaA ul li {
-		display: table-cell;
-		padding: 0 10px;
-		width: 25%;
-		vertical-align: top;
-	}
-
-#tabAreaA .subtitlebar {
-	padding: 0.5em 0;
-}
-
-#tabAreaA .tblDetail {
-	overflow: hidden;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-}
-	#tabAreaA .tblDetail dt {
-		width: 25%;
-		float: left;
-		clear: left;
-		padding: 0.8em 0 0.8em 1%;
-		background-color: #ffc;
-		border-right: 1px solid #ddd;
-		border-bottom: 1px solid #ddd;
-	}
-	#tabAreaA .tblDetail dd {
-		margin-left: 26%;
-		padding: 0.8em 0 0.8em 1%;
-		border-right: 1px solid #ddd;
-		border-bottom: 1px solid #ddd;
-	}
-#tabAreaA #imgmain {
-	float: right;
-	margin: 0;
-	width: 300px;
-}
 #gmap-canvas {
 	width: 100%;
 	height: 400px;
@@ -1277,6 +1218,7 @@ text-indent:10px;}
 .active {
 	display: block;
 }
+/*
 #searchpage dt {
 	padding-left: 0.5em;
 	border-left: 5px solid #0c0;
@@ -1286,6 +1228,23 @@ text-indent:10px;}
 	margin: 1em 0;
 	padding-left: 2em;
 }
+*/
+#ekpSearchForm {
+	width: 100%;
+	text-align: left;
+}
+#ekpSearchForm dl dt,
+#ekpSearchForm dl dd {
+	float: left;
+}
+#ekpSearchForm dl dt {
+	width: 20%;
+}
+#ekpSearchForm dl dd {
+	width: 80%;
+	font-size: 10px;
+}
+
 
 @media only screen and (max-width: 480px) {
 	#main { padding: 0; }
@@ -1302,30 +1261,11 @@ text-indent:10px;}
 		width: 100%;
 	}
 
-	.tabmenus {
-		display: block;
-		padding: 0.5em 0 0.5em 1em;
-		background: #e2e2e2; /* Old browsers */
-		/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UyZTJlMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2RiZGJkYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZWZlZmUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-		background: -moz-linear-gradient(top,  #e2e2e2 0%, #dbdbdb 50%, #fefefe 100%); /* FF3.6+ */
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(50%,#dbdbdb), color-stop(100%,#fefefe)); /* Chrome,Safari4+ */
-		background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Chrome10+,Safari5.1+ */
-		background: -o-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Opera 11.10+ */
-		background: -ms-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* IE10+ */
-		background: linear-gradient(to bottom,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* W3C */
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-8 */
-		border: 1px solid #ddd;
-		border-radius: 5px;
-		color: #666;
-		font-size: 100%;
-	}
-
 	#mainColumn { width: 95%; }
 	.mainInfo { float: none; width: 100%; font-size: 85%; }
 	.mainInfo dt { float: none; width: 100%; }
 	.mainInfo dd { margin-left: 0; }
-
+/*
 	#tabs { font-size: 85%; }
 	#tabs>ul { display: none; }
 	#tabs>ul>li { display: block; }
@@ -1339,6 +1279,7 @@ text-indent:10px;}
 	#tabAreaA #imgmain { float: none; margin: 0 auto; }
 	#tabAreaA #imgsub1,
 	#tabAreaA #imgsub2 { text-align: center; }
+	*/
 }
 @media only screen and (max-width: 767px) {
 	#main { padding: 0; }
@@ -1346,30 +1287,11 @@ text-indent:10px;}
 	.storeIcons { float: none; overflow: hidden; margin: 0 auto 20px; }
 /*	.storeIndex { margin-bottom: 20px; }*/
 
-	.tabmenus {
-		display: block;
-		padding: 0.5em 0 0.5em 1em;
-		background: #e2e2e2; /* Old browsers */
-		/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UyZTJlMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2RiZGJkYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZWZlZmUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-		background: -moz-linear-gradient(top,  #e2e2e2 0%, #dbdbdb 50%, #fefefe 100%); /* FF3.6+ */
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(50%,#dbdbdb), color-stop(100%,#fefefe)); /* Chrome,Safari4+ */
-		background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Chrome10+,Safari5.1+ */
-		background: -o-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Opera 11.10+ */
-		background: -ms-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* IE10+ */
-		background: linear-gradient(to bottom,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* W3C */
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-8 */
-		border: 1px solid #ddd;
-		border-radius: 5px;
-		color: #666;
-		font-size: 100%;
-	}
-
 	#mainColumn { width: 95%; }
 	.mainInfo { float: none; width: 100%; }
 	.mainInfo dt { float: none; width: 100%; }
 	.mainInfo dd { margin-left: 0; }
-
+/*
 	#tabs>ul { display: none; }
 	#tabs>ul>li { display: block; }
 	#tabcontainer>ul>li { width: 14.3%; }
@@ -1382,40 +1304,17 @@ text-indent:10px;}
 	#tabAreaA #imgmain { float: none; margin: 0 auto; }
 	#tabAreaA #imgsub1,
 	#tabAreaA #imgsub2 { text-align: center; }
+	*/
 }
 @media only screen and (max-width: 970px) {
 	#main { padding: 0; }
 	.storeContents { width: 100%; }
 	.storeIcons { float: none; overflow: hidden; margin: 0 auto 20px; }
-/*	.storeIndex { margin-bottom: 20px; }*/
-
-	.tabmenus {
-		padding: 0.5em 0 0.5em 1em;
-		background: #e2e2e2; /* Old browsers */
-		/* IE9 SVG, needs conditional override of 'filter' to 'none' */
-		background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2UyZTJlMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iI2RiZGJkYiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmZWZlZmUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-		background: -moz-linear-gradient(top,  #e2e2e2 0%, #dbdbdb 50%, #fefefe 100%); /* FF3.6+ */
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2e2e2), color-stop(50%,#dbdbdb), color-stop(100%,#fefefe)); /* Chrome,Safari4+ */
-		background: -webkit-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Chrome10+,Safari5.1+ */
-		background: -o-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* Opera 11.10+ */
-		background: -ms-linear-gradient(top,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* IE10+ */
-		background: linear-gradient(to bottom,  #e2e2e2 0%,#dbdbdb 50%,#fefefe 100%); /* W3C */
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-8 */
-		border: 1px solid #ddd;
-		border-radius: 5px;
-		color: #666;
-		font-size: 100%;
-	}
 
 	#mainColumn { width: 95%; }
 	.mainInfo { float: none; width: 100%; }
 	.mainInfo dt { float: none; width: 100%; }
 	.mainInfo dd { margin-left: 0; }
-/*
-	#tabs>ul { position: static; }
-	#tabs>ul>li { display: block; }
-	#tabcontainer>ul>li { width: 14.3%; }
-*/
 	#tabAreaA p { margin: 0 0 20px 0; }
 	#tabArea ul { margin-bottom: 20px; }
 	#tabAreaA .tblDetail dt { float: none; width: 100%; }
@@ -1424,3 +1323,4 @@ text-indent:10px;}
 	#tabAreaA #imgsub1,
 	#tabAreaA #imgsub2 { text-align: center; }
 }
+

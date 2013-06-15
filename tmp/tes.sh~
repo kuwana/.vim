@@ -1,6 +1,16 @@
-#!/bin/sh
-if [ " $1" = "kuwana" ] ; then
-	echo "tensai!"
-else
-	echo "none"
-fi
+#!/bin/bash
+
+for i in {1..100}
+do
+	echo -e "\r\c"
+	echo -e "($i%)\c"
+	for ((j=0;j<i;j++))
+	do
+		echo -e "=\c"
+	done
+	echo -e ">\c"
+
+	sleep 0.05
+done
+
+echo -e "\n"

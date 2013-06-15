@@ -1,0 +1,251 @@
+/* HTML5 Elements html5のリセット
+------------------------------*/
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+body {
+    line-height:1;
+}
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+    display:block;
+}
+nav ul {
+    list-style:none;
+}
+blockquote, q {
+    quotes:none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content:'';
+    content:none;
+}
+a {
+    margin:0;
+    padding:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+/* change colours to suit your needs */
+ins {
+    background-color:#ff9;
+    color:#000;
+    text-decoration:none;
+}
+/* change colours to suit your needs */
+mark {
+    background-color:#ff9;
+    color:#000;
+    font-style:italic;
+    font-weight:bold;
+}
+del {
+    text-decoration: line-through;
+}
+abbr[title], dfn[title] {
+    border-bottom:1px dotted;
+    cursor:help;
+}
+table {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+/* change border colour to suit your needs */
+hr {
+    display:block;
+    height:1px;
+    border:0;
+    border-top:1px solid #cccccc;
+    margin:1em 0;
+    padding:0;
+}
+input, select {
+    vertical-align:middle;
+}
+
+/* Reseting タグのリセット
+------------------------------*/
+ul, ol {
+	list-style-type: none;
+}
+
+/* Reset Modules モジュールのリセット
+------------------------------*/
+/* Clearfix
+------------------------------*/
+.clearfix { zoom: 1; }
+.clearfix:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+/* Layout 大枠のレイアウト
+------------------------------*/
+#wrapper {
+	margin: 0 auto;
+	background-image: url(images/bg_common01.png);
+	width: 80%;
+	line-height: 1.6;
+	font-size: 16px;
+}
+
+/* header
+------------------------------*/
+#logo {
+	float: left;
+}
+#catchcopy {
+	float: left;
+	margin-left: 5%;
+	width: 50%;
+	height: 3em;
+	line-height: 3em;
+	color: #273;
+	font-size: 110%;
+	font-weight: bold;
+}
+#topics {
+	float: left;
+	width: 34%;
+	font-size: 80%;
+}
+.ul_topics01 {
+	overflow: hidden;
+}
+	.ul_topics01 li {
+		float: left;
+		width: 30%;
+		line-height: 100%;
+		margin: 7px 0;
+		border-left: 2px solid #666;
+		text-align: center;
+	}
+	.ul_topics01 li:first-child {
+		border: none;
+	}
+.searchBox01 {
+	width: 20em;
+	height: 2em;
+	border: 1px solid #999;
+}
+.searchBtn01 {
+	display: inline-block;
+	padding: 0 1em;
+	height: 2.7em;
+	background-color: #999;
+	color: #fcfcfc;
+	line-height: 2.5em;
+	font-size: 85%;
+	text-align: center;
+}
+
+/* gNavi
+------------------------------*/
+#gNavi {
+	overflow: hidden;
+	padding-left: 3%;
+	margin-bottom: 1em;
+	background-image: url(../img/bg/woodBtn_bg.png);
+}
+#gNavi li {
+	float: left;
+	width: 16%;
+	height: 3em;
+	border-left: 2px solid #666;
+	line-height: 3em;
+	text-align: center;
+	color: #666;
+	font-weight: bold;
+}
+/* breadcolumns
+------------------------------*/
+/* mainimg
+------------------------------*/
+/* contents
+------------------------------*/
+/* page Top ページトップへボタン
+------------------------------*/
+/* footer
+------------------------------*/
+#footer {
+	background-color: #666;
+	position: relative;
+}
+#footer p {
+	position: absolute;
+	background-color: #333333;
+	font-size: 80%;
+	color: #ffffff;
+	padding: 5px;
+	padding-left: 30px;
+	top: 0;
+	right: 15px;
+}
+#footer p a {
+	color: #dddddd;
+	text-decoration: none;
+}
+
+#footer address {
+	padding-bottom: 1em;
+	color: #fcfcfc;
+	text-align: center;
+	font-size: 60%;
+}
+.ul_queryVars02 {
+	margin-bottom: 1em;
+}
+.ul_queryVars02 li {
+	float: left;
+	width: 13%;
+	font-size: 84%;
+	margin: 0 2%;
+	color: #fcfcfc;
+}
+.ul_queryVars02 > li:nth-child(5) {
+	padding-left: 1em;
+	border-left: 1px solid #dddddd;
+}
+.ul_queryVars02 li dt {
+	padding-left: 5%;
+	margin: 0.5em 0 1em 0;
+	border-left: 4px solid #ddd;
+}
+.ul_queryVars02 li li {
+	float: none;
+	width: 100%;
+	font-size: 70%;
+}
+.ul_queryVars02 li li a,
+.ul_queryVars02 li li a:visited {
+	color: #ddd;
+}
+
+/* h(n)eading
+------------------------------*/
+/* Listing
+------------------------------*/
+/* Table
+------------------------------*/
+/* Section 汎用性のあるボックス
+------------------------------*/

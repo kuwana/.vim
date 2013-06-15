@@ -1,0 +1,9 @@
+<?php
+
+define ('EKPTDEF_HOME', 'http://cms04.ekupo.jp/') ;
+define ('EKPTDEF_HOMEAPICHECKTOKEN', 'http://cms04.ekupo.jp/Api/checkToken') ;
+define ('EKPTDEF_GFHOME', '/') ;
+define ('EKPTDEF_API', '/api/ekpt/') ;
+define ('EKPTDEF_GFAPI', 'http://ekptgfapi.www6219ub.sakura.ne.jp/') ;
+define ('EKPTDEF_USER', 1) ;
+

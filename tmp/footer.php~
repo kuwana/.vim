@@ -1,0 +1,235 @@
+<?php
+/**
+ * The template for displaying the footer.
+ *
+ * Contains the closing of the id=main div and all content after
+ *
+ * @package WordPress
+ * @subpackage Twenty_Eleven
+ * @since Twenty Eleven 1.0
+ */
+?>
+
+	</div><!-- #main -->
+
+	<footer id="colophon" role="contentinfo">
+	<div id="footer">
+		<p><a href="#"><?php echo $post->post_title; ?>のトップへ</a></p>
+		<ul class="ul_queryVars02 clearfix">
+			<li><dl>
+				<dt>エリアから探す</dt>
+				<dd><ul>
+				<?php
+					//固定ページのスラッグ(親小関係含む)からページを取得
+					$ikbrosa     = get_page_by_path('region/ikebukuro/ikbrosa');
+					$ikbmetro    = get_page_by_path('region/ikebukuro/ikbmetro');
+					$ikbyamada   = get_page_by_path('region/ikebukuro/ikbyamada');
+					$ikbjunku    = get_page_by_path('region/ikebukuro/ikbjunku');
+					$snjwest     = get_page_by_path('region/shinjuku/snjwest');
+					$snjkabuki   = get_page_by_path('region/shinjuku/snjkabuki');
+					$snjsanchome = get_page_by_path('region/shinjuku/snjsanchome');
+					$shibuya     = get_page_by_path('region/shibuya');
+					$others      = get_page_by_path('region/others');
+					//ページIDからURLを取得
+					$rosaURL     = get_bloginfo('url') . '/' . $ikbrosa->post_name . '.html';
+					$metroURL    = get_bloginfo('url') . '/' . $ikbmetro->post_name . '.html';
+					$yamadaURL   = get_bloginfo('url') . '/' . $ikbyamada->post_name . '.html';
+					$junkuURL    = get_bloginfo('url') . '/' . $ikbjunku->post_name . '.html';
+					$westURL     = get_bloginfo('url') . '/' . $snjwest->post_name . '.html';
+					$kabukiURL   = get_bloginfo('url') . '/' . $snjkabuki->post_name . '.html';
+					$sanchomeURL = get_bloginfo('url') . '/' . $snjsanchome->post_name . '.html';
+					$shibuyaURL  = get_bloginfo('url') . '/' . $shibuya->post_name . '.html';
+					$othersURL   = get_bloginfo('url') . '/' . $others->post_name . '.html';
+				?>
+					<li><a href="<?php echo $rosaURL    ;?>">ロサ会館周辺</a></li>
+					<li><a href="<?php echo $metroURL   ;?>">メトロポリタン周辺</a></li>
+					<li><a href="<?php echo $yamadaURL  ;?>">ヤマダ電機総本店周辺</a></li>
+					<li><a href="<?php echo $junkuURL   ;?>">ジュンク堂周辺</a></li>
+					<li><a href="<?php echo $westURL    ;?>">新宿西口周辺</a></li>
+					<li><a href="<?php echo $kabukiURL  ;?>">歌舞伎町周辺</a></li>
+					<li><a href="<?php echo $sanchomeURL;?>">新宿三丁目周辺</a></li>
+					<li><a href="<?php echo $shibuyaURL ;?>">渋谷周辺</a></li>
+					<li><a href="<?php echo $othersURL  ;?>">その他</a></li>
+				</ul></dd>
+			</dl></li>
+			<li><dl>
+				<dt>ジャンルから探す</dt>
+				<dd><ul>
+				<?php
+					//固定ページのスラッグ(親小関係含む)からページを取得
+					$izakaya    = get_page_by_path('genre/izakaya-daining');
+					$bar        = get_page_by_path('genre/bar');
+					$japanese   = get_page_by_path('genre/japanese');
+					$western    = get_page_by_path('genre/western');
+					$chinese    = get_page_by_path('genre/chinese');
+					$asia       = get_page_by_path('genre/asia-multinational');
+					$cafe       = get_page_by_path('genre/cafe-gourmet');
+					$hair       = get_page_by_path('genre/hair-beauty');
+					$relax      = get_page_by_path('genre/relaxation');
+					$other      = get_page_by_path('genre/other');
+					//ページIDからURLを取得
+					$izakayaURL = get_bloginfo('url') . '/' . $izakaya->post_name . '.html';
+					$barURL     = get_bloginfo('url') . '/' . $bar->post_name . '.html';
+					$japanURL   = get_bloginfo('url') . '/' . $japanese->post_name . '.html';
+					$westURL    = get_bloginfo('url') . '/' . $western->post_name . '.html';
+					$chineURL   = get_bloginfo('url') . '/' . $chinese->post_name . '.html';
+					$asiaURL    = get_bloginfo('url') . '/' . $asia->post_name . '.html';
+					$cafeURL    = get_bloginfo('url') . '/' . $cafe->post_name . '.html';
+					$hairURL    = get_bloginfo('url') . '/' . $hair->post_name . '.html';
+					$relaxURL   = get_bloginfo('url') . '/' . $relax->post_name . '.html';
+					$otherURL   = get_bloginfo('url') . '/' . $other->post_name . '.html';
+				?>
+					<li><a href="<?php echo $izakayaURL ; ?>">居酒屋・ダイニングバー</a></li>
+					<li><a href="<?php echo $barURL     ; ?>">バー</a></li>
+					<li><a href="<?php echo $japanURL   ; ?>">和食</a></li>
+					<li><a href="<?php echo $westURL    ; ?>">洋食</a></li>
+					<li><a href="<?php echo $chineURL   ; ?>">中華・ラーメン</a></li>
+					<li><a href="<?php echo $asiaURL    ; ?>">アジア・焼肉・多国籍</a></li>
+					<li><a href="<?php echo $cafeURL    ; ?>">カフェ・その他グルメ</a></li>
+					<li><a href="<?php echo $hairURL    ; ?>">ヘアーサロン・美容健康</a></li>
+					<li><a href="<?php echo $relaxURL   ; ?>">リラクゼーション</a></li>
+					<li><a href="<?php echo $otherURL   ; ?>">その他の業種</a></li>
+				</ul></dd>
+			</dl></li>
+			<li><dl>
+				<dt>目的から探す</dt>
+				<dd><ul>
+				<?php
+					//固定ページのスラッグ(親小関係含む)からページを取得
+					$private       = get_page_by_path('purpose/private-room');
+					$date          = get_page_by_path('purpose/date');
+					$party         = get_page_by_path('purpose/party');
+					$smoking       = get_page_by_path('purpose/non-smoking');
+					$buffet        = get_page_by_path('purpose/buffet');
+					$bottomless    = get_page_by_path('purpose/bottomless-cup');
+					$always        = get_page_by_path('purpose/always-open');
+					$lunch         = get_page_by_path('purpose/lunch');
+					$reception     = get_page_by_path('purpose/reception');
+					$alone         = get_page_by_path('purpose/alone');
+					$memorial      = get_page_by_path('purpose/memorial');
+					$cuthair       = get_page_by_path('purpose/cut-hair');
+					$cultivate     = get_page_by_path('purpose/cultivate');
+					$healling      = get_page_by_path('purpose/healing');
+					$entertainment = get_page_by_path('purpose/entertainment');
+					//
+					$privateURL       = get_bloginfo('url') . '/' . $private->post_name . '.html';
+					$dateURL          = get_bloginfo('url') . '/' . $date->post_name . '.html';
+					$partyURL         = get_bloginfo('url') . '/' . $party->post_name . '.html';
+					$smokingURL       = get_bloginfo('url') . '/' . $smoking->post_name . '.html';
+					$buffURL          = get_bloginfo('url') . '/' . $buffet->post_name . '.html';
+					$bottomURL        = get_bloginfo('url') . '/' . $bottomless->post_name . '.html';
+					$alwaysURL        = get_bloginfo('url') . '/' . $always->post_name . '.html';
+					$lunchURL         = get_bloginfo('url') . '/' . $lunch->post_name . '.html';
+					$receptionURL     = get_bloginfo('url') . '/' . $reception->post_name . '.html';
+					$aloneURL         = get_bloginfo('url') . '/' . $alone->post_name . '.html';
+					$memorialURL      = get_bloginfo('url') . '/' . $memorial->post_name . '.html';
+					$cuthairURL       = get_bloginfo('url') . '/' . $cuthair->post_name . '.html';
+					$cultivateURL     = get_bloginfo('url') . '/' . $cultivate->post_name . '.html';
+					$heallingURL      = get_bloginfo('url') . '/' . $healling->post_name . '.html';
+					$entertainmentURL = get_bloginfo('url') . '/' . $entertainment->post_name . '.html';
+				?>
+					<li><a href="<?php echo $privateURL      ; ?>">完全個室</a></li>
+					<li><a href="<?php echo $dateURL         ; ?>">デートに最適</a></li>
+					<li><a href="<?php echo $partyURL        ; ?>">宴会・パーティ</a></li>
+					<li><a href="<?php echo $smokingURL      ; ?>">禁煙席あり</a></li>
+					<li><a href="<?php echo $buffURL         ; ?>">食べ放題あり</a></li>
+					<li><a href="<?php echo $bottomURL       ; ?>">飲み放題あり（3時間以上）</a></li>
+					<li><a href="<?php echo $alwaysURL       ; ?>">深夜営業（24時間以降）</a></li>
+					<li><a href="<?php echo $lunchURL        ; ?>">ランチがある</a></li>
+					<li><a href="<?php echo $receptionURL    ; ?>">接待に最適</a></li>
+					<li><a href="<?php echo $aloneURL        ; ?>">お一人様歓迎</a></li>
+					<li><a href="<?php echo $memorialURL     ; ?>">記念日</a></li>
+					<li><a href="<?php echo $cuthairURL      ; ?>">髪を切る</a></li>
+					<li><a href="<?php echo $cultivateURL    ; ?>">自分をみがく</a></li>
+					<li><a href="<?php echo $heallingURL     ; ?>">癒されたい</a></li>
+					<li><a href="<?php echo $entertainmentURL; ?>">エンターテイメント</a></li>
+				</ul></dd>
+			</dl></li>
+			<li><dl>
+				<dt>予算から探す</dt>
+				<dd><ul>
+				<?php
+					//固定ページのスラッグ(親小関係含む)からページを取得
+					$u1000  = get_page_by_path('budget/u1000');
+					$u2000  = get_page_by_path('budget/u2000');
+					$u3000  = get_page_by_path('budget/u3000');
+					$u4000  = get_page_by_path('budget/u4000');
+					$u5000  = get_page_by_path('budget/u5000');
+					$u6000  = get_page_by_path('budget/u6000');
+					$u7000  = get_page_by_path('budget/u7000');
+					$u8000  = get_page_by_path('budget/u8000');
+					$u9000  = get_page_by_path('budget/u9000');
+					$u10000 = get_page_by_path('budget/u10000');
+					$a10000 = get_page_by_path('budget/a10000');
+					//ページIDからURLを取得
+					$u1000URL  = get_bloginfo('url') . '/' . $u1000->post_name . '.html';
+					$u2000URL  = get_bloginfo('url') . '/' . $u2000->post_name . '.html';
+					$u3000URL  = get_bloginfo('url') . '/' . $u3000->post_name . '.html';
+					$u4000URL  = get_bloginfo('url') . '/' . $u4000->post_name . '.html';
+					$u5000URL  = get_bloginfo('url') . '/' . $u5000->post_name . '.html';
+					$u6000URL  = get_bloginfo('url') . '/' . $u6000->post_name . '.html';
+					$u7000URL  = get_bloginfo('url') . '/' . $u7000->post_name . '.html';
+					$u8000URL  = get_bloginfo('url') . '/' . $u8000->post_name . '.html';
+					$u9000URL  = get_bloginfo('url') . '/' . $u9000->post_name . '.html';
+					$u10000URL = get_bloginfo('url') . '/' . $u10000->post_name . '.html';
+					$a10000URL = get_bloginfo('url') . '/' . $a10000->post_name . '.html';
+				?>
+					<li><a href="<?php echo $u1000URL ; ?>">1000円未満</a></li>
+					<li><a href="<?php echo $u2000URL ; ?>">1001-2000円</a></li>
+					<li><a href="<?php echo $u3000URL ; ?>">2001-3000円</a></li>
+					<li><a href="<?php echo $u4000URL ; ?>">3001-4000円</a></li>
+					<li><a href="<?php echo $u5000URL ; ?>">4001-5000円</a></li>
+					<li><a href="<?php echo $u6000URL ; ?>">5001-6000円</a></li>
+					<li><a href="<?php echo $u7000URL ; ?>">6001-7000円</a></li>
+					<li><a href="<?php echo $u8000URL ; ?>">7001-8000円</a></li>
+					<li><a href="<?php echo $u9000URL ; ?>">8001-9000円</a></li>
+					<li><a href="<?php echo $u10000URL; ?>">9001-10000円</a></li>
+					<li><a href="<?php echo $a10000URL; ?>">10001円以上</a></li>
+				</ul></dd>
+			</dl></li>
+			<li><dl>
+				<dt>エクポについて</dt>
+				<dd><ul>
+				<?php
+					// スラッグからリンク作成
+					$links     = get_page_by_path('links');
+					$sitepo    = get_page_by_path('sitepolicy');
+					$privapo   = get_page_by_path('privacypolicy');
+					$terms     = get_page_by_path('terms');
+					$company   = get_page_by_path('company');
+					$sitemap   = get_page_by_path('sitemap');
+					$contact   = get_page_by_path('contactus');
+					$resign    = get_page_by_path('resignation');
+
+					$linksURL     = get_bloginfo('url') . '/' . $links->post_name . '.html';
+					$sitepoURL    = get_bloginfo('url') . '/' . $sitepo->post_name . '.html';
+					$privapoURL   = get_bloginfo('url') . '/' . $privapo->post_name . '.html';
+					$termsURL     = get_bloginfo('url') . '/' . $terms->post_name . '.html';
+					$companyURL   = get_bloginfo('url') . '/' . $company->post_name . '.html';
+					$sitemapURL   = get_bloginfo('url') . '/' . $sitemap->post_name . '.html';
+					$contactURL   = get_bloginfo('url') . '/' . $contact->post_name . '.html';
+					$resignURL    = get_bloginfo('url') . '/' . $resign->post_name . '.html';
+					$exca_rdsfURL = 'http://exca.co-site.jp/exca_rdsf.html';
+				?>
+					<li><a href="<?php bloginfo('url'); ?>">ホーム</a></li>
+					<li><a href="<?php echo $linksURL    ; ?>">リンクについて</a></li>
+					<li><a href="<?php echo $sitepoURL   ; ?>">サイトポリシー</a></li>
+					<li><a href="<?php echo $privapoURL  ; ?>">プライバシーポリシー</a></li>
+					<li><a href="<?php echo $termsURL    ; ?>">利用規約</a></li>
+					<li><a href="<?php echo $companyURL  ; ?>">運営会社</a></li>
+					<li><a href="<?php echo $sitemapURL  ; ?>">サイトマップ</a></li>
+					<li><a href="<?php echo $contactURL  ; ?>">お問い合わせ</a></li>
+					<li><a href="<?php echo $resignURL   ; ?>">退会する</a></li>
+					<li><a href="<?php echo $exca_rdsfURL; ?>">加盟店画面へ</a></li>
+				</ul></dd>
+			</dl></li>
+			<!-- /.ul_queryVars02 --></ul>
+		<address>Copyright&copy; GOOD STAFF Inc. All Rights Reseved. -エクポ事務局-</address>
+	<!-- /#footer --></div>
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+<?php wp_footer(); ?>
+
+</body>
+</html>

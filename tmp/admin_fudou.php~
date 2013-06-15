@@ -853,17 +853,10 @@ function my_fudo_column($column){
 	global $wpdb;
 	global $wp_rewrite;
 
-	if ($column == 'category') {
-		echo 'aaa';
-	}
 	$rewrite_code = $wp_rewrite->rewritecode;
 	$rewrite_replace = $wp_rewrite->rewritereplace;
 	$query_replace = $wp_rewrite->queryreplace;
 	$extra_permastructs = $wp_rewrite->extra_permastructs;
-	//echo '<pre>';
-	//print_r($extra_permastructs);
-	//echo '</pre>';
-	//print_r($rewrite_replace);
 
 /*
 	$img_path = get_option('upload_path');
@@ -1000,7 +993,7 @@ function my_fudo_column($column){
 	}
  */
 }
-add_action('manage_posts_custom_column', 'my_fudo_column');
+//add_action('manage_posts_custom_column', 'my_fudo_column');
 
 
 
@@ -1069,7 +1062,7 @@ function shubetsu_restrict_manage_posts() {
 <?php
 	}
 }
-add_action('restrict_manage_posts', 'shubetsu_restrict_manage_posts');
+//add_action('restrict_manage_posts', 'shubetsu_restrict_manage_posts');
 
 
 
@@ -1180,7 +1173,7 @@ function shubetsu_posts_where($where) {
 
     return $where;
 }
-add_filter('posts_where', 'shubetsu_posts_where');
+//add_filter('posts_where', 'shubetsu_posts_where');
 
 
 
@@ -1248,7 +1241,7 @@ function wp_order_by_order($orderby) {
 	}
 	return $orderby;
 }
-add_filter('posts_orderby', 'wp_order_by_order');
+//add_filter('posts_orderby', 'wp_order_by_order');
 
 function wp_order_by_join( $join ){
 	if( is_admin() ) {
@@ -1259,7 +1252,7 @@ function wp_order_by_join( $join ){
 	}
 	return $join;
 }
-add_filter('posts_join', 'wp_order_by_join' );
+//add_filter('posts_join', 'wp_order_by_join' );
 
 function wp_order_by_where( $where ){
 	if( is_admin() ) {
@@ -1288,7 +1281,7 @@ function wp_order_by_where( $where ){
 	}
 	return $where;
 }
-add_filter('posts_where', 'wp_order_by_where' );
+//add_filter('posts_where', 'wp_order_by_where' );
 
 
 
@@ -1385,23 +1378,26 @@ function admin_custom_jyoutai_print($post_id) {
 	if($jyoutai_data=="9")  echo '<br />状態：削除';
 }
 
-
+/*
 add_action('init', 'myposttype_rewrite', 0);
 function myposttype_rewrite() {
 	global $wp_rewrite;
 
-	$wp_rewrite->add_rewrite_tag('%postname%', '([^/]+)', 'post_type=fudo&p=');
+	$wp_rewrite->add_rewrite_tag('%post_id%', '([^/]+)', 'post_type=fudo&p=');
 	$wp_rewrite->add_permastruct('fudo', '/%postname%.html', false);
 
 }
-add_filter('post_type_link', 'myposttype_permalink', 9, 3);
+add_filter('post_type_link', 'myposttype_permalink', 1, 3);
 function myposttype_permalink($post_link, $id = 0, $leavename) {
 	global $wp_rewrite;
 	global $wpdb;
-	$wp_rewrite->flush_rules();
+//	$wp_rewrite->flush_rules();
 	$post = &get_post($id);
+
 	if ( is_wp_error( $post ) )
 		return $post;
+
+	error_log($post_link);
 	//$sql = "SELECT meta_value FROM $wpdb->postmeta WHERE post_id = $post->ID AND meta_key = 'kaiin'";
 	//$alias = $wpdb->get_row($sql);
 	//var_dump($post);
@@ -1412,4 +1408,192 @@ function myposttype_permalink($post_link, $id = 0, $leavename) {
 	//var_dump($newlink);
 	return $newlink;
 }
+ */
+
+// 固定ページを検索結果から除外
+function adminSearchFilter() {
+	global $wp_query, $wp;
+}
+add_filter('restrict_manage_posts','adminSearchFilter');
+
+// 店舗更新時に.htaccessのリライトを更新
+function rewrite_alias() {
+
+	include ABSPATH . '/alias.php';
+}
+add_action('publish_fudo', 'rewrite_alias');
+
+/**
+ * 店舗更新時にエクポタウンへの新規店舗追加APIを叩く
+ */
+function set_storeinfo_to_town() {
+
+	global $wpdb;
+
+	$base_url = ekpt_get_opt('EKPTHOME') ;
+
+	// TODO: jsでバリデーション
+	//
+	// 新規店舗作成API
+	if ( isset($_POST['post_name']) && isset($_POST['post_title']) && isset($_POST['furigana']) ) {
+
+		// ショップIDがDBにあるかチェック
+		//
+		//$sql  = "SELECT PM.meta_value FROM $wpdb->posts AS P";
+		//$sql .= " INNER JOIN $wpdb->postmeta AS PM ON P.ID = PM.post_id ";
+		//$sql .= " WHERE P.ID = '%d' AND PM.meta_key = 'kaiin'";
+		//$sql = $wpdb->prepare($sql, $_POST['post_ID']);
+		//$meta = $wpdb->get_row( $sql );
+
+		$meta = get_post_meta($_POST['post_ID'], 'kaiin');
+		if ($meta)
+			$shop_id = $meta[0];
+		else
+			$shop_id = false;
+
+		if ( ! $shop_id ) {
+			$urldef = 'Api/createShopData';
+			$param = array(
+				'alias'      => $_POST['post_name'],
+				'shop_name'  => $_POST['post_title'],
+				'shop_kana'  => $_POST['furigana'],
+				'intro_text' => isset($_POST['excerpt']) ? $_POST['excerpt'] : '-'
+			);
+			$createShop = ekpt_get_json($urldef, $param, $base_url);
+
+			// DBへ
+			if ( isset($createShop['status']) == 'success' ) {
+				$shop_id = $createShop['shop_id']; // shop_id
+
+				$ok = add_post_meta($_POST['post_ID'], 'kaiin', $wpdb->escape($shop_id));
+				if ( ! $ok) return;
+			}
+		}
+	}
+
+	// 店舗詳細情報セットAPI
+	if ( $shop_id ) {
+
+		$urldef = 'Api/setShopData';
+
+		// 画像
+		$uploadimg  = wp_upload_dir();
+		$imgpath    = $uploadimg['path'];
+		$uploadimg  = '@' . $imgpath . '/' . $_POST['fudoimg1'] . ';type=image/jpg';
+
+		// エリア
+		if ( isset($_POST['tax_input']['bukken'][1]) ) {
+			$wp_area_id = $_POST['tax_input']['bukken'][1];
+		} else {
+			$wp_area_id = 0;
+		}
+		switch ( $wp_area_id ) {
+			case 6: case 14:
+				$area_id = 4; break; // 新宿東
+			case 15:
+				$area_id = 5; break; // 新宿三丁目
+			case 13:
+				$area_id = 4; break; // 新宿西
+			case 5: case 11: case 12:
+				$area_id = 1; break; // 池袋東
+			case 10: case 9:
+				$area_id = 4; break; // 池袋西
+			case 8:
+				$area_id = 6; break; // 上野
+			case 7:
+				$area_id = 7; break; // 渋谷
+			default:
+				$area_id = 0; // その他、高田馬場
+		}
+		// 平均予算
+		switch ( $_POST['budget'] ) {
+			case 'u1000' : $budget_id = 1;  break;
+			case 'u2000' : $budget_id = 2;  break;
+			case 'u3000' : $budget_id = 3;  break;
+			case 'u4000' : $budget_id = 4;  break;
+			case 'u5000' : $budget_id = 5;  break;
+			case 'u6000' : $budget_id = 6;  break;
+			case 'u7000' : $budget_id = 7;  break;
+			case 'u8000' : $budget_id = 8;  break;
+			case 'u9000' : $budget_id = 9;  break;
+			case 'u10000': $budget_id = 10; break;
+			case 'a10000': $budget_id = 11; break;
+		}
+		// ジャンル
+		switch ( $_POST['genre'] ) {
+			case 'izakaya-daining':    $category_id = 1;  break;
+			case 'bar':                $category_id = 2;  break;
+			case 'japanese':           $category_id = 3;  break;
+			case 'western':            $category_id = 4;  break;
+			case 'chinese':            $category_id = 5;  break;
+			case 'asia-multinational': $category_id = 6;  break;
+			case 'cafe-gourmet':       $category_id = 7;  break;
+			case 'hair-beauty':        $category_id = 8;  break;
+			case 'relaxation':         $category_id = 9;  break;
+			case 'leisure-amusement':  $category_id = 10; break;
+			case 'other':              $category_id = 11; break;
+		}
+		// アドレス
+		if ( isset($_POST['address1']) || isset($_POST['address2']) ) {
+			$address = $_POST['address1'];
+			if ( $_POST['address2'] != '' ) {
+				$address .= ' ' . $_POST['address2'];
+			}
+		} else {
+			$address = '-';
+		}
+		$param = array(
+			'id'                => $shop_id,
+			'shop_image'        => $uploadimg,
+			'area_id'           => $area_id,
+			'budget_id'         => $budget_id,
+			'category_id'       => $category_id,
+			'is_published'      => 1,
+			'shop_name'         => !empty($_POST['post_title']) ? $_POST['post_title'] : '-',
+			'shop_kana'         => !empty($_POST['furigana']) ? $_POST['furigana'] : '-',
+			'intro_text'        => !empty($_POST['exerpt']) ? $_POST['exerpt'] : '-',
+			'detail_text'       => !empty($_POST['gallerytext']) ? $_POST['gallerytext'] : '-',
+			'coupon_valid_date' => '0000-00-00 00:00:00',
+			'captions'          => '1,2,3,4,5,6,7',
+			'tel_no'            => !empty($_POST['telnumber']) ? $_POST['telnumber'] : '-',
+			'zip_code'          => !empty($_POST['zipcode']) ? $_POST['zipcode'] : '-',
+			'address'           => $address,
+			'opening'           => !empty($_POST['shophours']) ? $_POST['shophours'] : '-',
+			'holiday'           => !empty($_POST['shopholiday']) ? $_POST['shopholiday'] : '-',
+			'url'               => !empty($_POST['hpurl']) ? $_POST['hpurl'] : '-',
+			'budget'            => !empty($_POST['average']) ? $_POST['average'] : '-',
+			'credit'            => !empty($_POST['credit']) ? $_POST['credit'] : '-',
+			'all_seats'         => !empty($_POST['seats']) ? $_POST['seats'] : '-',
+			'smoking'           => !empty($_POST['nonsmoking']) ? $_POST['nonsmoking'] : '-',
+			'bottomless_cup'    => !empty($_POST['aycd']) ? $_POST['aycd'] : '-',
+			'access'            => !empty($_POST['acceess']) ? $_POST['acceess'] : '-',
+			'last_order'        => '-',
+			'can_contact_time'  => !empty($_POST['contact']) ? $_POST['contact'] : '-',
+			'private_room'      => !empty($_POST['single']) ? $_POST['single'] : '-',
+			'max_persons'       => !empty($_POST['capacity']) ? $_POST['capacity'] : '-',
+			'charter'           => !empty($_POST['reserved']) ? $_POST['reserved'] : '-',
+			'tatami'            => !empty($_POST['tatami']) ? $_POST['tatami'] : '-',
+			'horigotatsu'       => !empty($_POST['horigotatsu']) ? $_POST['horigotatsu'] : '-',
+			'buffet'            => !empty($_POST['ayce']) ? $_POST['ayce'] : '-',
+			'disability'        => !empty($_POST['impediment']) ? $_POST['impediment'] : '-',
+			'use_mobile'        => !empty($_POST['mobile']) ? $_POST['mobile'] : '-',
+			'family'            => !empty($_POST['family']) ? $_POST['family'] : '-',
+			'wedding'           => !empty($_POST['wedding']) ? $_POST['wedding'] : '-',
+			'second_party'      => !empty($_POST['afterparty']) ? $_POST['afterparty'] : '-',
+			'notes'             => !empty($_POST['notes']) ? $_POST['notes'] : '-'
+		);
+		$setShop = ekpt_get_json($urldef, $param, $base_url);
+	}
+}
+add_action('publish_fudo', 'set_storeinfo_to_town');
+
+// .htaccessのリライト更新後のメッセージ
+function rewrite_alias_message() {
+
+	$css = 'div#message:after {content: ".htaccessの書き込みが成功しました。"\;}';
+	echo '<style type="text/css">' . $css . '</style>';
+}
+add_action('add_meta_boxes_fudo', 'rewrite_alias_message');
+
+
 ?>

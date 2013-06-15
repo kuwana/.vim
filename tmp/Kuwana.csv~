@@ -1,0 +1,81 @@
+"CMS Log In",,,,,,,,,,,,,
+"exca.jp","admin","exca_good_manager",,,,,"exca.jp/manager",,,,
+"GoodStuffシフト","11815","14578476",,,,,,,,,
+"tk2000ex/modx","admin","mink0512",,,,,,,,,
+"K&K","admin","zeirishi",,,,,,,,,
+"tk2000ex/xoops","admin","onitacos",,,,,,,,,
+"tk2000ex/wordpress","admin","mink0512","Tak","Password2","mink0512",,,,,
+"EC-CUBE @kagoya","admin","mink0512",,,,,,,,"EC-CUBE管理画面にログイン。
+システム管理者（桑名）のアカウント。
+このシステムを受け渡す時はメンバーを追加する。",
+"local/WordPress","takuya","mink0512",,,,,"http://localhost/wordpress/wp-admin/",,,,
+"ekpt_wp/wordpress","admin","Burex803",,,,,"localhost/ekpt_wp/wp-admin",,,,
+"mktg/wordpress","ekptadmin","gstaff2012",,,,,,,,"本ちゃんコンテストサイトのWordPressログイン",
+"Server Log In",,,,,,,,,,,,,
+"さくらVPS関連",,,,,,,,,,,,,
+"さくらVPS＠GS","IPアドレス","49.212.151.87","yexv7ma3bg","host","www12313ue.sakura.ne.jp",,,,"https://secure.sakura.ad.jp/vpscontrol/main/",,"システムチームでRedmine使う為に作ったサーバー
+passはルートのもの",
+"mysql","root","system",,,,,,,,"mysql のユーザーとパスワード
+redmineは確かrootでやっちゃったっかも",
+"Redmine","redmine","system","ログインuser","admin","ログインpass","gstaff_system",,,,,
+"さくらVPS＠kuwana","kuwana","mink0512","host","www12313ue.sakura.ne.jp",,,,,,"GS用サーバーのユーザーログイン情報(kuwana)
+",
+"gitolite","gitolite","gitolite",,,,,"http://www12313ue.sakura.ne.jp/",,,"http://www12313ue.sakura.ne.jp/のgitoliteユーザー情報",
+"@pages","kuwanatakuya","bZ5KRXmQYN7wBV",,,,,"http://www28.atpages.jp/kuwanatakuya/",,,"管理画面
+http://atpages.jp/admin/login.php",
+"XREA.COM","tk2000ex","6uGDsgHsLSbo",,,"pass","6bH67ICMFKao ",,,,,
+"VALUE DOMAIN","kuwanatakuya","onitacos",,,,,"https://www.value-domain.com/login.php",,,,
+"tk2000ex@m29.coreserver.jp","tk2000ex","6bH67ICMFKao",,,"phpMyAdmin Pass","mink0512",,,,"ftp/ssh接続時の",
+"ロリポップDB情報","DB host name","mysql523.phy.lolipop.jp","heft094inch132","DB login name","LAA0021375","DB name","LAA0021375-harvest",,,,"鈴木さんのサーバーのDB情報",
+"ロリポップ情報","user","parallel.jp-harvest-moon","heft094inch132","host","users148.lolipop.jp",,,,,,,
+"tk2000ex_mcc","tk2000ex_mcc","gstaff0315",,,,,,,,"coreserverのMCCシステムで使うMySQLアカウント",
+"gstaff","gstaff.co.jp","gjvalue",,,,,,,,,
+"netowl.jp","kuwana01","mink0512",,,,,,"tk2000ex@gmail.com",,"サーバ：ミニバード",
+"mini bird","admin@kuwana.trial.jp","mink0512",,,,,"https://secure.netowl.jp/minibird/panel/?action_user_ftp_index=true&did=19158",,,"mini bird　のFTP接続情報
+mysql も同じ",
+"スマイルサーバー","admin@exca.jp","excavalue",,"u11854",,"excaexca",,,,"sm-x310v.smileserver.ne.jp",
+"コンテストサイト","wordpress","Burex803",,,,,"php.www6219ub.sakura.ne.jp",,,"エクポタウンのコンテストサイト検証環境情報",
+"Hosting",,,,,,,,,,,,,
+"github","kuwana","mink0512","username","kuwana",,,"http://guthub.com","tk2000ex@gmail.com",,"画像登録のGravatarも同じく",
+"Heroku","tk2000ex@gmail.com","mink0512",,,,,,,,,
+"confluence","kuwana","mink0512","username","kuwana takuya",,,,"tk2000ex@gmail.com",,"http://confluence.atlassian.co.jp/dashboard.action",
+"xp-dev","kuwana","mink0512",,,,,"http://xp-dev.com/scs/172837","tk2000ex@gmail",,"subversionのリポジトリ",
+"unfuddle","kuwana","mink0512",,,,,"https://kuwana.unfuddle.com/a?signup_complete=private#/projects/1","tk2000ex@gmail.com",,"フリーのSVNリポジトリ",
+"Localhost",,,,,,,,,,,,,
+"MySQL","admin","mink0512",,,,,,,,"ローカルのMySQL5.5のAdmin権限
+root操作のすべての権限 + ",
+"Virtual CentOS",,,,,,,,,,,,,
+"mysql root","root","onitacos",,,,,,,,,
+"mysql takuya","takuya","mink0512",,,,,,,,"virtual box(なぜかパスワードが自動生成される)
+cent os
+mysql
+	user: takuya
+	pass: 5a08361262f824e9
+
+
+権限の確認
+show grants for ユーザー名@ホスト名 ¥G",
+"OS Login","root","root Password","onitacos","takuya","user Password","mink0512",,,,"VirtualBoxにインストールしたCentOS",
+"その他",,,,,,,,,,,,,
+"ORACLEアカウント","tk2000ex@gmail.com ","Mink0512",,,,,,,,,
+"OBISNEO","10443","7b122d65",,,,,"http://192.168.1.200:8888",,,"社内ネットワーク上で
+
+藤井優子としてログイン",
+"My SoftBank","Phone Number","08030840996","mink0512",,,,,,,,"旧：C32xCpmC",
+"茶漬けフォーラム","namaimoe","onitacos",,,,,,"the-mink@i.softbank.jp",,,
+"Operaアカウント","tk2000ex","mink0512",,,,,,,,"Opera Linkにつかうアカウント情報",
+"Lancers","tk2000ex","mink0512",,,,,"http://www.lancers.jp/profile/tk2000ex","tk2000ex@gmail.com",,,
+"My EMOBILE","gt_onitacos@emobile.ne.jp","onitacos",,,,,,,,,
+"JRA","加入者番号","66214284","P-ARS番号","6105","ITEN-ID","GE31WPW9","password","2150",,,,"I-PAT ログイン",
+"EC-CUBEメンバー","tk2000ex@gmail.com","mink0512",,,,,,,,,
+"skype","skype名","kuwana_takuya","mink0512",,,,,,,,,
+"エクポタウン","gt_onitacos@yahoo.co.jp","mink0512",,,,,,"tk2000ex@gmail.com",,"旧： 3wP1uA3M",
+"Backlog@エクポ運用","kuwana","mink0512",,,,,,,,"エクポ運用のBacklogログイン",
+"Backlog@smartec","gs_kuwana","mink0512",,,,,"https://smartwb.backlog.jp/MyPage.action",,,,
+"CLIP","gt_onitacos@yahoo.co.jp","mink0512",,,,,"http://www.clip-studio.com/",,,"創作活動応援サイト",
+"LogMeIn","tk2000ex@gmail.com","onitacos",,,,,"https://secure.logmein.com",,,"VPNソフトウェア「Hamachi」のアカウント",
+"Banking",,,,,,,,,,,,,
+"三菱UFJダイレクト","契約番号","2388221598","IBパスワード","tk2000ex@",,,,,,,,,
+"UCカード","fdxx0543","onitacos",,,,,,,,"アットユーネットのログイン",
+"ファミマTカードネットサービス","T会員番号","9072902009767213","2150",,,,,,,,,
+"みずほダイレクト","55720423","mink0512","第2暗証番号","612898",,,,,,,

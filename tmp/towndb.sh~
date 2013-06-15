@@ -1,0 +1,22 @@
+#/bin/sh -x
+date
+HOME=/home/takuya
+cd $HOME/dev/tmp
+rm -f $HOME/dev/tmp/P_*.sql
+
+ftp -n smtcekpt01.sakura.ne.jp << _EOF_
+user smtcekpt01 p9bkaragfg
+bin
+lcd /home/takuya/tmp
+cd ~/ekptown
+get db.zip
+bye
+_EOF_
+
+unzip db.zip
+
+mysql -h 127.0.0.1 -u ro
+t -p wp2 < $HOME/tmp/P_wp2.sql
+mysql -h 127.0.0.1 -u root -p ekptown < $HOME/tmp/P_ekptown.sql
+mysql -h 127.0.0.1 -u root -p affilicodeplus < $HOME/tmp/P_affilicodeplus.sql
+mysql -h 127.0.0.1 -u root -p ekptgfapi < $HOME/tmp/P_ekptgfapi.sql

@@ -1,0 +1,122 @@
+<?php
+/**
+ * Template Name: ekupo-searchResult
+ */
+
+get_header();
+the_post();
+?>
+	<h2 id="contentsTitle">今すぐ使えるお得なクーポンを探す</h2>
+	<div id="contents">
+		<dl class="dl_queryVars01 clearfix">
+			<dt>ジャンル：</dt>
+			<dd>
+				<ul>
+					<li>すべて</li>
+					<li>グルメ</li>
+					<li>美容</li>
+					<li>レジャー</li>
+					<li>旅行</li>
+					<li id="detailSearch">詳細検索</li>
+				</ul>
+			</dd>
+			<dt></dt>
+			<dd>
+				<div id="ekpSearchForm">
+				<?php
+					/*
+					$page = get_page_by_path('search');
+					echo get_permalink($page->ID);
+					 */
+					// 検索フォーム
+					global $wpdb;
+					$sql = '';
+					$sql .= "SELECT T.term_id, T.name, T.slug, TT.parent";
+					$sql .= " FROM $wpdb->terms AS T";
+					$sql .= " INNER JOIN $wpdb->term_taxonomy AS TT";
+					$sql .= " ON T.term_id = TT.term_id";
+					$sql .= " WHERE TT.taxonomy = 'bukken'";
+					$metas = $wpdb->get_results($sql, ARRAY_A);
+					//echo '<h3>店舗選定'.$shub_txt.'</h3>';
+					//echo 'ご希望の条件を選択して下さい(複数可)<br />';
+
+					$site = site_url( '/' );
+					echo '<form method="get" id="searchpage" name="searchpage" action="'.$site.'" >';
+					echo '<input type="hidden" name="bukken" value="jsearch" >';
+					echo '<dl>';
+					echo '<dt>ポイント</dt>';
+					echo '<dd><input type="checkbox" id="point" name="point" value="point"><label for="point">ポイント導入店舗</label></dd>';
+					echo '<dt>エリア</dt>';
+					echo '<dd><select name="region">';
+					echo '<option value="none">こだわらない</option>';
+					foreach ($metas as $v) {
+						if ($v['parent'] === 0)  continue;
+						echo '<option value="'.$v["slug"].'">'.$v["name"].'</option>'."\n";
+					}
+					echo '</select></dd>';
+					echo '<dt>予算</dt>';
+					echo '<dd><select name="budget">';
+					echo '<option value="none">こだわらない</option>';
+					foreach ($budget as $k => $v) {
+						echo '<option value="'.$k.'">'.$v.'</option>'."\n";
+					}
+					echo '</select></dd>';
+					echo '<dt>ジャンル</dt>';
+					echo '<dd>';
+					echo '<table>';
+					echo '<tr>';
+					$i = 1;
+					foreach ($genre as $k => $v) {
+						echo '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="genre[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+						if ($i % 4 == 0) {
+							echo '</tr><tr>';
+						}
+						$i++;
+					}
+					echo '</tr>';
+					echo '</table>';
+					echo '</dd>';
+					echo '<dt>目的</dt>';
+					echo '<dd>';
+					echo '<table><tr>';
+					$i = 1;
+					foreach ($purpose as $k => $v) {
+						echo '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="purpose[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+						if ($i % 4 == 0) {
+							echo '</tr><tr>';
+						}
+						$i++;
+					}
+					echo '</tr></table>';
+					echo '</dd>';
+					echo '</dl>';
+
+					echo '<div class="submit" style="text-align:center;"><input type="submit" value="店舗検索" /></div>';
+					echo '</form>';
+
+				?>
+				</div>
+			</dd>
+		</dl>
+		<ul class="ul_queryVars01 clearfix">
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn01.jpg" alt="タイムセールクーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn02.jpg" alt="お試しクーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn03.jpg" alt="通常クーポン" /></a></li>
+			<li><a href="store_top.html"><img src="<?php bloginfo('template_directory'); ?>/images/ui/mainbtn04.jpg" alt="無双クーポン" /></a></li>
+		</ul>
+		<div id="main">
+			<?php the_content(); ?>
+		</div>
+	<!-- /#contents --></div>
+
+<script type="text/javascript">
+(function($) {
+	$(function(){
+		$('#ekpSearchForm').hide();
+	    $('#detailSearch').click(function(){
+	        $('#ekpSearchForm').slideToggle('normal');
+	    });
+	});
+})(jQuery);
+</script>
+<?php get_footer(); ?>

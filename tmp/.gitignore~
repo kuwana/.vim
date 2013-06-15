@@ -1,2 +1,11 @@
 /wp-config.php
 /tags
+/alias.php
+/.htaccess
+/wp-content/uploads
+/wp-content/plugins/ekpt-setting.php
+/wp-content/plugins/reloadr-for-wp/
+/wp-content/themes/twentyeleven/ekptlog.txt
+/sitemap.xml
+/sitemap.xml.gz
+

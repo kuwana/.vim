@@ -1,0 +1,315 @@
+<?php
+get_header();
+the_post();
+global $wpdb, $lb_purpose, $lb_genre, $lb_budget;
+$datas = array();
+$cpdatas1 = $cpdatas2 = array();
+$res_slc = array();
+$cpn_text = '';
+$pager = '';
+
+$glbres = isset($_SESSION['glbres']) ? $_SESSION['glbres'] : '';
+$perPage = 9;
+$viewPageMenuWidth = 10;
+$offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+$cpn_type = isset($_GET['ctype']) ? $_GET['ctype'] : '10';
+$cpn_label = array('10' => 'お試しクーポン', '20' => 'タイムセールクーポン', '5' => '通常クーポン');
+$cpn_styles = array('10' => 'style_trials', '20' => 'style_timesales', '5' => 'style_commons');
+$cpn_class_names = array('10' => 'trials', '20' => 'timesales', '5' => 'commons');
+$jdatas = get_coupon_list();
+$dcdatas = json_decode($jdatas,true);
+if ($jdatas) {
+	$datas = $dcdatas['data']['coupons'];
+}
+foreach ($datas as $v) {
+	if ($v['coupon_status'] == '11')    continue;
+	if ($cpn_type == $v['rtc_type']) {
+		$rtc_type[] = (int)$v['rtc_type'];
+		$discount_pct[] = (int)$v['rtc_discount_pct'];
+		$cpdatas1[] = $v;
+	}
+	if ($v['rtc_type'] == '10') {
+		$cpdatas2[] = $v;
+	}
+}
+shuffle($cpdatas1);
+//array_multisort($rtc_type, SORT_DESC, SORT_NUMERIC, $cpdatas1);
+$pager = ekpt_pager('page', count($cpdatas1), $perPage, $viewPageMenuWidth);
+$cpdatas_slc = array_slice($cpdatas1, $offset, $perPage);
+
+if ($cpn_type == '5') {
+	$q = "
+		SELECT P.post_title, P.post_name, PM.post_id, PM.meta_key, PM.meta_value
+		FROM wp_posts P INNER JOIN wp_postmeta PM ON P.ID = PM.post_id
+		WHERE P.post_status = 'publish'
+		AND P.post_type = 'fudo'
+		AND PM.meta_key IN ('kakaku', 'shikibesu', 'jyoutai')
+		AND PM.meta_value <> ''
+		ORDER BY P.post_name, PM.meta_key
+		";
+	$wp_res = $wpdb->get_results($q, ARRAY_A);
+	$prv = '';
+	foreach ($wp_res as $data) {
+		if ($prv != $data['post_name']) {
+			$res[] = $data;
+			$prv = $data['post_name'];
+		}
+	}
+	if (!$offset) {
+		shuffle($res);
+		$glbres = $_SESSION['glbres'] = $res;
+	}
+	$pager = ekpt_pager('page', count($glbres), $perPage, $viewPageMenuWidth);
+	$res_slc = array_slice($glbres, $offset, $perPage);
+}
+?>
+	<h2 id="contentsTitle">今すぐ使えるお得なクーポンを探す</h2>
+	<div id="contents">
+		<dl class="dl_queryVars01 clearfix">
+			<dt>ジャンル：</dt>
+			<dd>
+				<ul>
+					<li><a href="all.html">すべて</a></li>
+					<li><a href="izakaya-daining.html">居酒屋・ダイニングバー</a></li>
+					<li><a href="bar.html">バー(bar)</a></li>
+					<li><a href="japanese.html">和食</a></li>
+					<li><a href="western.html">洋食</a></li>
+					<li><a href="chinese.html">中華・ラーメン</a></li>
+					<li><a href="asia-multinational.html">アジア・焼き肉・多国籍</a></li>
+					<li><a href="cafe-gourmet.html">カフェ・その他グルメ</a></li>
+					<li><a href="hair-beauty.html">ヘアーサロン・美容健康</a></li>
+					<li><a href="relaxation.html">リラクゼーション</a></li>
+					<li><a href="other.html">その他業種</a></li>
+					<li id="detailSearch">詳細検索</li>
+				</ul>
+			</dd>
+			<dt></dt>
+			<dd>
+				<div id="ekpSearchForm">
+				<?php
+					/*
+					$page = get_page_by_path('search');
+					echo get_permalink($page->ID);
+					 */
+					// 検索フォーム
+					global $wpdb;
+					$sql = '';
+					$sql .= "SELECT T.term_id, T.name, T.slug, TT.parent";
+					$sql .= " FROM $wpdb->terms AS T";
+					$sql .= " INNER JOIN $wpdb->term_taxonomy AS TT";
+					$sql .= " ON T.term_id = TT.term_id";
+					$sql .= " WHERE TT.taxonomy = 'bukken'";
+					$metas = $wpdb->get_results($sql, ARRAY_A);
+					//echo '<h3>店舗選定'.$shub_txt.'</h3>';
+					//echo 'ご希望の条件を選択して下さい(複数可)<br />';
+
+					$site = site_url( '/' ) . 'search.html';
+					echo '<form method="get" id="searchpage" name="searchpage" action="'.$site.'" >';
+					echo '<input type="hidden" name="bukken" value="jsearch" >';
+					echo '<dl>';
+					echo '<dt>ポイント</dt>';
+					echo '<dd><input type="checkbox" id="point" name="point" value="point" checked><label for="point">ポイント導入店舗</label></dd>';
+					echo '<dt>エリア</dt>';
+					echo '<dd><select name="region">';
+					echo '<option value="none">こだわらない</option>';
+					foreach ($metas as $v) {
+						if ($v['parent'] === 0)  continue;
+						echo '<option value="'.$v["slug"].'">'.$v["name"].'</option>'."\n";
+					}
+					echo '</select></dd>';
+					echo '<dt>予算</dt>';
+					echo '<dd><select name="budget">';
+					echo '<option value="none">こだわらない</option>';
+					foreach ($lb_budget as $k => $v) {
+						echo '<option value="'.$k.'">'.$v.'</option>'."\n";
+					}
+					echo '</select></dd>';
+					echo '<dt>ジャンル</dt>';
+					echo '<dd>';
+					echo '<table>';
+					echo '<tr>';
+					$i = 1;
+					foreach ($lb_genre as $k => $v) {
+						echo '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="genre[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+						if ($i % 4 == 0) {
+							echo '</tr><tr>';
+						}
+						$i++;
+					}
+					echo '</tr>';
+					echo '</table>';
+					echo '</dd>';
+					echo '<dt>目的</dt>';
+					echo '<dd>';
+					echo '<table><tr>';
+					$i = 1;
+					foreach ($lb_purpose as $k => $v) {
+						echo '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="purpose[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
+						if ($i % 4 == 0) {
+							echo '</tr><tr>';
+						}
+						$i++;
+					}
+					echo '</tr></table>';
+					echo '</dd>';
+					echo '</dl>';
+
+					echo '<div class="submit" style="text-align:center;"><input type="submit" value="店舗検索" /></div>';
+					echo '</form>';
+
+				?>
+				</div>
+			</dd>
+		</dl>
+		<ul class="ul_queryVars01 clearfix">
+			<li><a class="style_trials" href="?ctype=10">お試しクーポン</a></li>
+			<li><a class="style_timesales" href="?ctype=20">タイムセールクーポン</a></li>
+			<li><a class="style_commons" href="?ctype=5">通常クーポン</a></li>
+			<li><a class="style_point" href="//mktg.ekupo.jp/cc/ekp2ymd/" target="_blank">ポイント交換</a></li>
+		</ul>
+		<div id="main">
+			<ul class="ul_entryList01 clearfix">
+			<?php
+				if (isset($discount_pct)) {
+					array_multisort($discount_pct, SORT_DESC, SORT_NUMERIC, $cpdatas2);
+				}
+				for ($i = 0; $i < 2; $i++) :
+					$cpn = $cpdatas2[$i];
+					$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $cpn['shop_alias']);
+					$pid = $wpdb->get_var($q1);
+					$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title = %s", $cpn['shop_alias'].'oblong');
+					$aid = $wpdb->get_var($q2);
+					$genre = get_post_meta($pid, 'madorisyurui', true);
+					$genre = $lb_genre[$genre];
+					$src = wp_get_attachment_image_src($aid, 'original');
+					$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
+					if ($cpn['rtc_type'] == '10') {
+						if ($cpn['rtc_discount_pct']) {
+							$lblimg = 'coupon_trial_'.$cpn['rtc_discount_pct'].'per.png';
+						} else {
+							$lblimg = 'coupon_trial_plain.png';
+						}
+						$st = 'trials';
+						$ctype = 'お試しクーポン';
+						$cond = '初回利用限定！';
+
+					} else if ($cpn['rtc_type'] == '20') {
+						if ($cpn['rtc_discount_pct']) {
+							$lblimg = 'coupon_timesale_'.$cpn['rtc_discount_pct'].'per.png';
+						} else {
+							$lblimg = 'coupon_timesale_plain.png';
+						}
+						$st = 'timesales';
+						$ctype = 'タイムセールクーポン';
+						$cond = $cpn['mc_date_time_start'].'&#12316;'.$cpn['mc_date_time_end'].'限定！';
+					}
+					$classname = $cpn_class_names[$cpn['rtc_type']];
+					$txt = $cpn['date_time_text'] ? $cpn['date_time_text'] : '時間制限無し';
+					$permalink = get_bloginfo('url').'/'.$cpn['shop_alias'].'.html';
+			?>
+				<li>
+					<h3 class="<?php echo $classname; ?>"><span>&nbsp;</span><a href="<?php echo $permalink; ?>"><?php echo $cpn['shop_name']; ?></a></h3>
+					<p class="genre"><?php echo $genre; ?></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="<?php echo $permalink; ?>"><img src="<?php echo $src; ?>" /></a></li>
+						<li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /><em><?php echo $cond; ?></em></li>
+						<li class="p_entryTitle01 style_trials"><?php echo $ctype; ?></li>
+						<li class="summry"><?php echo $txt; ?></li>
+					</ul>
+				</li>
+			<?php endfor; ?>
+			</ul>
+<?php if ($cpdatas_slc) : ?>
+			<ul class="ul_entryList02 clearfix">
+			<?php foreach ($cpdatas_slc as $k => $v) :
+				$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['shop_alias']);
+				$postid = $wpdb->get_var($q1);
+				$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
+				$v['shop_alias'].'oblong', $v['shop_alias'].'a');
+				$attachid = $wpdb->get_var($q2);
+				$genre = get_post_meta($postid, 'madorisyurui', true);
+				$src = wp_get_attachment_image_src($attachid, 'original');
+				$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage.jpg';
+				if ($v['rtc_type'] == '10') {
+					if ($v['rtc_discount_pct']) {
+						$lblimg = 'coupon_trial_'.$v['rtc_discount_pct'].'per.png';
+					} else {
+						$lblimg = 'coupon_trial_plain.png';
+					}
+
+				} else if ($v['rtc_type'] == '20') {
+					if ($v['rtc_discount_pct']) {
+						$lblimg = 'coupon_timesale_'.$v['rtc_discount_pct'].'per.png';
+					} else {
+						$lblimg = 'coupon_timesale_plain.png';
+					}
+				}
+			?>
+				<li>
+          <h3 <?php echo 'class="' . $cpn_class_names[$v['rtc_type']] . '"'; ?>><span>&nbsp;</span><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><?php echo $v['shop_name']; ?></a></h3>
+					<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
+            <li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /></li>
+						<li class="p_entryTitle01 <?php echo $cpn_styles[$v['rtc_type']]; ?>"><?php echo $cpn_label[$v['rtc_type']]; ?></li>
+            <li class="cpn_description"><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></li>
+					</ul>
+				</li>
+			<?php endforeach;?>
+<?php elseif ($res_slc) : $prev_alias = ''; ?>
+			<ul class="ul_entryList02 clearfix">
+			<?php
+			foreach ($res_slc as $v) :
+				if ($prev_alias == $v['post_name']) {
+					$cpn_text = $v['meta_value'];
+					continue;
+				} else {
+					$prev_alias = $v['post_name'];
+				}
+				$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['post_name']);
+				$postid = $wpdb->get_var($q1);
+				$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
+					$v['post_name'].'oblong', $v['post_name'].'a');
+				$attachid = $wpdb->get_var($q2);
+				$genre = get_post_meta($postid, 'madorisyurui', true);
+				$src = wp_get_attachment_image_src($attachid, 'original');
+				$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage.jpg';
+				$maxlen = 60;
+				$intro = wp_trim_words($v['meta_value'], $maxlen, '　...');
+			?>
+				<li>
+						<h3 class="commons"><a href="<?php echo get_bloginfo("url").'/'.$v["post_name"].'.html'; ?>"><span>&nbsp;</span><?php echo $v['post_title']; ?></a></h3>
+						<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
+						<ul class="ul_entryListDesc01 clearfix">
+							<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
+							<p class="p_entryTitle01 style_commons">通常クーポン</p>
+							<li style="padding: 0 0.7em;font-size:12px;"><?php echo $intro ?></li>
+							<li style="padding: 0 0.7em;font-size:12px;text-align:right;"><a href="<?php echo get_bloginfo("url").'/'.$v["post_name"].'.html'; ?>">詳細へ &gt;&gt;</a></li>
+						</ul>
+				</li>
+				<!--<li>
+          <h3 <?php echo 'class="' . $cpn_class_names[$v['rtc_type']] . '"'; ?>><span>&nbsp;</span><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><?php echo $v['shop_name']; ?></a></h3>
+					<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
+            <li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /></li>
+						<li class="p_entryTitle01 <?php echo $cpn_styles[$v['rtc_type']]; ?>"><?php echo $cpn_label[$v['rtc_type']]; ?></li>
+            <li class="cpn_description"><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></li>
+					</ul>
+				</li>-->
+<?php endforeach; endif; ?>
+			</ul>
+<?php echo '<div id="pager">'.$pager.'</div>'; ?>
+		<!-- /#main --></div>
+	<!-- /#contents --></div>
+
+<script type="text/javascript">
+(function($) {
+	$(function(){
+	    $('#detailSearch').click(function(){
+	        $('#ekpSearchForm').slideToggle('fast');
+	    });
+	});
+})(jQuery);
+</script>
+<?php get_footer(); ?>

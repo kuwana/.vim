@@ -1,0 +1,95 @@
+<?php
+/**
+ * The Sidebar containing the main widget area.
+ *
+ * @package WordPress
+ * @subpackage Twenty_Eleven
+ * @since Twenty Eleven 1.0
+ */
+
+$options        = twentyeleven_get_theme_options();
+$current_layout = $options['theme_layout'];
+$ui_directory   = WP_PLUGIN_URL . '/fudou/themes/images/ui/';
+$couponImg      = WP_PLUGIN_URL . '/fudou/themes/images/';
+
+$cpdatas = array();
+$cpn_text = '';
+$jdatas = get_coupon_list();
+$dcdatas = json_decode($jdatas, true);
+$datas = $dcdatas['data']['coupons'];
+$cpn_type = isset($_GET['cpn_type']) ? $_GET['cpn_type'] : '10';
+
+foreach ($datas as $v) {
+	if ($cpn_type == $v['rtc_type']) {
+		$cpdatas[] = $v;
+	}
+}
+
+// ランダムアクセス
+shuffle($cpdatas);
+
+foreach ($cpdatas as $k => $v) :
+	if ($k == 4) {
+		break;
+	}
+	$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['shop_alias']);
+	$postid = $wpdb->get_var($q1);
+	$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_title = %s", $v['shop_alias'].'a');
+	$attachid = $wpdb->get_var($q2);
+	$genre = get_post_meta($postid, 'madorisyurui', true);
+	$src = wp_get_attachment_image_src($attachid, 'thumbnail');
+	$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage.jpg';
+
+	switch($genre) {
+		case 'izakaya-daining'   : $genre = '居酒屋・ダイニングバー'; break;
+		case 'bar'               : $genre = 'バー(bar)'; break;
+		case 'japanese'          : $genre = '和食'; break;
+		case 'western'           : $genre = '洋食'; break;
+		case 'chinese'           : $genre = '中華・ラーメン'; break;
+		case 'asia-multinational': $genre = 'アジア・焼肉・多国籍'; break;
+		case 'cafe-gourmet'      : $genre = 'カフェ‥その他グルメ(cafe)'; break;
+		case 'hair-beauty'       : $genre = 'ヘアーサロン・美容院(heir salon)'; break;
+		case 'relaxation'        : $genre = 'リラクゼーション(relaxation)'; break;
+		case 'leisure-amusement' : $genre = 'レジャー・アミューズメント(leisure)'; break;
+		case 'other'             : $genre = 'その他業種'; break;
+	}
+
+?>
+
+<?php if ( isset($v) && $v['rtc_type'] == 20 ) : // タイムセールクーポン ?>
+	<div class="div_coupon_03">
+		<h4>
+			<img src="<?php echo $ui_directory; ?>/clock.png" alt="タイムセールクーポン" />
+			タイムセールクーポン
+		</h4>
+		<p><?php echo $genre; ?></p>
+		<a href="<?php bloginfo('url') . '/' . $v['shop_alias'] . '.html'; ?>">
+			<img src="<?php echo $src; ?>" alt="" />
+		</a>
+		<p class="discount_store_name">
+		<div class="discount">
+				<img src="<?php echo $ui_directory; ?>/coupon_timesale_<?php echo $v['rtc_discount_pct']; ?>per.png" alt="<?php echo $v['rtc_discount_pct']; ?>" />
+		</div>
+		<div class="store_name"><a href="<?php bloginfo('url') . '/' . $v['shop_alias'] . '.html'; ?>"><?php echo $v['shop_name']; ?></a></div>
+		</p>
+		<p><?php echo $v['date_time_text']; ?></p>
+	</div>
+<?php elseif ( isset($v) && $v['rtc_type'] == 10 ) : // おためしクーポン ?>
+	<div class="div_coupon_04">
+		<h4>
+			<img src="<?php echo $ui_directory; ?>/hert.png" alt="" />
+			お試しクーポン
+		</h4>
+		<p><?php echo $genre; ?></p>
+		<a href="<?php bloginfo('url') . '/' . $v['shop_alias'] . '.html'; ?>">
+			<img src="<?php echo $src; ?>" alt="" />
+		</a>
+		<p class="discount_store_name">
+			<div class="discount">
+				<img src="<?php echo $ui_directory; ?>coupon_trial_<?php echo $v['rtc_discount_pct']; ?>per.png" alt="<?php echo $v['rtc_discount_pct']; ?>" />
+			</div>
+			<div class="store_name"><a href="<?php bloginfo('url') . '/' . $v['shop_alias'] . '.html'; ?>"><?php echo $v['shop_name']; ?></a></div>
+		</p>
+		<p><?php echo $v['date_time_text']; ?></p>
+	</div>
+<?php endif; endforeach; ?>

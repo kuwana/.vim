@@ -1,0 +1,9 @@
+-- ユーザーの動向に関するテーブル
+
+create table user_do (
+	`seq_no` bigint unsigned not null primary key auto_increment,
+	`FromMemId` int unsigned not null,
+	`ToMemId` int unsigned not null,
+	`action_type` varchar(3) not null comment 'ユーザーのアクションタイプ (L)ike ro (F)avorite',
+	`created` datetime not null
+);

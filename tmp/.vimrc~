@@ -428,6 +428,21 @@ endfunction
 
 au FileType java nmap &lt;F5> :call CompileJava()&lt;CR>
 
+"---------------------------------------------------------------------------
+" Gist-vim prefix key
+
+" List
+nnoremap <silent> ,gl :Gist -l<CR>
+" Stared List
+nnoremap <silent> ,gs :Gist -ls<CR>
+" Private Post
+nnoremap <silent> ,gp :Gist -p<CR>
+" Pablic Post
+nnoremap <silent> ,gP :Gist -P<CR>
+" Delete
+nnoremap <silent> ,gD :Gist -d<CR>
+" And more...
+" :Gist -h
 
 "---------------------------------------------------------------------------
 "unite prefix key.
@@ -484,5 +499,8 @@ endfunction"}}}
 " neocomplcache
 let g:neocomplcache_enable_at_startup = 1 " 起動時に有効化
 
+"--------------------------------------------
+" powerline
+let g:Powerline_symbols = 'fancy'
 
 " Copyright (C) 2011 KaoriYa/MURAOKA Taro

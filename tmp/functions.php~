@@ -1,780 +1,614 @@
 <?php
+/**
+ * Twenty Eleven functions and definitions
+ *
+ * Sets up the theme and provides some helper functions. Some helper functions
+ * are used in the theme as custom template tags. Others are attached to action and
+ * filter hooks in WordPress to change core functionality.
+ *
+ * The first function, twentyeleven_setup(), sets up the theme by registering support
+ * for various features in WordPress, such as post thumbnails, navigation menus, and the like.
+ *
+ * When using a child theme (see http://codex.wordpress.org/Theme_Development and
+ * http://codex.wordpress.org/Child_Themes), you can override certain functions
+ * (those wrapped in a function_exists() call) by defining them first in your child theme's
+ * functions.php file. The child theme's functions.php file is included before the parent
+ * theme's file, so the child theme functions would be used.
+ *
+ * Functions that are not pluggable (not wrapped in function_exists()) are instead attached
+ * to a filter or action hook. The hook can be removed by using remove_action() or
+ * remove_filter() and you can attach your own function to the hook.
+ *
+ * We can remove the parent theme's hook only after it is attached, which means we need to
+ * wait until setting up the child theme:
+ *
+ * <code>
+ * add_action( 'after_setup_theme', 'my_child_theme_setup' );
+ * function my_child_theme_setup() {
+ *     // We are providing our own filter for excerpt_length (or using the unfiltered value)
+ *     remove_filter( 'excerpt_length', 'twentyeleven_excerpt_length' );
+ *     ...
+ * }
+ * </code>
+ *
+ * For more information on hooks, actions, and filters, see http://codex.wordpress.org/Plugin_API.
+ *
+ * @package WordPress
+ * @subpackage Twenty_Eleven
+ * @since Twenty Eleven 1.0
+ */
 
-require_once 'ekpt-setting.php' ;
+/**
+ * Set the content width based on the theme's design and stylesheet.
+ */
+if ( ! isset( $content_width ) )
+	$content_width = 584;
 
-// 設定 稼働時には適切なものにする必要があります。
-function ekpt_get_opt( $optLabel ) {
-    $optValue = '' ;
-    if ( $optLabel == 'EKPTHOME' ) {
-        $optValue = EKPTDEF_HOME ;
-    } elseif ( $optLabel == 'EKPTHOMEAPICHECKTOKEN' ) {
-        $optValue = EKPTDEF_HOMEAPICHECKTOKEN ;
-    } elseif ( $optLabel == 'EKPTGFHOME' ) {
-        $optValue = home_url(EKPTDEF_GFHOME) ;
-    } elseif ( $optLabel == 'EKPTAPI') {
-        $optValue = home_url(EKPTDEF_API) ;
-    } elseif ( $optLabel == 'EKPTAPITRADE') {
-        $optValue = home_url(EKPTDEF_TRADEAPI) ;
-    } elseif ( $optLabel == 'EKPTGFAPI') {
-        $optValue = EKPTDEF_GFAPI;
-    } elseif ( $optLabel == 'EKPTUSER') {
-        get_currentuserinfo() ;
-        $optValue = $GLOBALS['ekpt_mem_id'] ;
-        if ( $optValue == '' ) {
-            $optValue = EKPTDEF_USER;
-        }
-    }
-	// echo '<br>' . $optLabel . '=' . $optValue ;
-    return $optValue ;
+/**
+ * Tell WordPress to run twentyeleven_setup() when the 'after_setup_theme' hook is run.
+ */
+add_action( 'after_setup_theme', 'twentyeleven_setup' );
+
+if ( ! function_exists( 'twentyeleven_setup' ) ):
+/**
+ * Sets up theme defaults and registers support for various WordPress features.
+ *
+ * Note that this function is hooked into the after_setup_theme hook, which runs
+ * before the init hook. The init hook is too late for some features, such as indicating
+ * support post thumbnails.
+ *
+ * To override twentyeleven_setup() in a child theme, add your own twentyeleven_setup to your child theme's
+ * functions.php file.
+ *
+ * @uses load_theme_textdomain() For translation/localization support.
+ * @uses add_editor_style() To style the visual editor.
+ * @uses add_theme_support() To add support for post thumbnails, automatic feed links, custom headers
+ * 	and backgrounds, and post formats.
+ * @uses register_nav_menus() To add support for navigation menus.
+ * @uses register_default_headers() To register the default custom header images provided with the theme.
+ * @uses set_post_thumbnail_size() To set a custom post thumbnail size.
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_setup() {
+
+	/* Make Twenty Eleven available for translation.
+	 * Translations can be added to the /languages/ directory.
+	 * If you're building a theme based on Twenty Eleven, use a find and replace
+	 * to change 'twentyeleven' to the name of your theme in all the template files.
+	 */
+	load_theme_textdomain( 'twentyeleven', get_template_directory() . '/languages' );
+
+	// This theme styles the visual editor with editor-style.css to match the theme style.
+	add_editor_style();
+
+	// Load up our theme options page and related code.
+	require( get_template_directory() . '/inc/theme-options.php' );
+
+	// Grab Twenty Eleven's Ephemera widget.
+	require( get_template_directory() . '/inc/widgets.php' );
+
+	// Add default posts and comments RSS feed links to <head>.
+	add_theme_support( 'automatic-feed-links' );
+
+	// This theme uses wp_nav_menu() in one location.
+	register_nav_menu( 'primary', __( 'Primary Menu', 'twentyeleven' ) );
+
+	// Add support for a variety of post formats
+	add_theme_support( 'post-formats', array( 'aside', 'link', 'gallery', 'status', 'quote', 'image' ) );
+
+	$theme_options = twentyeleven_get_theme_options();
+	if ( 'dark' == $theme_options['color_scheme'] )
+		$default_background_color = '1d1d1d';
+	else
+		$default_background_color = 'e2e2e2';
+
+	// Add support for custom backgrounds.
+	add_theme_support( 'custom-background', array(
+		// Let WordPress know what our default background color is.
+		// This is dependent on our current color scheme.
+		'default-color' => $default_background_color,
+	) );
+
+	// This theme uses Featured Images (also known as post thumbnails) for per-post/per-page Custom Header images
+	add_theme_support( 'post-thumbnails' );
+
+	// Add support for custom headers.
+	$custom_header_support = array(
+		// The default header text color.
+		'default-text-color' => '000',
+		// The height and width of our custom header.
+		'width' => apply_filters( 'twentyeleven_header_image_width', 1000 ),
+		'height' => apply_filters( 'twentyeleven_header_image_height', 288 ),
+		// Support flexible heights.
+		'flex-height' => true,
+		// Random image rotation by default.
+		'random-default' => true,
+		// Callback for styling the header.
+		'wp-head-callback' => 'twentyeleven_header_style',
+		// Callback for styling the header preview in the admin.
+		'admin-head-callback' => 'twentyeleven_admin_header_style',
+		// Callback used to display the header preview in the admin.
+		'admin-preview-callback' => 'twentyeleven_admin_header_image',
+	);
+
+	add_theme_support( 'custom-header', $custom_header_support );
+
+	if ( ! function_exists( 'get_custom_header' ) ) {
+		// This is all for compatibility with versions of WordPress prior to 3.4.
+		define( 'HEADER_TEXTCOLOR', $custom_header_support['default-text-color'] );
+		define( 'HEADER_IMAGE', '' );
+		define( 'HEADER_IMAGE_WIDTH', $custom_header_support['width'] );
+		define( 'HEADER_IMAGE_HEIGHT', $custom_header_support['height'] );
+		add_custom_image_header( $custom_header_support['wp-head-callback'], $custom_header_support['admin-head-callback'], $custom_header_support['admin-preview-callback'] );
+		add_custom_background();
+	}
+
+	// We'll be using post thumbnails for custom header images on posts and pages.
+	// We want them to be the size of the header image that we just defined
+	// Larger images will be auto-cropped to fit, smaller ones will be ignored. See header.php.
+	set_post_thumbnail_size( $custom_header_support['width'], $custom_header_support['height'], true );
+
+	// Add Twenty Eleven's custom image sizes.
+	// Used for large feature (header) images.
+	add_image_size( 'large-feature', $custom_header_support['width'], $custom_header_support['height'], true );
+	// Used for featured posts if a large-feature doesn't exist.
+	add_image_size( 'small-feature', 500, 300 );
+
+	// Default custom headers packaged with the theme. %s is a placeholder for the theme template directory URI.
+	register_default_headers( array(
+		'wheel' => array(
+			'url' => '%s/images/headers/wheel.jpg',
+			'thumbnail_url' => '%s/images/headers/wheel-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Wheel', 'twentyeleven' )
+		),
+		'shore' => array(
+			'url' => '%s/images/headers/shore.jpg',
+			'thumbnail_url' => '%s/images/headers/shore-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Shore', 'twentyeleven' )
+		),
+		'trolley' => array(
+			'url' => '%s/images/headers/trolley.jpg',
+			'thumbnail_url' => '%s/images/headers/trolley-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Trolley', 'twentyeleven' )
+		),
+		'pine-cone' => array(
+			'url' => '%s/images/headers/pine-cone.jpg',
+			'thumbnail_url' => '%s/images/headers/pine-cone-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Pine Cone', 'twentyeleven' )
+		),
+		'chessboard' => array(
+			'url' => '%s/images/headers/chessboard.jpg',
+			'thumbnail_url' => '%s/images/headers/chessboard-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Chessboard', 'twentyeleven' )
+		),
+		'lanterns' => array(
+			'url' => '%s/images/headers/lanterns.jpg',
+			'thumbnail_url' => '%s/images/headers/lanterns-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Lanterns', 'twentyeleven' )
+		),
+		'willow' => array(
+			'url' => '%s/images/headers/willow.jpg',
+			'thumbnail_url' => '%s/images/headers/willow-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Willow', 'twentyeleven' )
+		),
+		'hanoi' => array(
+			'url' => '%s/images/headers/hanoi.jpg',
+			'thumbnail_url' => '%s/images/headers/hanoi-thumbnail.jpg',
+			/* translators: header image description */
+			'description' => __( 'Hanoi Plant', 'twentyeleven' )
+		)
+	) );
 }
+endif; // twentyeleven_setup
 
-function ekpt_get_itemup( $merit_id, $up_power, $up_multi ) {
-	
-	//
-	$ret = '' ;
-    // echo $up_multi ;
-	if ( $merit_id == 1 ) {
-//		if ( (int)$up_multi == 0 ) {
-//			$ret .= '';
-//		} else {
-//			$dataInt = (int)$up_multi ;
-//			$ret .= '×'.$dataInt.'倍' ;
-//		}	
-		if ( $up_power == 0 ) {
-			$ret .= '＋無';
-		} else {
-			$ret .= '＋'.$up_power ;
+if ( ! function_exists( 'twentyeleven_header_style' ) ) :
+/**
+ * Styles the header image and text displayed on the blog
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_header_style() {
+	$text_color = get_header_textcolor();
+
+	// If no custom options for text are set, let's bail.
+	if ( $text_color == HEADER_TEXTCOLOR )
+		return;
+
+	// If we get this far, we have custom styles. Let's do this.
+	?>
+	<style type="text/css">
+	<?php
+		// Has the text been hidden?
+		if ( 'blank' == $text_color ) :
+	?>
+		#site-title,
+		#site-description {
+			position: absolute !important;
+			clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+			clip: rect(1px, 1px, 1px, 1px);
 		}
-	} else if ($merit_id == 2 ) {
-		// $ret .= 'ガチャチケ' ;
-		if ( $up_power == 0 ) {
-			$ret .= ' ＋無';
-		} else {
-			$dataInt = (int)$up_power ;
-			$ret .= ' ＋'.$dataInt.'個' ;
-		}	
-	} else if ( $merit_id == 3 ) {
-		// $ret .= 'チケット' ;
-		if ( $up_power == 0 ) {
-			$ret .= ' ＋無';
-		} else {
-			$dataInt = (int)$up_power ;
-			$ret .= ' ＋'.$dataInt.'個' ;
-		}	
-	}
-	return $ret ;
-}
-
-function ekpt_get_merit( $merit_id ) {
-	
-	//
-	$ret = '' ;
-	if ( $merit_id == 1 ) {
-		$ret .= '経験値' ;
-	} else if ($merit_id == 2 ) {
-		$ret .= 'ガチャチケ' ;
-	} else if ( $merit_id == 3 ) {
-		$ret .= 'チケット' ;
-	}
-	return $ret ;
-}
-
-function ekpt_get_item_title( $item_title ) {
-	
-	//
-	$ret = $item_title ;
-	$item_title_array = explode( '-', $item_title );
-	if ( count($item_title_array) == 3 ) {
-		$ret = $item_title_array[0] . '-' . $item_title_array[1] ;
-	}
-	return $ret ;
-}
-
-function ekpt_get_item_status( $status ) {
-	
-	//
-	$ret = '' ;
-	if ( $status == 'U' ) {
-		$ret .= '通常' ;
-	} else if ($status == 'E' ) {
-		$ret .= '装備' ;
-	} else if ($status == 'D' ) {
-		$ret .= '交換削除' ;
-	} else if ($status == 'C' ) {
-		$ret .= '合成済' ;
-	} else if ($status == 'T' ) {
-		$ret .= '出品申請' ;
-	} else if ($status == 'A' ) {
-		$ret .= '交換申請' ;
-	}
-	return $ret ;
-}
-
-function ekpt_get_item_status_comp( $status ) {
-	
-	//
-	$ret = '' ;
-	if ( $status == 'U' ) {
-		$ret .= '装備無' ;
-	} else if ($status == 'E' ) {
-		$ret .= '<span style="color:red">装備中</span>' ;
-	} else if ($status == 'D' ) {
-		$ret .= '交換削除' ;
-	} else if ($status == 'C' ) {
-		$ret .= '合成済' ;
-	} else if ($status == 'T' ) {
-		$ret .= '<span style="color:orange">出品中</span>' ;
-	} else if ($status == 'A' ) {
-		$ret .= '<span style="color:blue">交換中</span>' ;
-	}
-	return $ret ;
-}
-
-function ekpt_get_trade_status( $status ) {
-	
-	//
-	$ret = '' ;
-	if ( $status == 'A' ) {
-		$ret .= '申請完了' ;
-	} else if ($status == 'a' ) {
-		$ret .= '申請中' ;
-	} else if ($status == 'C' ) {
-		$ret .= 'ｷｬﾝｾﾙ' ;
-	} else if ($status == 's' ) {
-		$ret .= '出品中' ;
-	} else if ($status == 'S' ) {
-		$ret .= '出品完了' ;
-	}
-	return $ret ;
-}
-
-function ekpt_get_link_param( $params = array() ) {
-	
-	// ディフォルトセット
-	$retstr = '?token='.$GLOBALS['ekpt_token'] ;
-	foreach ( $params as $key => $value ) {
-		$retstr .= '&' . $key . '=' . $value ;
-	}
-	return $retstr ;
-}
-
-function ekpt_get_mem_infos( $members ) {
-	//
-	$memDisplays = array() ;
-    // APIから情報を取得
-	$token = $GLOBALS['ekpt_token'] ;
-    //
-	if ( $token <> '' ) {
-		$param = array( 
-						"token" => $token, 
-						"members" => $members
-						) ;
-		// if ( WP_DEBUG ) print_r($param) ;
-		$ret = ekpt_istown_login('',$param) ;
-        print_r($ret) ;
-		$ret_members = $ret['members'] ;
-        $memDisplay = array() ;
-        foreach ( $ret_members as $ret_member ) {
-            $memDisplay['mem_id'] = $ret_members['mem_id'] ;
-            $memDisplay['nickname'] = $ret_members['nickname'] ;
-            if ( trim($memDisplay['nickname']) == '' ) {
-                $memDisplay['nickname'] = '未設定…';
-            }
-            $memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
-            if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
-                $memDisplay['image'] = '<span">未設定</span>' ;
-            }
-            $memDisplays[] = $memDisplay ;
-        }
-        // print_r($members);
-        // print_r($memDisplays);
-	}
-	// イメージ取得
-	return $memDisplays ;
-}
-
-function ekpt_get_mem_info( $mem_id ) {
-	//
-	$memDisplay = array (
-							'mem_id' => $mem_id,
-							'nickname' => '',
-							'image' => '',
-							'dummy' => 0							
-						) ;
-	// APIから情報を取得
-	$token = $GLOBALS['ekpt_token'] ;
-	$members = $mem_id ;
-	if ( $token <> '' ) {
-		$param = array( 
-						"token" => $token, 
-						"members" => $members
-						) ;
-		// if ( WP_DEBUG ) print_r($param) ;
-         $ret = ekpt_istown_login('',$param) ;
-		$ret_members = $ret['members'][0] ;
-		$memDisplay['mem_id'] = $ret_members['mem_id'] ;
-		$memDisplay['nickname'] = $ret_members['nickname'] ;
-		if ( trim($memDisplay['nickname']) == '' ) {
-			$memDisplay['nickname'] = '未設定…';
+	<?php
+		// If the user has set a custom color for the text use that
+		else :
+	?>
+		#site-title a,
+		#site-description {
+			color: #<?php echo $text_color; ?> !important;
 		}
-		$memDisplay['image'] = ekpt_get_mem_imagepath($ret_members['image']) ;
-		if ( $memDisplay['image'] == '<img alt="" src="/images/no_image.gif" height="76" width="76" />') {
-			$memDisplay['image'] = '<span">未設定</span>' ;
-		}
+	<?php endif; ?>
+	</style>
+	<?php
+}
+endif; // twentyeleven_header_style
+
+if ( ! function_exists( 'twentyeleven_admin_header_style' ) ) :
+/**
+ * Styles the header image displayed on the Appearance > Header admin panel.
+ *
+ * Referenced via add_theme_support('custom-header') in twentyeleven_setup().
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_admin_header_style() {
+?>
+	<style type="text/css">
+	.appearance_page_custom-header #headimg {
+		border: none;
 	}
-	// イメージ取得
-	return $memDisplay ;
+	#headimg h1,
+	#desc {
+		font-family: "Helvetica Neue", Arial, Helvetica, "Nimbus Sans L", sans-serif;
+	}
+	#headimg h1 {
+		margin: 0;
+	}
+	#headimg h1 a {
+		font-size: 32px;
+		line-height: 36px;
+		text-decoration: none;
+	}
+	#desc {
+		font-size: 14px;
+		line-height: 23px;
+		padding: 0 0 3em;
+	}
+	<?php
+		// If the user has set a custom color for the text use that
+		if ( get_header_textcolor() != HEADER_TEXTCOLOR ) :
+	?>
+		#site-title a,
+		#site-description {
+			color: #<?php echo get_header_textcolor(); ?>;
+		}
+	<?php endif; ?>
+	#headimg img {
+		max-width: 1000px;
+		height: auto;
+		width: 100%;
+	}
+	</style>
+<?php
+}
+endif; // twentyeleven_admin_header_style
+
+if ( ! function_exists( 'twentyeleven_admin_header_image' ) ) :
+/**
+ * Custom header image markup displayed on the Appearance > Header admin panel.
+ *
+ * Referenced via add_theme_support('custom-header') in twentyeleven_setup().
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_admin_header_image() { ?>
+	<div id="headimg">
+		<?php
+		$color = get_header_textcolor();
+		$image = get_header_image();
+		if ( $color && $color != 'blank' )
+			$style = ' style="color:#' . $color . '"';
+		else
+			$style = ' style="display:none"';
+		?>
+		<h1><a id="name"<?php echo $style; ?> onclick="return false;" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></h1>
+		<div id="desc"<?php echo $style; ?>><?php bloginfo( 'description' ); ?></div>
+		<?php if ( $image ) : ?>
+			<img src="<?php echo esc_url( $image ); ?>" alt="" />
+		<?php endif; ?>
+	</div>
+<?php }
+endif; // twentyeleven_admin_header_image
+
+/**
+ * Sets the post excerpt length to 40 words.
+ *
+ * To override this length in a child theme, remove the filter and add your own
+ * function tied to the excerpt_length filter hook.
+ */
+function twentyeleven_excerpt_length( $length ) {
+	return 40;
+}
+add_filter( 'excerpt_length', 'twentyeleven_excerpt_length' );
+
+if ( ! function_exists( 'twentyeleven_continue_reading_link' ) ) :
+/**
+ * Returns a "Continue Reading" link for excerpts
+ */
+function twentyeleven_continue_reading_link() {
+	return ' <a href="'. esc_url( get_permalink() ) . '">' . __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentyeleven' ) . '</a>';
+}
+endif; // twentyeleven_continue_reading_link
+
+/**
+ * Replaces "[...]" (appended to automatically generated excerpts) with an ellipsis and twentyeleven_continue_reading_link().
+ *
+ * To override this in a child theme, remove the filter and add your own
+ * function tied to the excerpt_more filter hook.
+ */
+function twentyeleven_auto_excerpt_more( $more ) {
+	return ' &hellip;' . twentyeleven_continue_reading_link();
+}
+add_filter( 'excerpt_more', 'twentyeleven_auto_excerpt_more' );
+
+/**
+ * Adds a pretty "Continue Reading" link to custom post excerpts.
+ *
+ * To override this link in a child theme, remove the filter and add your own
+ * function tied to the get_the_excerpt filter hook.
+ */
+function twentyeleven_custom_excerpt_more( $output ) {
+	if ( has_excerpt() && ! is_attachment() ) {
+		$output .= twentyeleven_continue_reading_link();
+	}
+	return $output;
+}
+add_filter( 'get_the_excerpt', 'twentyeleven_custom_excerpt_more' );
+
+/**
+ * Get our wp_nav_menu() fallback, wp_page_menu(), to show a home link.
+ */
+function twentyeleven_page_menu_args( $args ) {
+	if ( ! isset( $args['show_home'] ) )
+		$args['show_home'] = true;
+	return $args;
+}
+add_filter( 'wp_page_menu_args', 'twentyeleven_page_menu_args' );
+
+/**
+ * Register our sidebars and widgetized areas. Also register the default Epherma widget.
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_widgets_init() {
+
+	register_widget( 'Twenty_Eleven_Ephemera_Widget' );
+
+	register_sidebar( array(
+		'name' => __( 'Main Sidebar', 'twentyeleven' ),
+		'id' => 'sidebar-1',
+		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget' => "</aside>",
+		'before_title' => '<h3 class="widget-title">',
+		'after_title' => '</h3>',
+	) );
+
+	register_sidebar( array(
+		'name' => __( 'Showcase Sidebar', 'twentyeleven' ),
+		'id' => 'sidebar-2',
+		'description' => __( 'The sidebar for the optional Showcase Template', 'twentyeleven' ),
+		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget' => "</aside>",
+		'before_title' => '<h3 class="widget-title">',
+		'after_title' => '</h3>',
+	) );
+
+	register_sidebar( array(
+		'name' => __( 'Footer Area One', 'twentyeleven' ),
+		'id' => 'sidebar-3',
+		'description' => __( 'An optional widget area for your site footer', 'twentyeleven' ),
+		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget' => "</aside>",
+		'before_title' => '<h3 class="widget-title">',
+		'after_title' => '</h3>',
+	) );
+
+	register_sidebar( array(
+		'name' => __( 'Footer Area Two', 'twentyeleven' ),
+		'id' => 'sidebar-4',
+		'description' => __( 'An optional widget area for your site footer', 'twentyeleven' ),
+		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget' => "</aside>",
+		'before_title' => '<h3 class="widget-title">',
+		'after_title' => '</h3>',
+	) );
+
+	register_sidebar( array(
+		'name' => __( 'Footer Area Three', 'twentyeleven' ),
+		'id' => 'sidebar-5',
+		'description' => __( 'An optional widget area for your site footer', 'twentyeleven' ),
+		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
+		'after_widget' => "</aside>",
+		'before_title' => '<h3 class="widget-title">',
+		'after_title' => '</h3>',
+	) );
+}
+add_action( 'widgets_init', 'twentyeleven_widgets_init' );
+
+if ( ! function_exists( 'twentyeleven_content_nav' ) ) :
+/**
+ * Display navigation to next/previous pages when applicable
+ */
+function twentyeleven_content_nav( $html_id ) {
+	global $wp_query;
+
+	if ( $wp_query->max_num_pages > 1 ) : ?>
+		<nav id="<?php echo esc_attr( $html_id ); ?>">
+			<h3 class="assistive-text"><?php _e( 'Post navigation', 'twentyeleven' ); ?></h3>
+			<div class="nav-previous"><?php next_posts_link( __( '<span class="meta-nav">&larr;</span> Older posts', 'twentyeleven' ) ); ?></div>
+			<div class="nav-next"><?php previous_posts_link( __( 'Newer posts <span class="meta-nav">&rarr;</span>', 'twentyeleven' ) ); ?></div>
+		</nav><!-- #nav-above -->
+	<?php endif;
+}
+endif; // twentyeleven_content_nav
+
+/**
+ * Return the URL for the first link found in the post content.
+ *
+ * @since Twenty Eleven 1.0
+ * @return string|bool URL or false when no link is present.
+ */
+function twentyeleven_url_grabber() {
+	if ( ! preg_match( '/<a\s[^>]*?href=[\'"](.+?)[\'"]/is', get_the_content(), $matches ) )
+		return false;
+
+	return esc_url_raw( $matches[1] );
 }
 
-function ekpt_get_mem_imagepath( $imagePath ) {
-	return str_replace('/cache','http://town.ekupo.jp/cache',$imagePath) ;
+/**
+ * Count the number of footer sidebars to enable dynamic classes for the footer
+ */
+function twentyeleven_footer_sidebar_class() {
+	$count = 0;
+
+	if ( is_active_sidebar( 'sidebar-3' ) )
+		$count++;
+
+	if ( is_active_sidebar( 'sidebar-4' ) )
+		$count++;
+
+	if ( is_active_sidebar( 'sidebar-5' ) )
+		$count++;
+
+	$class = '';
+
+	switch ( $count ) {
+		case '1':
+			$class = 'one';
+			break;
+		case '2':
+			$class = 'two';
+			break;
+		case '3':
+			$class = 'three';
+			break;
+	}
+
+	if ( $class )
+		echo 'class="' . $class . '"';
 }
 
-// 合成時のベースアイテムの必要チケット数を求める
-function ekpt_get_item_comp_ticket_count( $rare_label, $level_num ) {
-   
-   if ( $rare_label == 'N') {
-      $ret_num = 1 ;
-   } else if ( $rare_label == 'N+') {
-      $ret_num = 4 ;
-   } else if ( $rare_label == 'R') {
-      $ret_num = 6 ;      
-   } else if ( $rare_label == 'R+') {
-      $ret_num = 8 ;
-   } else if ( $rare_label == 'SR') {
-      $ret_num = 12 ;
-   } else if ( $rare_label == 'SR+') {
-      $ret_num = 16 ;
-   } else {
-      trigger_error('ekpt_get_item_comp_ticket_count:Invalid product_info = '. $rare_label, E_USER_ERROR);
-   }
-   $ret_num = $ret_num * $level_num ;
-   return $ret_num;
-}
+if ( ! function_exists( 'twentyeleven_comment' ) ) :
+/**
+ * Template for comments and pingbacks.
+ *
+ * To override this walker in a child theme without modifying the comments template
+ * simply create your own twentyeleven_comment(), and that function will be used instead.
+ *
+ * Used as a callback by wp_list_comments() for displaying the comments.
+ *
+ * @since Twenty Eleven 1.0
+ */
+function twentyeleven_comment( $comment, $args, $depth ) {
+	$GLOBALS['comment'] = $comment;
+	switch ( $comment->comment_type ) :
+		case 'pingback' :
+		case 'trackback' :
+	?>
+	<li class="post pingback">
+		<p><?php _e( 'Pingback:', 'twentyeleven' ); ?> <?php comment_author_link(); ?><?php edit_comment_link( __( 'Edit', 'twentyeleven' ), '<span class="edit-link">', '</span>' ); ?></p>
+	<?php
+			break;
+		default :
+	?>
+	<li <?php comment_class(); ?> id="li-comment-<?php comment_ID(); ?>">
+		<article id="comment-<?php comment_ID(); ?>" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<?php
+						$avatar_size = 68;
+						if ( '0' != $comment->comment_parent )
+							$avatar_size = 39;
 
+						echo get_avatar( $comment, $avatar_size );
 
-function ekpt_get_item_info( $item ) {
-	//
-	$baseurl = ekpt_get_opt('EKPTGFHOME'); 
-	$imgurl .= $baseurl.EKPTDEF_IMAGEHOME; // wp-content/uploads/ekpt/itemimages/ 
-	// 設定データ
-	$itemDisplay = array (
-							'type_label' => '',
-							'category_label' => '',
-							'style_label' => '',
-							'rare_label' => '',
-							'type_label' => '',
-							'status' => '',
-							'display_status' => '',
-							'item_title' => '',
-							'display_item_title' => '',
-							'equip_cost' => 0,
-							'level' => 0,
-							'merit_id' => 0,
-							'disply_comp_status' => '',
-							'disply_merit_id' => '',
-							'level' => 0,
-							'up_power' => 0,
-							'up_multi' => 0,
-							'display_up' => '',
-							'image_url01' => '',
-							'display_image_url01' => '',
-							'item_level' => 0,
-							'item_cost' => 0,
-							'item_num' => 0,
-							'item_desc' => '',
-							'created' => '',
-							'dummy' => 0							
+						/* translators: 1: comment author, 2: date and time */
+						printf( __( '%1$s on %2$s <span class="says">said:</span>', 'twentyeleven' ),
+							sprintf( '<span class="fn">%s</span>', get_comment_author_link() ),
+							sprintf( '<a href="%1$s"><time datetime="%2$s">%3$s</time></a>',
+								esc_url( get_comment_link( $comment->comment_ID ) ),
+								get_comment_time( 'c' ),
+								/* translators: 1: date, 2: time */
+								sprintf( __( '%1$s at %2$s', 'twentyeleven' ), get_comment_date(), get_comment_time() )
+							)
 						);
-	
-	if ( count($item) > 0 ) {
-		// 基本設定
-		$itemDisplay['type_label'] = $item['type_label'] ;
-		$itemDisplay['category_label'] = $item['category_label'] ;
-		$itemDisplay['style_label'] = $item['style_label'] ;
-		$itemDisplay['rare_label'] = $item['rare_label'] ;
-		$itemDisplay['type_label'] = $item['type_label'] ;
-		$itemDisplay['merit_id'] = $item['merit_id'] ;
-		$itemDisplay['status'] = $item['status'] ;
-		$itemDisplay['item_level'] = $item['item_level'] ;
-		$itemDisplay['image_url01'] = $item['image_url01'] ;
-		$itemDisplay['initial_level'] = $item['initial_level'] ;
-		$itemDisplay['up_power'] = $item['up_power'] ;
-		$itemDisplay['up_multi'] = $item['up_multi'] ;
-		$itemDisplay['item_level'] = $item['item_level'] ;
-		$itemDisplay['item_cost'] = $item['item_cost'] ;
-		$itemDisplay['item_num'] = $item['item_num'] ;
-		$itemDisplay['item_desc'] = $item['item_desc'] ;
-		$itemDisplay['max_level'] = $item['max_level'] ;
-		$itemDisplay['created'] = $item['created'] ;
-		// 各種変換が必要となる処理
-		$itemDisplay['display_status'] = ekpt_get_item_status($item['status']) ;
-		$itemDisplay['display_item_title'] = ekpt_get_item_title($item['item_title']) ;
-		$itemDisplay['display_up'] = ekpt_get_itemup($item['merit_id'], $item['up_power'],$item['up_multi']) ;
-		$itemDisplay['disply_merit_id'] = ekpt_get_merit($item['merit_id']) ;
-		$itemDisplay['disply_comp_status'] = ekpt_get_item_status_comp($item['status']) ;
-		$itemDisplay['display_image_url01'] = $imgurl.$item['image_url01'] ;
-	}
-	//
-	return $itemDisplay ;
-}
+					?>
 
-// $vdata = 元
-// $displayvdata = ekpt_get_item_infoの出力
-function ekpt_get_item_display_html( $vdata, $displayvdata ) {
-      //]
-      $font = " font-size;80%;";
-      $html = '' ;
-      $html .= '<li>'.$displayvdata['display_item_title'].$displayvdata['rare_label'].'</li>' ;
-      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
-         $html .= '<li style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;   
-      } else {
-         $html .= '<li style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;               
-      }
-      $html .= '<li style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</li>' ;
-      if ( $vdata['status'] <> 'E' ) {
-         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</li>' ;         
-      } else {
-         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</li>' ;
-      }
-      return $html ;
+					<?php edit_comment_link( __( 'Edit', 'twentyeleven' ), '<span class="edit-link">', '</span>' ); ?>
+				</div><!-- .comment-author .vcard -->
+
+				<?php if ( $comment->comment_approved == '0' ) : ?>
+					<em class="comment-awaiting-moderation"><?php _e( 'Your comment is awaiting moderation.', 'twentyeleven' ); ?></em>
+					<br />
+				<?php endif; ?>
+
+			</footer>
+
+			<div class="comment-content"><?php comment_text(); ?></div>
+
+			<div class="reply">
+				<?php comment_reply_link( array_merge( $args, array( 'reply_text' => __( 'Reply <span>&darr;</span>', 'twentyeleven' ), 'depth' => $depth, 'max_depth' => $args['max_depth'] ) ) ); ?>
+			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<?php
+			break;
+	endswitch;
 }
+endif; // ends check for twentyeleven_comment()
+
+if ( ! function_exists( 'twentyeleven_posted_on' ) ) :
 /**
- * 交換の表出力用（中段）
- * Table版
+ * Prints HTML with meta information for the current post-date/time and author.
+ * Create your own twentyeleven_posted_on to override in a child theme
+ *
+ * @since Twenty Eleven 1.0
  */
-function ekpt_get_item_display_html2( $vdata, $displayvdata ) {
-      //]
-      $font = " font-size;80%;";
-      $html = '' ;
-	  $html .= '<td>';
-      $html .= $displayvdata['display_item_title'].$displayvdata['rare_label'];
-      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
-         $html .= '<span style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</span><br>';
-      } else {
-         $html .= '<span style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</span><br>';
-      }
-      $html .= '<span style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</span><br>.';
-      if ( $vdata['status'] <> 'E' ) {
-         $html .= '<span style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</span><br>';
-      } else {
-         $html .= '<span style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</span><br>' ;
-      }
-	  $html .= '</td>';
-      return $html ;
+function twentyeleven_posted_on() {
+	printf( __( '<span class="sep">Posted on </span><a href="%1$s" title="%2$s" rel="bookmark"><time class="entry-date" datetime="%3$s">%4$s</time></a><span class="by-author"> <span class="sep"> by </span> <span class="author vcard"><a class="url fn n" href="%5$s" title="%6$s" rel="author">%7$s</a></span></span>', 'twentyeleven' ),
+		esc_url( get_permalink() ),
+		esc_attr( get_the_time() ),
+		esc_attr( get_the_date( 'c' ) ),
+		esc_html( get_the_date() ),
+		esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ),
+		esc_attr( sprintf( __( 'View all posts by %s', 'twentyeleven' ), get_the_author() ) ),
+		get_the_author()
+	);
 }
-function ekpt_get_item_detail_display_html( $vdata, $displayvdata , $desc_text = '' ) {
-        //
-        if ( $desc_text == '' ) {
-            $desc_text = isset($vdata['item_desc']) ? $vdata['item_desc'] : '未設定' ;
-        }
-
-        if ( $vdata['type_label'] == "ベース" ) {
-            $html .= '<div class="bg-green">' ;
-            $html .= '<p class="label">'. $displayvdata['display_item_title'] .'</p>' ;
-            $html .= '<p class="desc">Lv <span>'.$displayvdata['item_level'].'/'.$displayvdata['max_level'].'</span> 必要コスト:<span>'.$displayvdata['item_cost'] .'</span></p>' ;
-            $html .= '<img style="width:120px; height:120px;" src="'. $displayvdata['display_image_url01'] .'" alt="'. $displayvdata['display_item_title'] .'" />' ;
-            $html .= '<p class="exp">'.$displayvdata['disply_merit_id'].'GET力:'.$displayvdata['display_up'].'</span></p>';
-            $html .= '<p class="ticket">取引枚数:<span>未設定</span></p>';
-            $html .= '<p class="effect">'.$desc_text.'</p>';
-            $html .= '</div>';           
-        } else {
-            // print_r($vdata);
-            $html .= '<div class="bg-green">' ;
-            $html .= '<p class="label">'. $vdata['item_title'] .'</p>' ;
-            $html .= '<img style="width:120px; height:120px;" src="'. $displayvdata['display_image_url01'] .'" alt="'. $vdata['item_title'] .'" />' ;
-            $html .= '<p class="effect">'.$desc_text.'</p>';
-            $html .= '</div>';
-        }
-        return $html ;
-}
-// $vdata = 元
-// $displayvdata = ekpt_get_item_infoの出力
-function ekpt_get_trade_display_html( $vdata, $displayvdata ) {
-      //]
-      $font = " font-size;80%;";
-      $html = '' ;
-      $html .= '<li>'.$displayvdata['display_item_title'].$displayvdata['rare_label'].'</li>' ;
-      if ( $displayvdata['item_level'] == $vdata['max_level'] ) {
-         $html .= '<li style="color:red; font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;   
-      } else {
-         $html .= '<li style="font-size:80%;">Lv '.$displayvdata['item_level'].'/'.$vdata['max_level'].'</li>' ;               
-      }
-      $html .= '<li style="font-size:80%;">'.$displayvdata['disply_merit_id'].'GET力 '.$displayvdata['display_up'].'</li>' ;
-      if ( $vdata['status'] <> 'E' ) {
-         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost']. '</li>' ;         
-      } else {
-         $html .= '<li style="font-size:80%;">必要ｺｽﾄ '.$displayvdata['item_cost'].' '.$displayvdata['disply_comp_status']. '</li>' ;
-      }
-      return $html ;
-}
-        
-/**
- * リクエストデータ取得
- */
-function req($key) {
-    return(isset($_REQUEST[$key]) ? $_REQUEST[$key] : '');
-}
-
-function ekpt_istown_login( $urldef = '', $param = array(),  $base_url = '' ) {
-
-    if ( $base_url == '' ) {
-        $base_url = ekpt_get_opt('EKPTHOMEAPICHECKTOKEN') ;
-    }
-    
-    $search_url = $base_url . $urldef . "/";
-    $retdata = array() ;
-    //apiから検索結果をjsonでもらう
-    $timeout = 30;
-    ekpt_log_message($search_url) ;
-    // if ( WP_DEBUG ) print_r($param);
-    $ch = curl_init();
-    curl_setopt( $ch, CURLOPT_URL, $search_url );
-    curl_setopt( $ch, CURLOPT_HEADER, false );
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $ch, CURLOPT_POST, 1);
-    if ( is_array($param) && count($param) > 0) {
-            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);	
-    }
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-    // SSL対応
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
-    //
-    $json = curl_exec( $ch );
-    curl_close( $ch );
-
-    //もらったjsonを連想配列に変換
-    // print_r($param);
-    if ( $json ) {
-        $retdata = json_decode( $json , true );
-    }
-    // print_r($retdata) ;
-    return $retdata ;
-}
-
-function ekpt_login() {
-	//
-	$ok = true ;
-	$token = '' ;
-	$ret = array() ;
-	// 変数初期化
-	$GLOBALS['ekpt_token'] = '' ;
-	$GLOBALS['ekpt_mem_id'] = '' ;
-	$GLOBALS['ekpt_nickname'] = '' ;
-	$GLOBALS['ekpt_image'] = '' ;
-    $GLOBALS['ekpt_token_reply'] = array() ;
-    // REFERチェック
-    $okhosts = array( 'town-pc.ekupo.jp', 'cms04.ekupo.jp', 'mktg.ekupo.jp','town.ekupo.jp','wp04.ekupo.jp', 'wp04.ekupo.biz', 'tutorial.ekupo.jp','town-pc.ekupo.jp' ) ;
-    // セキュリティ対策
-//    // このページは直接呼び出されない
-//    if (isset($_SERVER["HTTP_REFERER"] ) ) {
-//      $ref = parse_url( $_SERVER["HTTP_REFERER"] )  ;      
-//      if ( in_array( $ref['host'], $okhosts ) ) {
-//         $ok = true ;
-//      } else {
-//         $ok = false ;
-//         print_r($ref) ;
-//         exit ;
-//      }
-//    } else {
-//       $ok = false ;
-//    }
-	// ログインチェック
-    if ( isset($_REQUEST['token']) ) {
-		$token = $_REQUEST['token'] ;
-		if ($token == '') {
-			$ok = false ;
-		}
-	} else {
-         $current_page = get_page_uri($post->ID) ;
-         if ( preg_match('/homegiftstock/', $current_page) ) {
-            $token = '444e65d4d68d5b9297c8886f15155b2d' ;
-            $ok = true ;          
-        } else {
-            $ok = false ;
-        }
- 	}
-	// パラメタ取得
-	if ( $token != '' ) {
-		$param = array( "token" => $token ) ;
-		// if ( WP_DEBUG ) print_r($param) ;
-		$ret = ekpt_istown_login('',$param) ;
-		if ( !isset( $ret['status'] ) || $ret['status'] != 0 ) {
-			$ok = false ;
-		} else {
-			// if ( WP_DEBUG ) print_r($ret) ;
-			$ret_data = $ret['data'] ;
-			$GLOBALS['ekpt_token'] = $token ;
-			$GLOBALS['ekpt_mem_id'] = $ret_data['mem_id'] ;
-			$GLOBALS['ekpt_nickname'] = $ret_data['nickname'] ;
-			$GLOBALS['ekpt_image'] = $ret_data['image'] ;
-            $GLOBALS['ekpt_token_reply'] = $ret_data ;
-		}
-	}
-	return $ok ;
-}
-
-// リダイレクト指定
-function ekpt_redirect_fix(){
-	// if ( WP_DEBUG ) echo 'Caled' ;
-	$redirect_to = ekpt_get_opt('EKPTHOME') ;
-    // wp_safe_redirect($rwdirect_to);
-	header("HTTP/1.1 301 Moved Permanently");
-  	header("Location: ".$redirect_to);
-  	exit();
-}
-
-/* EKPT Start */
-function ekpt_log_message($output, $path = null) {
-    $str = date('y/m/d h:i:s') . ' ' .var_export($output, true);
-    $path = isset($path) ? $path : TEMPLATEPATH . '/ekptlog.txt';
-    $fp = fopen($path, 'a');
-    fwrite($fp, "{$str}\n");
-    fclose($fp);
-    // print_r('OK!'.$path);
-    // print_r($fp);
-}
-
-function ekpt_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
-
-    //twitter apiの検索URL
-    if ( $base_url == '' ) {
-        $base_url = ekpt_get_opt('EKPTAPI') ;
-    }
-    
-    $search_url = $base_url . '' . $urldef . '/';
-    $retdata = array() ;
-
-    //apiから検索結果をjsonでもらう
-    $timeout = 30;
-    ekpt_log_message($search_url) ;
-    // if ( WP_DEBUG ) print_r ($param); 
-    // ekpt_log_message(implode("=",$array));
-    //
-    $ch = curl_init();
-    curl_setopt( $ch, CURLOPT_URL, $search_url );
-    curl_setopt( $ch, CURLOPT_HEADER, false );
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $ch, CURLOPT_POST, 1);
-    if ( is_array($param) && count($param) > 0) {
-            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);	
-    }
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-    // SSL対応
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
-    $json = curl_exec( $ch );
-    curl_close( $ch );
-    
-    //もらったjsonを連想配列に変換
-//    echo '<br>'.$search_url ;
-//    print_r($param);
-     // print_r($json);
-    if ( $json ) {
-        $retdata = json_decode( $json , true );
-    }
-    return $retdata ;
-
-}
-
-function ekpt_trade_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
-
-    //twitter apiの検索URL
-    if ( $base_url == '' ) {
-        $base_url = ekpt_get_opt('EKPTAPITRADE') ;
-    }
-    $search_url = $base_url . '' . $urldef . '/';
-    $retdata = array() ;
-
-    //apiから検索結果をjsonでもらう
-    $timeout = 30;
-    ekpt_log_message($search_url) ;
-    // if ( WP_DEBUG ) print_r ($param); 
-    // ekpt_log_message(implode("=",$array));
-    //
-    $ch = curl_init();
-    curl_setopt( $ch, CURLOPT_URL, $search_url );
-    curl_setopt( $ch, CURLOPT_HEADER, false );
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $ch, CURLOPT_POST, 1);
-    if ( is_array($param) && count($param) > 0) {
-            curl_setopt( $ch, CURLOPT_POSTFIELDS, $param);
-    }
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-     // SSL対応
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); // サーバ証明書検証をスキップ
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // サーバ証明書検証をスキップ
-    $json = curl_exec( $ch );
-    curl_close( $ch );
-
-    //もらったjsonを連想配列に変換
-    // parr($param);
-    if ( $json ) {
-        $retdata = json_decode( $json , true );
-    }
-    return $retdata ;
-
-}
-
-function ekpt_tf_get_element_hidden( $key, $pvalue, $dtype = 'hidden' ) {
-    $value = $pvalue;
-    return '<input type="' .$dtype. '" name="'.esc_html($key).'" value="'.esc_html($value).'" />';
-}
-
-function ekpt_tf_get_element_disable( $key, $pvalue, $dtype = 'hidden' ) {
-    $value = $pvalue;
-    return '<input type="' .$dtype. '" name="'.esc_html($key).'" value="'.esc_html($value).'" />';
-}
-
-function ekpt_category_title_2_id( $category_title ) {
-
-    $ret_id = 0 ;
-    if ( $category_title == '登録' ) {
-        $ret_id = 1 ;
-    } else if (  $category_title == 'ログイン' ) {
-        $ret_id = 2 ;
-    } else if (  $category_title == 'チェックイン' ) {
-        $ret_id = 3 ;
-    } else if (  $category_title == 'メッセージ' ) {
-        $ret_id = 4 ;
-    } else if (  $category_title == 'レビュー' ) {
-        $ret_id = 5 ;
-    } else if (  $category_title == 'つぶやき' ) {
-        $ret_id = 6 ;
-    } else if (  $category_title == 'Twitter連動' ) {
-        $ret_id = 7 ;
-    } else if (  $category_title == 'Facebook連動' ) {
-        $ret_id = 8 ;
-    } else if (  $category_title == 'プロフィール入力' ) {
-        $ret_id = 9 ;
-    } else if (  $category_title == '友達' ) {
-        $ret_id = 10 ;
-    } else if (  $category_title == 'イイネ！' ) {
-        $ret_id = 11 ;
-    } else if (  $category_title == 'エクポ利用' ) {
-        $ret_id = 12 ;
-    } else if (  $category_title == '会員獲得' ) {
-        $ret_id = 13 ;
-    } else if (  $category_title == 'ＧＰＳ' ) {
-        $ret_id = 14 ;
-    } else if (  $category_title == '投稿' ) {
-        $ret_id = 20 ;
-    }
-    return $ret_id ;
-}
-
-// pager()関数関連の定義
-// ページ情報となる変数名の設定
-// define(PAGE_VALUE , "id");
-// ページをいくつで区切るか？
-// 100件ごとに区切りたいなら100を指定
-// define(PER_PAGE,10);
-// ページメニューの数の幅
-// ページ総数 59 / VIEW_PAGE_MENU_WIDTH = 5の場合
-// 26ページ目を表示しているときは下記のように表示される
-// < 21 22 23 24 25 26 27 28 29 30 31 >
-// 26 の前5つ分(21まで)と後ろ5つ分(31まで）を表示する
-// define(VIEW_PAGE_MENU_WIDTH , 5);
-// 前に戻るときのマーク 「< (&lt;)」とか「前」とか「←」とか指定
-// define(PREV_MARK , "&lt;");
-// 次に行くときのマーク 「< (&gt;)」とか「次」とか「→」とか指定
-// define(NEXT_MARK , "&gt;");
-// pager()関数ここから
-
-function ekpt_pager( $idname, $countRe, $perPage = 0, $viewPageMenuWidth = 0, $offsetKey = '' ) {
-	// 現在のページ情報を取得
-	//
-	// print_r($_GET) ;
-	$id = $_GET[$idname];
-	// ページ数の指定がなければページ数を1にセット
-	if( $id == "" ) $id=1;
-	$prevMark = "前" ;
-	$nextMark = "次" ;
-	if ( $perPage == 0 ) $perPage = 10 ;
-	if ( $viewPageMenuWidth == 0 ) $viewPageMenuWidth = 2 ;
-	if ( $offsetKey == '' ) $offsetKey = "recOffset";
-	// ページ情報以外のパラメータを補完し、$other_paramにセット
-	foreach($_GET as $key => $value){
-		// $idname 以外のGETメソッドのパラメータを $other_param に再構築
-		if ($key != $idname and $key != $offsetKey){
-			// リンクさせるためにurlencodeする.
-			$other_param .= "&".$key."=".urlencode($value);
-		}
-	}
-	// $other_param = urlencode($other_param) ;
-	// 最終ページを計算する
-	// 総Hit数をページング単位で割ると総ページ数が計算される
-	// ページング単位PER_PAGEを10とすると最終ページ数$maxPageは
-	// 総Hit数 / PER_PAGEを切り上げたものとなる。
-	// 検索結果205件 PER_PAGE:10の場合 $maxPage = ceil(205 / 10) = 21
-	$maxPage=ceil($countRe / $perPage);
-	// maxPage=1の場合(PER_PAGEより少ない検索結果)
-	// 選択したページ数(id)よりもmaxPageが小さいときはfalse
-	if( ($maxPage == 1) or ($maxPage < $id) ) return false;
-	// 選択したページ数がVIEW_PAGE_MENU_WIDTHより大きいとき
-	if($id > $viewPageMenuWidth + 1){
-		// スタートページは選択ページからVIEW_PAGE_MENU_WIDTHを
-		// 引いたもの程度出せばよい
-		$startPage = $id - $viewPageMenuWidth;
-		$offSet = ( ($startPage - 1) - 1 ) * $perPage ;
-		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
-		// より小さいもの「 < 」の部分はさらにその$startPageから1を引いたもの
-		$startMore = "<a href=\"$PHP_SELF?".$idname."=".($startPage - 1).$other_param.$offSetParam."\">".$prevMark." </a>";
-	}else{
-		// そうでなければ$startPage=1(一番はじめのページ = 1)になる
-		$startPage = 1;
-	}
-	// 選択したページ数に5を足したものより、更に$maxPage
-	// （最大ページ)が大きければ
-	if($id + $viewPageMenuWidth < $maxPage){
-		// 表示される最終ページは選択したページに
-		// VIEW_PAGE_MENU_WIDTHを足したものになる
-		$endPage = $id + $viewPageMenuWidth;
-		$offSet = ( ($endPage + 1) - 1 ) * $perPage ;
-		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
-		$endMore = "  <a href=\"$PHP_SELF?".$idname."=".($endPage + 1).$other_param.$offSetParam."\"> ".$nextMark."</a>";
-	}else{
-		// そうでなければ、$endPageは最終ページになる
-		$endPage = $maxPage;
-	}
-	// ここまでで、計算されたのは
-	// $id        : 現在選択しているページ番号
-	// $maxPage   : 検索の最終ページ
-	// $startPage : 表示されるはじめのページ
-	// $endPage   : 表示される最後のページ
-	// $page_footer="" として$page_footerを初期化
-	$page_footer="";
-	// $startPage から $endPageまで繰り返し
-	for($i = $startPage ; $i <= $endPage ; $i++){
-		// $i = $idだったら選択されたページなので、fontsizeを大きくする
-		// その際、リンクはなし
-		// そうでなければ、id=$iをリンクにセットする
-		$offSet = ( $i - 1 ) * $perPage ;
-		$offSetParam = "&".$offsetKey."=".urlencode($offSet);;
-		$page_footer.= " ".(($id==$i)?"<span style='font-Size:150%; font-weight:bold;'>$i</span>":"<a href=\"$PHP_SELF?$idname=$i$other_param$offSetParam\">$i</a>");
-	}
-	// $startMoreと$endMoreを$page_footerの前後に付け足す
-	$page_footer = 'ﾍﾟｰｼﾞ '.$startMore.$page_footer.$endMore.'';
-	// $page_footerを表示
-	return $page_footer;
-}
+endif;
 
 /**
- * デバッグ用関数 by kuwana
- * == Print Array ==
+ * Adds two classes to the array of body classes.
+ * The first is if the site has only had one author with published posts.
+ * The second is if a singular post being displayed
+ *
+ * @since Twenty Eleven 1.0
  */
-function parr($array, $var_dump = '') {
-	echo '<pre style="white-space: pre;">';
-	echo '==デバッグエリア START==<br>';
-	if ($var_dump == false) {
-		print_r($array);
-	} else {
-		var_dump($array);
-	}
-	echo '<br>==デバッグエリア END==';
-	echo '</pre>';
+function twentyeleven_body_classes( $classes ) {
+
+	if ( function_exists( 'is_multi_author' ) && ! is_multi_author() )
+		$classes[] = 'single-author';
+
+	if ( is_singular() && ! is_home() && ! is_page_template( 'showcase.php' ) && ! is_page_template( 'sidebar-page.php' ) )
+		$classes[] = 'singular';
+
+	return $classes;
 }
+add_filter( 'body_class', 'twentyeleven_body_classes' );
 
-
-/* EKPT Start */
