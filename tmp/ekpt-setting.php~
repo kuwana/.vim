@@ -2,10 +2,6 @@
 
 // 本来
 define ('EKPTDEF_HOME', 'https://town-dev-money.smartec.co.jp/') ;
-// sslがうまくいかないので一旦httpで
-//define ('EKPTDEF_HOME', 'http://town-dev-money.smartec.co.jp/') ;
-
-
 // ベータ時 
 // define ('EKPTDEF_HOME', 'http://cms04.ekupo.jp/') ;
 // 本来

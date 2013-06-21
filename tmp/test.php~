@@ -1,9 +1,7 @@
 <?php
 
-$a = array('name' => 'takuya', 'age' => 27, 'tall' => 164, 'IQ' => 200);
-$b = array('kuwana takuya');
-$d = array('rarararara');
+$a = 'special';
+$b = 0;
 
-$c = array_merge($a, $b, $d);
+if (empty($b)) echo 'OK';
 
-var_export( $c );

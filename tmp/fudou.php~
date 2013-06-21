@@ -235,8 +235,8 @@ function add_post_type_template3() {
 		//global $is_iphone;
 		//if ( !$is_iphone ){
 			echo "\n";
-			if ( is_front_page() )
-				echo '<script type="text/javascript" src="'.WP_PLUGIN_URL.'/fudou/js/jquery.flatheights.js"></script>';
+//			if ( is_front_page() )
+//				echo '<script type="text/javascript" src="'.WP_PLUGIN_URL.'/fudou/js/jquery.flatheights.js"></script>';
 
 			switch ( get_option('template') ) {
 				case "twentytwelve" :
@@ -471,6 +471,8 @@ function add_jquery_latest() {
 		echo '<script type="text/javascript" src="'.get_stylesheet_directory_uri().'/js/functions.js"></script>';
 		echo '<script type="text/javascript" src="'.get_stylesheet_directory_uri().'/js/galleria/galleria-1.2.9.min.js"></script>';
 	}
+	if (!is_multisite() && is_front_page())
+		echo '<script type="text/javascript" src="'.WP_PLUGIN_URL.'/fudou/js/jquery.flatheights.js"></script>';
 }
 add_action('wp_head', 'add_jquery_latest');
 

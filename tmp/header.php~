@@ -10,30 +10,7 @@
  */
 ?>
 
-<!DOCTYPE html>
-<!--[if IE 6]>
-<html id="ie6" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if IE 7]>
-<html id="ie7" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if IE 8]>
-<html id="ie8" <?php language_attributes(); ?>>
-<![endif]-->
-<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
-<html <?php language_attributes(); ?>>
-<!--<![endif]-->
-<head>
-<meta charset="<?php bloginfo( 'charset' ); ?>" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <?php
-// Init
-$ok = true ;
-$logout_ok = false ;
-$shop_id = $shop_memid = 0;
-
-
-
 // ユーザーエージェント取得
 $ua = $_SERVER['HTTP_USER_AGENT'];
 
@@ -45,8 +22,6 @@ if ( (strpos($ua, 'Android') !== false) && (strpos($ua, 'Mobile') !== false) || 
     // その他（PC）からアクセスされた場合
 	$signinURL = 'https://town.ekupo.jp/pc/index.html';
 }
-
-
 
 // ログインチェック
 $token          = '';
@@ -61,13 +36,11 @@ if ( $cookie && $resArr ) {
 }
 
 
-
 // ログアウト処理
 if ( isset($_GET['logout']) && $_GET['logout'] == 1 ) {
 	$logout_ok = ekpt_logout();
 	exit;
 }
-
 
 
 // ログイン処理
@@ -104,7 +77,6 @@ if ( isset( $_POST['email']) && isset($_POST['password']) ) {
 } else { $userInfo_out = '' ; }
 
 
-
 // ログインリンク生成
 if ( $nickname != '' ) {
 	$topics = 'topics_2';// class名
@@ -112,129 +84,107 @@ if ( $nickname != '' ) {
 	$login_out .= '<div style="clear: both;"></div>';
 	$login_out .= '<ul><li><a href="' . $signinURL . '" target="_blank">エクポタウン</a></li>';
 	$login_out .=     '<li><a href="'. get_bloginfo('url') . '/?logout=1">ログアウト</a></li>';
-	$login_out .= '</ul></li></ul>';
+	$login_out .= '</ul></li></ul><br>';
 } else {
 	$topics   = 'topics';
-	$login_out  = '<ul class="ul_topics01"><li><a href="javascript:void(0);" date-tgt="wd1" class="btns">ログイン</a></li>';
-	$login_out .= '<li> / <a href="'. $signinURL .'" target="_blank">新規登録</a></li>';
+	$login_out  = '<a href="javascript:void(0);" date-tgt="wd1" class="btns">ログイン</a>';
+	$login_out .= '&nbsp;&frasl;&nbsp;<a href="'. $signinURL .'" target="_blank">新規登録</a>';
 //	$login_out .= '<li><a href="http://town.ekupo.jp/guide/about.html" target="_blank">ガイド</a></li></ul>';
 }
 
 
-// shop_id取得
-if( isset($post) ) {
-	$shop_id    = get_post_meta( $post->ID, 'kaiin', true );
-	$shop_memid = get_post_meta( $post->ID, 'shopmemid', true );
-}
-
-
-/***
+/**
  * いいねボタン
  */
 global $like_done, $like_done_class;
-
-$like_done_title = '既に「いいね」しています';
+$shop_id = get_post_meta( $post->ID, 'kaiin', true );
 
 if ( isset($_POST['like']) && $_POST['like'] == 1 ) {
 
 	$res = submit_like($shop_id);
 
-	if ( ! is_array($res) && $res === 'already') {
-		// Already done.
-		$like_done       = 'href="javascript: void(0);" title="'.$like_done_title.'"';
+	if ( $res === 'already') {
+		$like_done       = 'href="javascript: void(0);"';
 		$like_done_class = 'like_done';
-		$like_notice     = 'show_notice("' . $like_done_title . '");';
-	} else if ( is_array($res) && isset($res['status_txt']) ) {
-		// OverMax.
-		$like_done       = 'href="javascript: void(0);" title="' . $res['status_txt'] . '"';
-		$like_done_class = '';
-		$like_notice     = 'show_notice("' . $res['status_txt'] . '");';
-		$like_done_title = $res['status_txt'];
-	} else if ($res) {
-		// OK.
-		$like_done       = 'href="javascript: void(0);" title="'.$like_done_title.'"';
+		echo '<script>alert("既に「いいね」しています。"); </script>';
+	} else if ( $res ) {
+		$like_done       = 'href="javascript: void(0);"';
 		$like_done_class = 'like_done';
-		$like_notice     = 'show_notice("「いいね」しました。");';
 	} else {
-		// Not Login.
 		$like_done = 'onclick="document.sendLike.submit();"';
 		$like_done_class = '';
-		$autologin = 'clicked';
+	}
+} else {
+	if ($ok) {
+		$res = check_only_vote($shop_id, $action_type = 'L');
+	} else {
+		$res = '';
+	}
+	if ($res === 'already') {
+		$like_done       = 'href="javascript: void(0);"';
+		$like_done_class = 'like_done';
+	} else {
+		$like_done = 'onclick="document.sendLike.submit();"';
+		$like_done_class = '';
 	}
 }
-// いいねしてるかチェック
-if ($resArr) {
-	$res = check_only_vote($shop_id, $action_type = 'L');
-} else {
-	$res = '';
-}
-if ($res === 'already') {
-	$like_done       = 'href="javascript: void(0);" onclick="show_notice('.'\''. $like_done_title .'\''.')" title="'.$like_done_title.'"';
-	$like_done_class = 'like_done';
-} else {
-	$like_done       = 'onclick="document.sendLike.submit();"';
-	$like_done_class = '';
-}
-
-
 
 /**
  * お気に入りボタン
  */
 global $favo_done, $favo_done_class;
-
-$favo_done_title = '既に「お気に入り」に登録されています';
-
 if ( isset($_POST['favo']) && $_POST['favo'] == 1 ) {
 
-	$res = submit_favo($shop_memid);
+	$res = submit_favo($shop_id);
 
-	if ( $res === 'already' ) {
-		// Already done.
-		$favo_done       = 'href="javascript: void(0);" title="'.$favo_done_title.'"';
+	if ( $res === 'already') {
+		$favo_done       = 'href="javascript: void(0);"';
 		$favo_done_class = 'favo_done';
-		$favo_notice     = 'show_notice("' . $favo_done_title . '");';
+		echo '<script>alert("既に「お気に入り」に登録されてます。"); </script>';
 	} else if ( $res ) {
-		// OK.
-		$favo_done       = 'href="javascript: void(0);" title="'.$favo_done_title.'"';
+		$favo_done       = 'href="javascript: void(0);"';
 		$favo_done_class = 'favo_done';
-		$favo_notice     = 'show_notice("「お気に入り」に登録しました。");';
 	} else {
-		// Not Login.
 		$favo_done = 'onclick="document.sendFavo.submit();"';
 		$favo_done_class = '';
-		$autologin = 'clicked';
+	}
+} else {
+	if ($ok) {
+		$res = check_only_vote($shop_id, $action_type = 'F');
+	} else {
+		$res = '';
+	}
+	if ($res === 'already') {
+		$favo_done       = 'href="javascript: void(0);"';
+		$favo_done_class = 'favo_done';
+	} else {
+		$favo_done = 'onclick="document.sendFavo.submit();"';
+		$favo_done_class = '';
 	}
 }
-// お気に入りしてるかチェック
-if ( $resArr )
-	$res = check_only_vote($shop_id, $action_type = 'F');
-else
-	$res = '';
-
-if ( ! $shop_memid ) {
-	$favo_done       = 'style="background-color: #ffa; color: #999;" href="javascript: void(0);" onClick="show_notice(\'' . 'ｱｶｳﾝﾄﾍﾟｰｼﾞがありません。' . '\')" title="ｱｶｳﾝﾄﾍﾟｰｼﾞがありません"';
-	$favo_done_class = 'favo_done noacount';
-} else if ($res === 'already') {
-	$favo_done       = 'href="javascript: void(0);" onClick="show_notice('.'\''. $favo_done_title .'\''.')" title="'.$favo_done_title.'"';
-	$favo_done_class = 'favo_done';
-} else {
-	$favo_done       = 'onclick="document.sendFavo.submit();"';
-	$favo_done_class = '';
-}
-
-
-
 // クーポン取得
 global $token, $rtc_id;
 $token = isset($_SESSION['ekpt_token']) ? $_SESSION['ekpt_token'] : '';
 $rtc_id = isset($_POST['rtc_id']) ? $_POST['rtc_id'] : '0';
 
-// その他ログイン画面起動ハンドラ
-if ( isset($_POST['login']) && $_POST['login'] == 1) {
-}
 ?>
 
+<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" <?php language_attributes(); ?>>
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" <?php language_attributes(); ?>>
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" <?php language_attributes(); ?>>
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html <?php language_attributes(); ?>>
+<!--<![endif]-->
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title><?php
 	/*
 	 * Print the <title> tag based on what is being viewed.
@@ -252,10 +202,6 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 	if ( is_single() && $post_id ) {
 		echo $title .' のクーポンはエクポ';
 	} else {
-		parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], PHP_URL_QUERY), $qry);
-		if (isset($qry['page'])) {
-			echo $qry['page'].'ページ目 ';
-		}
 		wp_title( '|', true, 'right' );
 		// Add the blog name.
 		bloginfo( 'name' );
@@ -263,45 +209,60 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 	}
 
 	// Add a page number if necessary:
-//	if ( $paged >= 2 || $page >= 2 )
-//		echo ' | ' . sprintf( __( 'Page %s', 'twentyeleven' ), max( $paged, $page ) );
+	if ( $paged >= 2 || $page >= 2 )
+		echo ' | ' . sprintf( __( 'Page %s', 'twentyeleven' ), max( $paged, $page ) );
 
 	?></title>
-<meta name="keyword" content="<?php echo empty($entrykywd) ? '' : $entrykywd.',', $titlekywd,','; ?>グルメ,クーポン,共通,ポイントカード,エクポ,エクポカード">
-<meta name="description" content="クーポンが使えて、平均5%のポイントが貯まるエクポカードがお得！エクポカードは『この一枚で池袋、新宿、渋谷、上野の飲食店（居酒屋/ダイニングバー/和食/洋食）から美容院・リラクゼーション・レジャーなどでクーポン・共通ポイントが貯まるお得なカード』。<?php echo $postdata->post_title; ?>">
+		<meta name="keyword" content="<?php echo empty($entrykywd) ? '' : $entrykywd.',', $titlekywd,','; ?>グルメ,クーポン,共通,ポイントカード,エクポ,エクポカード">
+		<meta name="description" content="クーポンが使えて、平均5%のポイントが貯まるエクポカードがお得！エクポカードは『この一枚で池袋、新宿、渋谷、上野の飲食店（居酒屋/ダイニングバー/和食/洋食）から美容院・リラクゼーション・レジャーなどでクーポン・共通ポイントが貯まるお得なカード』。<?php echo $postdata->post_title; ?>">
 <link rel="profile" href="http://gmpg.org/xfn/11" />
 <link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
+<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
 <!--[if lt IE 9]>
 <script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
 <![endif]-->
 <?php
-	if (!is_single()) {
-		echo '<style type="text/css">#page { background-image: url(' . WP_PLUGIN_URL . '/fudou/themes/images/ui/bg_common_02.png); }</style>';
+	$slugs = array(
+		'1' => 'links',
+		'2' => 'sitepolicy',
+		'3' => 'privacypolicy',
+		'4' => 'terms',
+		'5' => 'company',
+		'6' => 'sitemap',
+		'7' => 'contactus',
+		'8' => 'resignation'
+	);
+	$slug = array_search($post->post_name, $slugs);
+	if ( (isset($post->post_name) && $post->post_name == 'ekupo_index') || $slug || (isset($_GET['bukken']) && $_GET['bukken'] == 'jsearch') || isset($_GET['s']) ) {
+		echo '<style type="text/css">#page { background-image: url(' . WP_PLUGIN_URL . '/fudou/themes/images/ui/bg_common_3.png); }</style>';
 	}
 	/* We add some JavaScript to pages with the comment form
 	 * to support sites with threaded comments (when in use).
 	 */
-//	if ( is_singular() && get_option( 'thread_comments' ) )
-//		wp_enqueue_script( 'comment-reply' );
+	if ( is_singular() && get_option( 'thread_comments' ) )
+		wp_enqueue_script( 'comment-reply' );
 
 	/* Always have wp_head() just before the closing </head>
 	 * tag of your theme, or you will break many plugins, which
 	 * generally use this hook to add elements to <head> such
 	 * as styles, scripts, and meta tags.
 	 */
-	wp_deregister_script('jquery');
-	wp_deregister_script('jquery-ui-core');
 	wp_head();
 ?>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo get_stylesheet_directory_uri(); ?>/js/galleria/galleria-1.2.9.min.js"></script>
+<script type="text/javascript" src="<?php echo get_stylesheet_directory_uri(); ?>/js/jquery.flatheights.js"></script>
+<script type="text/javascript" src="<?php echo get_stylesheet_directory_uri(); ?>/js/functions.js"></script>
 </head>
 
-
 <body <?php body_class(); ?>>
+
 
 <?php // ログイン画面（モーダルウィンドウ） ?>
 <div class="modal wd1">
 	<div class="modalBody">
-		<p><span class="close">×close</span></p>
+		<p class="close">×close</p>
 		<form action="" method="POST" name="loginForm">
 			<dl class="loginForm clearfix">
 				<dt>メールアドレス</dt>
@@ -312,9 +273,8 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 				<dd><input name="password" type="password" /></dd>
 			</dl>
 			<p class="loginCheck"><input type="checkbox" name="keeplogin" value="1"> ログインしたままにする</p>
-			<a href="#" id="login_btn" onclick="document.loginForm.submit();">ログインする</a>
+			<a href="#" id="login_btn" class="btn_silver" onclick="document.loginForm.submit();">ログインする</a>
 		</form>
-		<p class="loginImg"><a href="<?php echo $signinURL; ?>"><img src="<?php echo WP_PLUGIN_URL . '/fudou/themes/images/ui/login_top.gif'; ?>" /></a></p>
 	</div>
 	<div class="modalBK"></div>
 </div>
@@ -343,35 +303,25 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 </script>
 
 
-<div id="page" class="hfeed">
+<header id="branding" role="banner">
 
 
-	<div id="notification">
-		<!-- Notification Area -->
-	</div>
-	<script>
-	<!--
-		// 通知用 関数定義
-		function show_notice(txt) {
-			if (txt)
-				$("#notification").empty().append(txt);
-			$('#notification').slideDown(650).delay(1450).slideUp(600);
-		}
-	-->
-	</script>
-	<?php
-		// いいね、お気に入りボタン押下直後の通知
-		if ( isset($like_notice) || isset($favo_notice) ) {
-			if ( isset($like_notice) )
-				echo '<script>' . $like_notice . '</script>';
-			else
-				echo '<script>' . $favo_notice . '</script>';
-		}
-	?>
+			<?php
+				// Has the text been hidden?
+				if ( 'blank' == get_header_textcolor() ) :
+			?>
+				<div class="only-search<?php if ( $header_image ) : ?> with-image<?php endif; ?>">
+				<?php get_search_form(); ?>
+				</div>
+			<?php
+				else :
+			?>
+				<?php get_search_form(); ?>
+			<?php endif; ?>
 
-	<header id="branding" role="banner">
 	<div id="header" class="clearfix">
-		<h1><?php
+		<h1 style="display: none;">
+			<?php
 				if ( is_single() && $post_id ) {
 					echo $postdata->post_title .' のクーポンはエクポ';
 				} else {
@@ -380,12 +330,12 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 					bloginfo( 'name' );
 					//echo " | $site_description";
 				}
-			?></h1>
-		<p id="logo"><a href="<?php echo bloginfo('url'); ?>"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/logo.png" /></a></p>
-		<p id="catchcopy">池袋・新宿・渋谷でのお店探しが最もお得！</p>
+			?>
+		</h1>
 		<div id="<?php echo $topics; ?>">
 			<?php echo $login_out; // ログイン有無で出し分け ?>
 		</div>
+		<p id="logo"><a href="<?php echo bloginfo('url'); ?>"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/logo.png" /></a></p>
 		<script>
 		<!--
 			$(function() {
@@ -403,48 +353,43 @@ if ( isset($_POST['login']) && $_POST['login'] == 1) {
 			});
 		-->
 		</script>
-			<?php // Has the text been hidden?
-				if ( 'blank' == get_header_textcolor() ) :
-			?>
-				<div class="only-search<?php if ( $header_image ) : ?> with-image<?php endif; ?>">
-				<?php get_search_form(); ?>
-				</div>
-			<?php
-				else :
-					get_search_form();
-				endif;
-			?>
-	</div><!-- /#header -->
 	<?php
 		// 固定ページのスラッグからページを取得
-		$all       = get_page_by_path('region/all');
-		$ikebukuro = get_page_by_path('region/ikebukuro');
-		$shinjuku  = get_page_by_path('region/shinjuku');
-		$shibuya   = get_page_by_path('region/shibuya');
-		$others    = get_page_by_path('region/others');
+		$ginza    = get_page_by_path('region/ginza');
+		$azabu    = get_page_by_path('region/azabu');
+		$akasaka  = get_page_by_path('region/akasaka');
+		$aoyama   = get_page_by_path('region/aoyama');
+		$shinjuku = get_page_by_path('region/shinjuku');
+		$roppongi = get_page_by_path('region/roppongi');
 		// スラッグ+.html
-		$allURL = get_bloginfo('url') . '/' . $all->post_name . '.html';
-		$ikbURL = get_bloginfo('url') . '/' . $ikebukuro->post_name . '.html';
-		$snjURL = get_bloginfo('url') . '/' . $shinjuku->post_name . '.html';
-		$sbyURL = get_bloginfo('url') . '/' . $shibuya->post_name . '.html';
-		$othURL = get_bloginfo('url') . '/' . $others->post_name . '.html';
+		$ginzaURL    = get_bloginfo('url') . '/' . $ginza->post_name . '.html';
+		$azabuURL    = get_bloginfo('url') . '/' . $azabu->post_name . '.html';
+		$akasakaURL  = get_bloginfo('url') . '/' . $akasaka->post_name . '.html';
+		$aoyamaURL   = get_bloginfo('url') . '/' . $aoyama->post_name . '.html';
+		$shinjukuURL = get_bloginfo('url') . '/' . $shinjuku->post_name . '.html';
+		$roppongiURL = get_bloginfo('url') . '/' . $roppongi->post_name . '.html';
 	?>
-	<ul id="gNavi" class="clearfix">
-		<li><a href="<?php echo $allURL; ?>">すべて</a></li>
-		<li><a href="<?php echo $ikbURL; ?>">池袋</a></li>
-		<li><a href="<?php echo $snjURL; ?>">新宿</a></li>
-		<li><a href="<?php echo $sbyURL; ?>">渋谷</a></li>
-		<li><a href="<?php echo $othURL; ?>">その他</a></li>
-		<li><a href="http://town.ekupo.jp/guide/about.html">エクポとは？</a></li>
+	<ul id="gNavi2" class="clearfix">
+		<li><a href="<?php echo $ginzaURL   ; ?>">銀座</a></li>
+		<li><a href="<?php echo $azabuURL   ; ?>">麻布</a></li>
+		<li><a href="<?php echo $akasakaURL ; ?>">赤坂</a></li>
+		<li><a href="<?php echo $aoyamaURL  ; ?>">青山</a></li>
+		<li><a href="<?php echo $shinjukuURL; ?>">新宿</a></li>
+		<li><a href="<?php echo $roppongiURL; ?>">六本木</a></li>
 	</ul><!-- /#gNavi -->
-	</header><!-- #branding -->
+	
+	</div><!-- #header -->
+
+</header><!-- #branding -->
+
+	<div id="page" class="hfeed">
 
 	<?php
 	/*****************
 	 * パンくずリスト
 	 *****************/
-if ( isset($post) && $post->post_name != 'getcoupon' ) {
-	if (is_page()) {
+if ($post->post_name != 'getcoupon') {
+	if ($slug) {
 		echo '<div class="breadcrumbsAbout">';
 	} else {
 		echo '<div class="breadcrumbs">';

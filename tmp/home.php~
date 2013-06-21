@@ -1,85 +1,43 @@
 <?php
 get_header();
 the_post();
-global $wpdb, $lb_purpose, $lb_genre, $lb_budget;
+global $wpdb, $lb_purpose, $lb_genre, $lb_budget, $lb_particular;
 $datas = array();
-$cpdatas1 = $cpdatas2 = array();
-$res_slc = array();
+$cpdatas = array();
+$dsct_pct = array();
 $cpn_text = '';
-$pager = '';
+$res = '';
 
-$glbres = isset($_SESSION['glbres']) ? $_SESSION['glbres'] : '';
-$perPage = 9;
-$viewPageMenuWidth = 10;
-$offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
-$cpn_type = isset($_GET['ctype']) ? $_GET['ctype'] : '10';
-$cpn_label = array('10' => 'お試しクーポン', '20' => 'タイムセールクーポン', '5' => '通常クーポン');
-$cpn_styles = array('10' => 'style_trials', '20' => 'style_timesales', '5' => 'style_commons');
-$cpn_class_names = array('10' => 'trials', '20' => 'timesales', '5' => 'commons');
-$jdatas = get_coupon_list();
-$dcdatas = json_decode($jdatas,true);
-if ($jdatas) {
-	$datas = $dcdatas['data']['coupons'];
-}
-foreach ($datas as $v) {
-	if ($v['coupon_status'] == '11')    continue;
-	if ($cpn_type == $v['rtc_type']) {
-		$rtc_type[] = (int)$v['rtc_type'];
-		$discount_pct[] = (int)$v['rtc_discount_pct'];
-		$cpdatas1[] = $v;
-	}
-	if ($v['rtc_type'] == '10') {
-		$cpdatas2[] = $v;
+$q = "
+	SELECT P.post_title, P.post_name, PM.post_id, PM.meta_key, PM.meta_value
+	FROM wp_posts P INNER JOIN wp_postmeta PM ON P.ID = PM.post_id
+	WHERE P.post_status = 'publish'
+	AND P.post_type = 'fudo'
+	AND PM.meta_key IN ('specialcoupondesc', 'nomalcoupondesc')
+	AND PM.meta_value <> ''
+	ORDER BY P.post_name, PM.meta_key
+	";
+$wp_res = $wpdb->get_results($q, ARRAY_A);
+$prv = '';
+foreach ($wp_res as $data) {
+	if ($prv != $data['post_name']) {
+		$res[] = $data;
+		$prv = $data['post_name'];
 	}
 }
-shuffle($cpdatas1);
-//array_multisort($rtc_type, SORT_DESC, SORT_NUMERIC, $cpdatas1);
-$pager = ekpt_pager('page', count($cpdatas1), $perPage, $viewPageMenuWidth);
-$cpdatas_slc = array_slice($cpdatas1, $offset, $perPage);
+shuffle($res);
 
-if ($cpn_type == '5') {
-	$q = "
-		SELECT P.post_title, P.post_name, PM.post_id, PM.meta_key, PM.meta_value
-		FROM wp_posts P INNER JOIN wp_postmeta PM ON P.ID = PM.post_id
-		WHERE P.post_status = 'publish'
-		AND P.post_type = 'fudo'
-		AND PM.meta_key IN ('kakaku', 'shikibesu', 'jyoutai')
-		AND PM.meta_value <> ''
-		ORDER BY P.post_name, PM.meta_key
-		";
-	$wp_res = $wpdb->get_results($q, ARRAY_A);
-	$prv = '';
-	foreach ($wp_res as $data) {
-		if ($prv != $data['post_name']) {
-			$res[] = $data;
-			$prv = $data['post_name'];
-		}
-	}
-	if (!$offset) {
-		shuffle($res);
-		$glbres = $_SESSION['glbres'] = $res;
-	}
-	$pager = ekpt_pager('page', count($glbres), $perPage, $viewPageMenuWidth);
-	$res_slc = array_slice($glbres, $offset, $perPage);
-}
 ?>
-	<h2 id="contentsTitle">今すぐ使えるお得なクーポンを探す</h2>
 	<div id="contents">
 		<dl class="dl_queryVars01 clearfix">
 			<dt>ジャンル：</dt>
 			<dd>
 				<ul>
 					<li><a href="all.html">すべて</a></li>
-					<li><a href="izakaya-daining.html">居酒屋・ダイニングバー</a></li>
-					<li><a href="bar.html">バー(bar)</a></li>
-					<li><a href="japanese.html">和食</a></li>
-					<li><a href="western.html">洋食</a></li>
-					<li><a href="chinese.html">中華・ラーメン</a></li>
-					<li><a href="asia-multinational.html">アジア・焼き肉・多国籍</a></li>
-					<li><a href="cafe-gourmet.html">カフェ・その他グルメ</a></li>
-					<li><a href="hair-beauty.html">ヘアーサロン・美容健康</a></li>
-					<li><a href="relaxation.html">リラクゼーション</a></li>
-					<li><a href="other.html">その他業種</a></li>
+					<li><a href="">グルメ</a></li>
+					<li><a href="">美容</a></li>
+					<li><a href="">レジャー</a></li>
+					<li><a href="">旅行</a></li>
 					<li id="detailSearch">詳細検索</li>
 				</ul>
 			</dd>
@@ -87,10 +45,6 @@ if ($cpn_type == '5') {
 			<dd>
 				<div id="ekpSearchForm">
 				<?php
-					/*
-					$page = get_page_by_path('search');
-					echo get_permalink($page->ID);
-					 */
 					// 検索フォーム
 					global $wpdb;
 					$sql = '';
@@ -100,15 +54,13 @@ if ($cpn_type == '5') {
 					$sql .= " ON T.term_id = TT.term_id";
 					$sql .= " WHERE TT.taxonomy = 'bukken'";
 					$metas = $wpdb->get_results($sql, ARRAY_A);
-					//echo '<h3>店舗選定'.$shub_txt.'</h3>';
-					//echo 'ご希望の条件を選択して下さい(複数可)<br />';
 
-					$site = site_url( '/' ) . 'search.html';
+					$site = site_url( '/' );
 					echo '<form method="get" id="searchpage" name="searchpage" action="'.$site.'" >';
 					echo '<input type="hidden" name="bukken" value="jsearch" >';
 					echo '<dl>';
 					echo '<dt>ポイント</dt>';
-					echo '<dd><input type="checkbox" id="point" name="point" value="point" checked><label for="point">ポイント導入店舗</label></dd>';
+					echo '<dd><input type="checkbox" id="point" name="point" value="point"><label for="point">ポイント導入店舗</label></dd>';
 					echo '<dt>エリア</dt>';
 					echo '<dd><select name="region">';
 					echo '<option value="none">こだわらない</option>';
@@ -129,6 +81,7 @@ if ($cpn_type == '5') {
 					echo '<table>';
 					echo '<tr>';
 					$i = 1;
+					$genre = get_post_meta($postid, 'madorisyurui', true);
 					foreach ($lb_genre as $k => $v) {
 						echo '<td><span style="display:inline-block;"><input type="checkbox" id="'.$k.'" name="genre[]" value="'.$k.'"><label for="'.$k.'">'.$v.'</label></span></td>';
 						if ($i % 4 == 0) {
@@ -161,105 +114,90 @@ if ($cpn_type == '5') {
 				</div>
 			</dd>
 		</dl>
-		<ul class="ul_queryVars01 clearfix">
-			<li><a class="style_trials" href="?ctype=10">お試しクーポン</a></li>
-			<li><a class="style_timesales" href="?ctype=20">タイムセールクーポン</a></li>
-			<li><a class="style_commons" href="?ctype=5">通常クーポン</a></li>
-			<li><a class="style_point" href="//mktg.ekupo.jp/cc/ekp2ymd/" target="_blank">ポイント交換</a></li>
+		<ul class="ul_queryVars01 clearfix" style="display: none;">
+			<li><a class="style_timesales" href="?cpn_type=20">タイムセールクーポン</a></li>
+			<li><a class="style_trials" href="?cpn_type=10">お試しクーポン</a></li>
+			<li><a class="style_commons" href="?cpn_type=5">通常クーポン</a></li>
+			<li><a class="style_musou" href="//town.ekupo.jp/musou7" target="_blank">無双クーポン</a></li>
 		</ul>
+
 		<div id="main">
+
 			<ul class="ul_entryList01 clearfix">
-			<?php
-				if (isset($discount_pct)) {
-					array_multisort($discount_pct, SORT_DESC, SORT_NUMERIC, $cpdatas2);
-				}
-				for ($i = 0; $i < 2; $i++) :
-					$cpn = $cpdatas2[$i];
-					$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $cpn['shop_alias']);
-					$pid = $wpdb->get_var($q1);
-					$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title = %s", $cpn['shop_alias'].'oblong');
-					$aid = $wpdb->get_var($q2);
-					$genre = get_post_meta($pid, 'madorisyurui', true);
-					$genre = $lb_genre[$genre];
-					$src = wp_get_attachment_image_src($aid, 'original');
-					$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
-					if ($cpn['rtc_type'] == '10') {
-						if ($cpn['rtc_discount_pct']) {
-							$lblimg = 'coupon_trial_'.$cpn['rtc_discount_pct'].'per.png';
-						} else {
-							$lblimg = 'coupon_trial_plain.png';
-						}
-						$st = 'trials';
-						$ctype = 'お試しクーポン';
-						$cond = '初回利用限定！';
 
-					} else if ($cpn['rtc_type'] == '20') {
-						if ($cpn['rtc_discount_pct']) {
-							$lblimg = 'coupon_timesale_'.$cpn['rtc_discount_pct'].'per.png';
-						} else {
-							$lblimg = 'coupon_timesale_plain.png';
-						}
-						$st = 'timesales';
-						$ctype = 'タイムセールクーポン';
-						$cond = $cpn['mc_date_time_start'].'&#12316;'.$cpn['mc_date_time_end'].'限定！';
-					}
-					$classname = $cpn_class_names[$cpn['rtc_type']];
-					$txt = $cpn['date_time_text'] ? $cpn['date_time_text'] : '時間制限無し';
-					$permalink = get_bloginfo('url').'/'.$cpn['shop_alias'].'.html';
-			?>
+<?php
+	// TODO: トップ2店舗は特別優待店舗と、通常優待店舗を一つづつ出す
+
+	if ($res) :
+
+		for ( $i = 0; $i <= 1; $i++ ) :
+
+			$prev_alias = '';
+			$v = array_shift($res);
+
+			$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['post_name']);
+			$postid = $wpdb->get_var($q1);
+			$mainimg = $v['post_name'] . 'oblong';
+			$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_title = %s", $mainimg);
+			$attachid = $wpdb->get_var($q2);
+			$genre = get_post_meta($postid, 'madorisyurui', true);
+			$src = wp_get_attachment_image_src($attachid, 'none');
+			$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
+			$specialCpn = get_post_meta($v['post_id'], 'specialcoupondesc', true);
+			$nomalCpn   = get_post_meta($v['post_id'], 'nomalcoupondesc', true);
+			if ( $specialCpn )
+				$intro = $specialCpn;
+			else if ( $nomalCpn )
+				$intro = $nomalCpn;
+			else
+				$intro = 'クーポンはありません。';
+
+			// FIXME: プレミアムステージAPIの判定で下記処理を出し分ける
+			$coupontype_diamond = get_post_meta($v['post_id'], 'coupontypediamond', true);
+			$coupontype_black   = get_post_meta($v['post_id'], 'coupontypeblack', true);
+			$coupontype_platina = get_post_meta($v['post_id'], 'coupontypeplatina', true);
+			$coupontype_gold    = get_post_meta($v['post_id'], 'coupontypegold', true);
+			$coupontype_silver  = get_post_meta($v['post_id'], 'coupontypesilver', true);
+
+			if ($coupontype_diamond == 'specialcoupon' || $coupontype_black == 'specialcoupon') {
+				$coupontype = 'exective';
+			}
+			$coupontype = $coupontype_diamond;
+
+?>
 				<li>
-					<h3 class="<?php echo $classname; ?>"><span>&nbsp;</span><a href="<?php echo $permalink; ?>"><?php echo $cpn['shop_name']; ?></a></h3>
-					<p class="genre"><?php echo $genre; ?></p>
+					<h3 class="p_entryTitle01"><a class="style_specialYutai" href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><?php echo $v['post_title']; ?></a></h3>
+					<p class="clearfix"><span><?php echo $lb_genre[$genre]; ?></span></p>
 					<ul class="ul_entryListDesc01 clearfix">
-						<li><a href="<?php echo $permalink; ?>"><img src="<?php echo $src; ?>" /></a></li>
-						<li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /><em><?php echo $cond; ?></em></li>
-						<li class="p_entryTitle01 style_trials"><?php echo $ctype; ?></li>
-						<li class="summry"><?php echo $txt; ?></li>
+						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
+						<li>
+							<img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $coupontype; ?>.gif" /><br />
+							<em><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></em>
+						</li>
+						<li><?php echo $intro; ?></li>
 					</ul>
 				</li>
-			<?php endfor; ?>
+
+<?php /* <!--
+				<li>
+					<p class="p_entryTitle01 style_specialYutai"><?php echo $topLeftData2['post_title']; ?></p>
+					<p class="clearfix"><span>居酒屋・ダイニングバー</span></p>
+					<ul class="ul_entryListDesc01 clearfix">
+						<li><a class="clip_image01" href="<?php bloginfo('url'); ?>/s0108.html"><img src="<?php bloginfo('url'); ?>/wp-content/uploads/2013/04/s0108a.jpg" /></a></li>
+						<li><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/special_coupon.png" /><br /><em>初回利用限定！</em></li>
+						<li><h3><a href="<?php bloginfo('url'); ?>/s0108.html"><?php echo $topLeftData2['post_title']; ?></a></h3><?php echo $topLeftData2['meta_value']; ?></li>
+					</ul>
+				</li>
+--> */ ?>
+
+<?php endfor; ?>
+
 			</ul>
-<?php if ($cpdatas_slc) : ?>
 			<ul class="ul_entryList02 clearfix">
-			<?php foreach ($cpdatas_slc as $k => $v) :
-				$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['shop_alias']);
-				$postid = $wpdb->get_var($q1);
-				$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
-				$v['shop_alias'].'oblong', $v['shop_alias'].'a');
-				$attachid = $wpdb->get_var($q2);
-				$genre = get_post_meta($postid, 'madorisyurui', true);
-				$src = wp_get_attachment_image_src($attachid, 'original');
-				$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage.jpg';
-				if ($v['rtc_type'] == '10') {
-					if ($v['rtc_discount_pct']) {
-						$lblimg = 'coupon_trial_'.$v['rtc_discount_pct'].'per.png';
-					} else {
-						$lblimg = 'coupon_trial_plain.png';
-					}
 
-				} else if ($v['rtc_type'] == '20') {
-					if ($v['rtc_discount_pct']) {
-						$lblimg = 'coupon_timesale_'.$v['rtc_discount_pct'].'per.png';
-					} else {
-						$lblimg = 'coupon_timesale_plain.png';
-					}
-				}
-			?>
-				<li>
-          <h3 <?php echo 'class="' . $cpn_class_names[$v['rtc_type']] . '"'; ?>><span>&nbsp;</span><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><?php echo $v['shop_name']; ?></a></h3>
-					<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
-					<ul class="ul_entryListDesc01 clearfix">
-						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
-            <li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /></li>
-						<li class="p_entryTitle01 <?php echo $cpn_styles[$v['rtc_type']]; ?>"><?php echo $cpn_label[$v['rtc_type']]; ?></li>
-            <li class="cpn_description"><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></li>
-					</ul>
-				</li>
-			<?php endforeach;?>
-<?php elseif ($res_slc) : $prev_alias = ''; ?>
-			<ul class="ul_entryList02 clearfix">
 			<?php
-			foreach ($res_slc as $v) :
+				foreach ($res as $v) :
+
 				if ($prev_alias == $v['post_name']) {
 					$cpn_text = $v['meta_value'];
 					continue;
@@ -268,38 +206,46 @@ if ($cpn_type == '5') {
 				}
 				$q1 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s", $v['post_name']);
 				$postid = $wpdb->get_var($q1);
-				$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND post_title IN (%s, %s) ORDER BY LENGTH(post_title) DESC LIMIT 1",
-					$v['post_name'].'oblong', $v['post_name'].'a');
+				$mainimg = $v['post_name'] . 'oblong';
+				$q2 = $wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_title = %s", $mainimg);
 				$attachid = $wpdb->get_var($q2);
 				$genre = get_post_meta($postid, 'madorisyurui', true);
-				$src = wp_get_attachment_image_src($attachid, 'original');
-				$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage.jpg';
+				$src = wp_get_attachment_image_src($attachid, 'none');
+				$src = $src[0] ? $src[0] : WP_PLUGIN_URL.'/fudou/themes/images/ui/noimage_oblong.jpg';
 				$maxlen = 60;
-				$intro = wp_trim_words($v['meta_value'], $maxlen, '　...');
-			?>
+
+				$specialCpn = get_post_meta($v['post_id'], 'specialcoupondesc', true);
+				$nomalCpn   = get_post_meta($v['post_id'], 'nomalcoupondesc', true);
+				if ( $specialCpn )
+					$intro = $specialCpn;
+				else if ( $nomalCpn )
+					$intro = $nomalCpn;
+				else
+					$intro = 'クーポンはありません。';
+
+				// FIXME: プレミアムステージAPIの判定で下記処理を出し分ける
+				$coupontype_diamond = get_post_meta($v['post_id'], 'coupontypediamond', true);
+				$coupontype_black   = get_post_meta($v['post_id'], 'coupontypeblack', true);
+				$coupontype_platina = get_post_meta($v['post_id'], 'coupontypeplatina', true);
+				$coupontype_gold    = get_post_meta($v['post_id'], 'coupontypegold', true);
+				$coupontype_silver  = get_post_meta($v['post_id'], 'coupontypesilver', true);
+
+				$coupontype = $coupontype_diamond;
+?>
 				<li>
-						<h3 class="commons"><a href="<?php echo get_bloginfo("url").'/'.$v["post_name"].'.html'; ?>"><span>&nbsp;</span><?php echo $v['post_title']; ?></a></h3>
-						<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
-						<ul class="ul_entryListDesc01 clearfix">
-							<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
-							<p class="p_entryTitle01 style_commons">通常クーポン</p>
-							<li style="padding: 0 0.7em;font-size:12px;"><?php echo $intro ?></li>
-							<li style="padding: 0 0.7em;font-size:12px;text-align:right;"><a href="<?php echo get_bloginfo("url").'/'.$v["post_name"].'.html'; ?>">詳細へ &gt;&gt;</a></li>
-						</ul>
-				</li>
-				<!--<li>
-          <h3 <?php echo 'class="' . $cpn_class_names[$v['rtc_type']] . '"'; ?>><span>&nbsp;</span><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><?php echo $v['shop_name']; ?></a></h3>
-					<p class="genre"><span><?php echo $lb_genre[$genre]; ?></span></p>
-					<ul class="ul_entryListDesc01 clearfix">
-						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['shop_alias']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
-            <li class="discount"><img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $lblimg; ?>" /></li>
-						<li class="p_entryTitle01 <?php echo $cpn_styles[$v['rtc_type']]; ?>"><?php echo $cpn_label[$v['rtc_type']]; ?></li>
-            <li class="cpn_description"><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></li>
+				<h3 class="p_entryTitle02"><a class="style_specialYutai" href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><?php echo $v['post_title']; ?></a></h3>
+					<p class="clearfix"><span><?php echo $lb_genre[$genre]; ?></span></p>
+					<ul class="ul_entryListDesc01 clearfix" style="height: 450px;">
+						<li><a href="<?php bloginfo('url'); ?>/<?php echo $v['post_name']; ?>.html"><img src="<?php echo $src; ?>" /></a></li>
+						<li>
+							<img src="<?php echo WP_PLUGIN_URL; ?>/fudou/themes/images/ui/<?php echo $coupontype; ?>.gif" /><br />
+							<em><?php echo $v['date_time_text']?$v['date_time_text']:'時間制限なし'; ?></em>
+						</li>
+						<li style="float:none; width:auto;"><?php echo $intro ?></li>
 					</ul>
-				</li>-->
+				</li>
 <?php endforeach; endif; ?>
 			</ul>
-<?php echo '<div id="pager">'.$pager.'</div>'; ?>
 		<!-- /#main --></div>
 	<!-- /#contents --></div>
 
@@ -312,4 +258,170 @@ if ($cpn_type == '5') {
 	});
 })(jQuery);
 </script>
+
+
+<ul class="ul_queryVars02 clearfix">
+	<li><dl>
+		<dt>エリアから探す</dt>
+		<dd>
+		<?php
+			//固定ページのスラッグ(親小関係含む)からページを取得
+			$ginza    = get_page_by_path('region/ginza');
+			$azabu    = get_page_by_path('region/azabu');
+			$akasaka  = get_page_by_path('region/akasaka');
+			$aoyama   = get_page_by_path('region/aoyama');
+			$shinjuku = get_page_by_path('region/shinjuku');
+			$roppongi = get_page_by_path('region/roppongi');
+
+			//ページIDからURLを取得
+			$ginzaURL    = get_bloginfo('url') . '/' . $ginza->post_name . '.html';
+			$azabuURL    = get_bloginfo('url') . '/' . $azabu->post_name . '.html';
+			$akasakaURL  = get_bloginfo('url') . '/' . $akasaka->post_name . '.html';
+			$aoyamaURL   = get_bloginfo('url') . '/' . $aoyama->post_name . '.html';
+			$shinjukuURL = get_bloginfo('url') . '/' . $shinjuku->post_name . '.html';
+			$roppongiURL = get_bloginfo('url') . '/' . $roppongi->post_name . '.html';
+		?>
+		<ul>
+			<li><a href="<?php echo $ginzaURL   ;?>">> 銀座</a></li>
+			<li><a href="<?php echo $azabuURL   ;?>">> 麻布</a></li>
+			<li><a href="<?php echo $akasakaURL ;?>">> 赤坂</a></li>
+			<li><a href="<?php echo $aoyamaURL  ;?>">> 青山</a></li>
+		</ul><ul>
+			<li><a href="<?php echo $shinjukuURL;?>">> 新宿</a></li>
+			<li><a href="<?php echo $roppongiURL;?>">> 六本木</a></li>
+		</ul></dd>
+	</dl></li>
+	<li><dl>
+		<dt>ジャンルから探す</dt>
+		<dd>
+		<?php
+			// 固定ページのスラッグ(親小関係含む)からページを取得
+			$japanese    = get_page_by_path('genre/japanese');
+			$susi        = get_page_by_path('genre/susi');
+			$yakiniku    = get_page_by_path('genre/yakiniku');
+			$french      = get_page_by_path('genre/french');
+			$italian     = get_page_by_path('genre/italian');
+			$restaurant  = get_page_by_path('genre/restaurant');
+			$chinese     = get_page_by_path('genre/chinese');
+			$kaiseki     = get_page_by_path('genre/kaiseki');
+			$creative    = get_page_by_path('genre/creative-food');
+			$steak       = get_page_by_path('genre/steak');
+			// $other      = get_page_by_path('genre/other');
+
+			//ページIDからURLを取得
+			$japanURL    = get_bloginfo('url') . '/' . $japanese->post_name . '.html';
+			$susiURL     = get_bloginfo('url') . '/' . $susi->post_name . '.html';
+			$yakinikuURL = get_bloginfo('url') . '/' . $yakiniku->post_name . '.html';
+			$frenchURL   = get_bloginfo('url') . '/' . $french->post_name . '.html';
+			$italiaURL   = get_bloginfo('url') . '/' . $italian->post_name . '.html';
+			$restURL     = get_bloginfo('url') . '/' . $restaurant->post_name . '.html';
+			$chineURL    = get_bloginfo('url') . '/' . $chinese->post_name . '.html';
+			$kaisekiURL  = get_bloginfo('url') . '/' . $kaiseki->post_name . '.html';
+			$creativeURL = get_bloginfo('url') . '/' . $creative->post_name . '.html';
+			$steakURL    = get_bloginfo('url') . '/' . $steak->post_name . '.html';
+			// $otherURL   = get_bloginfo('url') . '/' . $other->post_name . '.html';
+		?>
+		<ul>
+			<li><a href="<?php echo $japanURL   ; ?>">>和食</a></li>
+			<li><a href="<?php echo $susiURL    ; ?>">>寿司</a></li>
+			<li><a href="<?php echo $yakinikuURL; ?>">>焼き肉</a></li>
+			<li><a href="<?php echo $frenchURL  ; ?>">>フレンチ</a></li>
+			<li><a href="<?php echo $italiaURL  ; ?>">>イタリアン</a></li>
+		</ul><ul>
+			<li><a href="<?php echo $restURL    ; ?>">>レストラン</a></li>
+			<li><a href="<?php echo $chineURL   ; ?>">>中華</a></li>
+			<li><a href="<?php echo $creativeURL; ?>">>創作料理</a></li>
+			<li><a href="<?php echo $steakURL   ; ?>">>鉄板・ステーキ</a></li>
+		</ul></dd>
+	</dl></li>
+	<li><dl>
+		<dt>シーンから探す</dt>
+		<dd>
+		<?php
+			//固定ページのスラッグ(親小関係含む)からページを取得
+			$private       = get_page_by_path('purpose/private-room');
+			$date          = get_page_by_path('purpose/date');
+			$party         = get_page_by_path('purpose/party');
+			$smoking       = get_page_by_path('purpose/non-smoking');
+			$buffet        = get_page_by_path('purpose/buffet');
+			$bottomless    = get_page_by_path('purpose/bottomless-cup');
+			$always        = get_page_by_path('purpose/always-open');
+			$lunch         = get_page_by_path('purpose/lunch');
+			$reception     = get_page_by_path('purpose/reception');
+			$alone         = get_page_by_path('purpose/alone');
+			$memorial      = get_page_by_path('purpose/memorial');
+			$cuthair       = get_page_by_path('purpose/cut-hair');
+			$cultivate     = get_page_by_path('purpose/cultivate');
+			$healling      = get_page_by_path('purpose/healing');
+			$entertainment = get_page_by_path('purpose/entertainment');
+			//
+			$privateURL       = get_bloginfo('url') . '/' . $private->post_name . '.html';
+			$dateURL          = get_bloginfo('url') . '/' . $date->post_name . '.html';
+			$partyURL         = get_bloginfo('url') . '/' . $party->post_name . '.html';
+			$smokingURL       = get_bloginfo('url') . '/' . $smoking->post_name . '.html';
+			$buffURL          = get_bloginfo('url') . '/' . $buffet->post_name . '.html';
+			$bottomURL        = get_bloginfo('url') . '/' . $bottomless->post_name . '.html';
+			$alwaysURL        = get_bloginfo('url') . '/' . $always->post_name . '.html';
+			$lunchURL         = get_bloginfo('url') . '/' . $lunch->post_name . '.html';
+			$receptionURL     = get_bloginfo('url') . '/' . $reception->post_name . '.html';
+			$aloneURL         = get_bloginfo('url') . '/' . $alone->post_name . '.html';
+			$memorialURL      = get_bloginfo('url') . '/' . $memorial->post_name . '.html';
+			$cuthairURL       = get_bloginfo('url') . '/' . $cuthair->post_name . '.html';
+			$cultivateURL     = get_bloginfo('url') . '/' . $cultivate->post_name . '.html';
+			$heallingURL      = get_bloginfo('url') . '/' . $healling->post_name . '.html';
+			$entertainmentURL = get_bloginfo('url') . '/' . $entertainment->post_name . '.html';
+		?>
+		<ul>
+			<li><a href="<?php echo $privateURL      ; ?>">> 完全個室</a></li>
+			<li><a href="<?php echo $dateURL         ; ?>">> デートに最適</a></li>
+			<li><a href="<?php echo $partyURL        ; ?>">> 宴会・パーティ</a></li>
+			<li><a href="<?php echo $smokingURL      ; ?>">> 禁煙席あり</a></li>
+			<li><a href="<?php echo $buffURL         ; ?>">> 食べ放題あり</a></li>
+			<li><a href="<?php echo $bottomURL       ; ?>">> 飲み放題あり（3時間以上）</a></li>
+			<li><a href="<?php echo $alwaysURL       ; ?>">> 深夜営業（24時間以降）</a></li>
+		</ul><ul>
+			<li><a href="<?php echo $lunchURL        ; ?>">> ランチがある</a></li>
+			<li><a href="<?php echo $receptionURL    ; ?>">> 接待に最適</a></li>
+			<li><a href="<?php echo $aloneURL        ; ?>">> お一人様歓迎</a></li>
+			<li><a href="<?php echo $memorialURL     ; ?>">> 記念日</a></li>
+			<li><a href="<?php echo $cuthairURL      ; ?>">> 髪を切る</a></li>
+			<li><a href="<?php echo $cultivateURL    ; ?>">> 自分をみがく</a></li>
+			<li><a href="<?php echo $heallingURL     ; ?>">> 癒されたい</a></li>
+			<li><a href="<?php echo $entertainmentURL; ?>">> エンターテイメント</a></li>
+		</ul></dd>
+	</dl></li>
+	<li><dl>
+		<dt>こだわりから探す</dt>
+		<dd>
+		<?php
+			//固定ページのスラッグ(親小関係含む)からページを取得
+			$nightview = get_page_by_path('particular/night-view');
+			$morning   = get_page_by_path('particular/until-morning');
+			$parking   = get_page_by_path('particular/parking');
+			$sake      = get_page_by_path('particular/sake');
+			$wine      = get_page_by_path('particular/wine');
+			$shochu    = get_page_by_path('particular/shochu');
+			$cocktail  = get_page_by_path('particular/cocktail');
+			//ページIDからURLを取得
+			$nightviewURL = get_bloginfo('url') . '/' . $nightview->post_name . '.html';
+			$morningURL   = get_bloginfo('url') . '/' . $morning->post_name . '.html';
+			$parkingURL   = get_bLoginfo('url') . '/' . $parking->post_name . '.html';
+			$sakeURL      = get_bloginfo('url') . '/' . $sake->post_name . '.html';
+			$wineURL      = get_bloginfo('url') . '/' . $wine->post_name . '.html';
+			$shochuURL    = get_bloginfo('url') . '/' . $shochu->post_name . '.html';
+			$cocktailURL  = get_bloginfo('url') . '/' . $cocktail->post_name . '.html';
+		?>
+		<ul>
+			<li><a href="<?php echo $nightviewURL ; ?>">> 夜景がキレイ</a></li>
+			<li><a href="<?php echo $morningURL   ; ?>">> 朝まで営業</a></li>
+			<li><a href="<?php echo $parkingURL   ; ?>">> 駐車場あり</a></li>
+			<li><a href="<?php echo $sakeURL      ; ?>">> 日本酒が豊富</a></li>
+		</ul><ul>
+			<li><a href="<?php echo $wineURL      ; ?>">> ワインが豊富</a></li>
+			<li><a href="<?php echo $shochuURL    ; ?>">> 焼酎が豊富</a></li>
+			<li><a href="<?php echo $cocktailURL  ; ?>">> カクテルが豊富</a></li>
+		</ul></dd>
+	</dl></li>
+</ul><!-- /.ul_queryVars02 -->
+
 <?php get_footer(); ?>

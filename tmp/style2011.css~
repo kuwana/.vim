@@ -43,49 +43,49 @@ Version: 1.2.0
 ---------------------------------------------------------------------- */
 
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td {
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 img { -ms-interpolation-mode: bicubic; }
 
 #main #content table tr {
-    border:none;
-    padding:0;
-    margin:0;
+	border:none;
+	padding:0;
+	margin:0;
 }
 
 #main #content table tr td {
-    padding:0;
-    margin:0;
-    border-top:none;
-    vertical-align: top;
+	padding:0;
+	margin:0;
+	border-top:none;
+	vertical-align: top;
 }
 
 #container, #content {
-    margin:0;
-    padding: 0;
+	margin:0;
+	padding: 0;
 }
 
 #content p, #content ul, #content dd, #content pre {
-    margin:0;
+	margin:0;
 }
 
 .widget {
-    /*	margin: 0 0 10px !important; */
+/*	margin: 0 0 10px !important; */
 }
 
 blockquote { font-style: normal; }
 
 .widget a {
-    font-weight: normal;
-    text-decoration: none;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 /* 見出し */
 
 #main #container #content h3{
-    border-bottom: 1px dotted #CCC;
+	border-bottom: 1px dotted #CCC;
 }
 
 
@@ -96,61 +96,62 @@ blockquote { font-style: normal; }
 .entry-content img,
 .comment-content img,
 .widget img {
-    max-width: 100%; /* Fluid images for posts, comments, and widgets */
+	max-width: 100%; /* Fluid images for posts, comments, and widgets */
 }
 #branding #searchform {
+	top: 2em;
 	position: absolute;
-	top: 4em;
-	right: 2%;
+	right: 13.9%;
+	text-align: right;
 }
 #main {
-    padding-top: 0;
+	padding-top: 0;
 }
 
 /* IE7 打ち消し用  #ie7 */
 
 #ie7 article.intro {
-    background: #f9f9f9;
-    border-bottom: none;
-    margin: 0px 0px 10px 0px;
-    padding: 10px;
+	background: #f9f9f9;
+	border-bottom: none;
+	margin: 0px 0px 10px 0px;
+	padding: 10px;
 }
 
 #ie7 section.featured-post {
-    margin: 0px 0px 10px 0px;
+	margin: 0px 0px 10px 0px;
 }
 
 #ie7 .right-sidebar section.recent-posts {
-    margin: 0px 0px 10px 0px;
-    float: left;
-    width: 700px;
+	margin: 0px 0px 10px 0px;
+	float: left;
+	width: 700px;
 }
 
 #ie7 .left-sidebar section.recent-posts {
-    margin: 0px 0px 10px 0px;
-    float: right;
-    width: 700px;
+	margin: 0px 0px 10px 0px;
+	float: right;
+	width: 700px;
 }
 
 #ie7 #branding img {
-    margin-bottom: -16px;
+	margin-bottom: -16px;
 }
 
 
 /* サイドバー ipad 縦表示用 */
 
 #main #secondary, #main #content {
-    margin: 0;
+	margin: 0;
 }
 
 /* フッター幅を減らしfloatさせる ipad 縦表示用 */
 
 @media (max-width: 800px) {
-    #colophon #supplementary .widget-area {
-        float: left;
-        margin-right: 3.7%;
-        width: auto;
-    }
+	#colophon #supplementary .widget-area {
+		float: left;
+		margin-right: 3.7%;
+		width: auto;
+	}
 }
 
 
@@ -158,45 +159,45 @@ blockquote { font-style: normal; }
 ---------------------------------------------------------------------- */
 
 .dpoint1 {
-    font-size: 26px;
-    font-weight: normal;
-    color: #C00;
-    float:left;
-    padding: 4px;
-    line-height: 1.2;
-    text-shadow: 0px 1px 0px rgba(255, 255, 255, 1);
+	font-size: 26px;
+	font-weight: normal;
+	color: #C00;
+	float:left;
+	padding: 4px;
+	line-height: 1.2;
+	text-shadow: 0px 1px 0px rgba(255, 255, 255, 1);
 }
 
 .dpoint2 {
-    font-size: 22px;
-    font-weight: normal;
-    color: #000;
-    float:left;
-    padding: 4px;
-    line-height: 1.5;
-    text-shadow: 0px 1px 0px rgba(255, 255, 255, 1);
+	font-size: 22px;
+	font-weight: normal;
+	color: #000;
+	float:left;
+	padding: 4px;
+	line-height: 1.5;
+	text-shadow: 0px 1px 0px rgba(255, 255, 255, 1);
 }
 
 .dpoint3 {
-    font-size: 18px;
-    font-weight: bold;
-    color: #000;
-    display: inline;
+	font-size: 18px;
+	font-weight: bold;
+	color: #000;
+	display: inline;
 }
 
 .dpoint4 {
-    font-size: 20px;
-    color: #000;
-    display: inline;
-    font-weight: bold;
+	font-size: 20px;
+	color: #000;
+	display: inline;
+	font-weight: bold;
 }
 
 .clearLeft {
-    clear: left;
+	clear: left;
 }
 
 .clearRight {
-    clear: right;
+	clear: right;
 }
 
 
@@ -204,16 +205,15 @@ blockquote { font-style: normal; }
 ---------------------------------------------------------------------- */
 
 #main {
-    margin:0;
-    overflow: hidden;
-    /zoom: 1;
+	margin:0;
+	overflow: hidden;
+	/zoom: 1;
 }
 
 #page {
-    margin: 0 auto;
-    width: 1000px;
-    background-color: #333333;
-	position: relative;
+	margin: 0 auto;
+	width: 1000px;
+	background: url(images/ui/bg_common_3) repeat;
 }
 
 
@@ -223,24 +223,24 @@ blockquote { font-style: normal; }
 /* サイド非表示 */
 
 .one-column #secondary {
-    display:none;
+	display:none;
 }
 
 /* １カラム コンテナ */
 
 .one-column #page {
-    max-width: 960px;
+	max-width: 960px;
 }
 
 .one-column #main {
-    margin:0;
-    padding: 20px 40px ;
-    overflow: hidden;
-    /zoom: 1;
+	margin:0;
+	padding: 20px 40px ;
+	overflow: hidden;
+	/zoom: 1;
 }
 
 .one-column #content {
-    margin: 0;
+	margin: 0;
 }
 
 
@@ -248,32 +248,32 @@ blockquote { font-style: normal; }
 ---------------------------------------------------------------------- */
 
 .right-sidebar #main #container {
-    margin: 0;
-    width: 700px;
-    float: left;
+	margin: 0;
+	width: 700px;
+	float: left;
 }
 
 .right-sidebar #content{
-    margin: 0;
-    width: 705px;
+	margin: 0;
+	width: 705px;
 }
 
 .right-sidebar #primary {
-    margin: 0;
-    width: 700px;
-    float: left;
+	margin: 0;
+	width: 700px;
+	float: left;
 }
 
 .right-sidebar #top_fbox {
-    float: left;
-    width: 700px;
+	float: left;
+	width: 700px;
 }
 
 .right-sidebar #main #secondary {
-    float: right;
-    margin: 0;
-    padding: 0;
-    width: 230px;
+	float: right;
+	margin: 0;
+	padding: 0;
+	width: 230px;
 }
 
 
@@ -281,32 +281,32 @@ blockquote { font-style: normal; }
 ---------------------------------------------------------------------- */
 
 .left-sidebar #main #container {
-    margin: 0;
-    width: 700px;
-    float: right;
+	margin: 0;
+	width: 700px;
+	float: right;
 }
 
 .left-sidebar #content {
-    margin: 0;
-    width: 705px;
+	margin: 0;
+	width: 705px;
 }
 
 .left-sidebar #primary {
-    margin: 0;
-    width: 700px;
-    float: right;
+	margin: 0;
+	width: 700px;
+	float: right;
 }
 
 .left-sidebar #top_fbox {
-    float: right;
-    width: 700px;
+	float: right;
+	width: 700px;
 }
 
 .left-sidebar #main #secondary {
-    float: left;
-    padding:0;
-    margin:0;
-    width: 230px;
+	float: left;
+	padding:0;
+	margin:0;
+	width: 230px;
 }
 
 
@@ -315,57 +315,57 @@ blockquote { font-style: normal; }
 
 .singular #content, .sidebar-content.singular #content,
 .left-sidebar.singular #content
-{
-    margin: 0;
-    /*    position: relative;*/
-    width: 100%;
+ {
+	margin: 0;
+/*    position: relative;*/
+	width: 100%;
 }
 
 .singular #primary {
-    float: left;
-    margin: 0;
-    width: 100%;
+	float: left;
+	margin: 0;
+	width: 100%;
 }
 
 .singular .entry-header,
 .singular .entry-content,
 .singular footer.entry-meta,
 .singular #comments-title {
-    margin: 0 auto;
-    width: 100%;
+	margin: 0 auto;
+	width: 100%;
 }
 
 .singular .hentry {
-    border-bottom: medium none;
-    padding: 0;
-    position: relative;
+	border-bottom: medium none;
+	padding: 0;
+	position: relative;
 }
 
 .singular.page .hentry {
-    padding: 0;
+	padding: 0;
 }
 
 .singular .entry-title {
-    color: #000;
-    font-size: 26px;
-    font-weight: bold;
-    line-height: 2;
+	color: #000;
+	font-size: 26px;
+	font-weight: bold;
+	line-height: 2;
 }
 
 .singular .entry-meta .edit-link a {
-    bottom: auto;
-    color: #fff;
-    left: 0;
-    position: relative;
-    right: auto;
-    top: 0;
+	bottom: auto;
+	color: #fff;
+	left: 0;
+	position: relative;
+	right: auto;
+	top: 0;
 }
 
 /* 投稿 entry-content */
 .singular #main #content .entry-content p {
-    padding: 10px;
-    font-size: 12px;
-    line-height: 1.6;
+	padding: 10px;
+	font-size: 12px;
+	line-height: 1.6;
 }
 
 
@@ -374,66 +374,66 @@ blockquote { font-style: normal; }
 
 /* Intro */
 article.intro {
-    background: #f9f9f9;
-    border-bottom: none;
-    margin: 0px 0px 10px 0px;
-    padding: 10px;
+	background: #f9f9f9;
+	border-bottom: none;
+	margin: 0px 0px 10px 0px;
+	padding: 10px;
 }
 
 /* 見出し */
 h1.showcase-heading {
-    font-size: 16px;
-    line-height: 2;
+	font-size: 16px;
+	line-height: 2;
 }
 
 /* 続きを読む */
 article.feature-image.small .entry-summary p a {
-    background: #222;
-    color: #eee;
-    display: block;
-    left: 0;
-    padding: 4px 26px 4px 85px;
-    position: relative;
-    top: 20px;
-    text-decoration: none;
-    width: 180px;
+	background: #222;
+	color: #eee;
+	display: block;
+	left: 0;
+	padding: 4px 26px 4px 85px;
+	position: relative;
+	top: 20px;
+	text-decoration: none;
+	width: 180px;
 }
 
 .page-template-showcase-php #main #primary {
-    margin: 0;
-    width: 100%;
+	margin: 0;
+	width: 100%;
 }
 
 .page-template-showcase-php #primary #content {
-    margin: 0;
-    width: 100%;
+	margin: 0;
+	width: 100%;
 }
 
 .page-template-showcase-php section.recent-posts {
-    margin: 0;
-    width: 100%;
+	margin: 0;
+	width: 100%;
 }
 
 .page-template-showcase-php #main .widget-area {
-    margin: 0;
-    padding:0;
+	margin: 0;
+	padding:0;
 }
 
 /* ショーケース１カラム用 */
 .one-column #main .widget-area {
-    display:none;
+	display:none;
 }
 
 /* ショーケースウィジット  .widget */
 
 .page-template-showcase-php #main .widget-area .widget {
-    margin: 0 0 8px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+	margin: 0 0 8px;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
 
-    width: 210px;
-    background: #FFF;
+	width: 210px;
+	background: #FFF;
 }
 
 
@@ -441,119 +441,119 @@ article.feature-image.small .entry-summary p a {
 ---------------------------------------------------------------------- */
 
 .right-sidebar section.recent-posts {
-    float: left;
-    width: 700px;
+	float: left;
+	width: 700px;
 }
 
 .right-sidebar #main .widget-area{
-    float: right;
-    width: 230px;
+	float: right;
+	width: 230px;
 }
 
 /* 11= ショーケーステンプレート サイドバー左  <body class="left-sidebar">
 ---------------------------------------------------------------------- */
 
 .left-sidebar section.recent-posts {
-    float: right;
-    width: 700px;
+	float: right;
+	width: 700px;
 }
 
 .left-sidebar #main .widget-area{
-    float: left;
-    width: 230px;
+	float: left;
+	width: 230px;
 }
 
 /* 12= 店舗リストページ #list_simplepage
 ---------------------------------------------------------------------- */
 
 #main #content #list_simplepage {
-    margin:0;
-    padding:0;
+	margin:0;
+	padding:0;
 }
 
 #main #content #list_simplepage .list_detail table {
-    margin: 0px;
-    padding: 0px;
-    border:none;
-    font-size:12px;
+	margin: 0px;
+	padding: 0px;
+	border:none;
+	font-size:12px;
 }
 
 #list_simplepage .list_simple_boxtitle {
-    border-top: 3px solid #4a535d;
-    border-right: 1px solid #b7b7b7;
-    border-bottom: 1px solid #b7b7b7;
-    border-left: 1px solid #b7b7b7;
-    clear : both;
+	border-top: 3px solid #4a535d;
+	border-right: 1px solid #b7b7b7;
+	border-bottom: 1px solid #b7b7b7;
+	border-left: 1px solid #b7b7b7;
+	clear : both;
 }
 
 #list_simplepage .list_simple_boxtitle h2 a {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 4px 0 3px 12px;
-    display: block;
-    background-color: #f8f8f8;
-    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
-    border-top-width: 1px;
-    border-top-style: solid;
-    border-top-color: #FFF;
+	font-size: 18px;
+	font-weight: bold;
+	padding: 4px 0 3px 12px;
+	display: block;
+	background-color: #f8f8f8;
+	text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-top-color: #FFF;
 }
 
 #list_simplepage .list_simple_boxtitle .entry-title{
-    margin: 0px;
-    padding: 0px;
+	margin: 0px;
+	padding: 0px;
 }
 
 .list_simple_box { /zoom : 1;}
 
 .list_simple_box:after {
-    content : '';
-    display : block;
-    clear : both;
-    height:0;
+	content : '';
+	display : block;
+	clear : both;
+	height:0;
 }
 
 #list_simplepage .list_simple_box {
-    padding: 6px;
-    margin: 0 0 10px 0;
-    background-color: #fefefe;
-    border-right: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    border-left: 1px solid #ccc;
+	padding: 6px;
+	margin: 0 0 10px 0;
+	background-color: #fefefe;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 1px solid #ccc;
 }
 
 #main #content #list_simplepage .list_detail dl {
-    margin: 0px;
-    padding: 5px;
-    font-size:12px;
+	margin: 0px;
+	padding: 5px;
+	font-size:12px;
 }
 
 #main #content .list_detail dt {
-    display: inline;
-    font-weight: normal;
-    color: #333;
+	display: inline;
+	font-weight: normal;
+	color: #333;
 }
 
 #main #content .list_detail dd {
-    display: inline;
-    color: #333;
-    margin: 0 0.6em 0 0.4em;
-    padding: 0px;
+	display: inline;
+	color: #333;
+	margin: 0 0.6em 0 0.4em;
+	padding: 0px;
 }
 
 #main #content .list_picsam {
-    float: left;
-    width:216px;
-    color: #000;
+	float: left;
+	width:216px;
+	color: #000;
 }
 
 #main #content .list_picsam img {
-    border: 1px solid #333;
-    background-color: #FFF;
-    /*	height: 100px;	*/
-    width: 100px;
-    margin:  1px 1px 5px;
-    padding: 1px;
-    float: left;
+	border: 1px solid #333;
+	background-color: #FFF;
+/*	height: 100px;	*/
+	width: 100px;
+	margin:  1px 1px 5px;
+	padding: 1px;
+	float: left;
 }
 
 
@@ -561,76 +561,76 @@ article.feature-image.small .entry-summary p a {
 /* 店舗の詳細を見るボタン */
 
 #list_simplepage .list_details_button {
-    clear:both;
-    display: block;
-    color:#00329B;
-    font-size:13px;
-    font-weight:bold;
+	clear:both;
+	display: block;
+	color:#00329B;
+	font-size:13px;
+	font-weight:bold;
 
-    background-color: #f4f4f4;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ffffff), color-stop(0.49, #eeeeee), color-stop(0.5, #dddddd), color-stop(1, #ffffff));
-    background: -moz-linear-gradient(top, #ffffff 0%, #eeeeee 49%, #dddddd 50%, #ffffff 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FFFFFF', endColorstr='#eeeeee',GradientType=0 ); /* ie */
+	background-color: #f4f4f4;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ffffff), color-stop(0.49, #eeeeee), color-stop(0.5, #dddddd), color-stop(1, #ffffff));
+	background: -moz-linear-gradient(top, #ffffff 0%, #eeeeee 49%, #dddddd 50%, #ffffff 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FFFFFF', endColorstr='#eeeeee',GradientType=0 ); /* ie */
 
-    text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.7);
+	text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.7);
 
-    -webkit-box-shadow: 0px 1px 0px #fff;
-    -moz-box-shadow: 0px 1px 0px #fff;
-    box-shadow:0px 1px 0px #fff;
+	-webkit-box-shadow: 0px 1px 0px #fff;
+	-moz-box-shadow: 0px 1px 0px #fff;
+	box-shadow:0px 1px 0px #fff;
 
-    border-radius: 3px;
+	border-radius: 3px;
 
-    text-align: center;
-    height: 24px;
-    width:208px;
-    border: 1px solid #999;
-    margin: 0 0 3px 0;
-    padding-top: 3px;
+	text-align: center;
+	height: 24px;
+	width:208px;
+	border: 1px solid #999;
+	margin: 0 0 3px 0;
+	padding-top: 3px;
 
-    letter-spacing: 0.1em;
+	letter-spacing: 0.1em;
 }
 
 #list_simplepage a:link,a:visited .list_details_button{ text-decoration: none; }
 
 #list_simplepage a:hover .list_details_button {
-    color: #39F;
-    text-decoration: underline;
+	color: #39F;
+	text-decoration: underline;
 }
 
 #list_simplepage .list_detail {
-    width: 65%;
-    float: right;
-    background-color: #fff;
-    border: 1px solid #b7b7b7;
-    padding: 4px;
-    margin: 0 3px 0 0;
+	width: 65%;
+	float: right;
+	background-color: #fff;
+	border: 1px solid #b7b7b7;
+	padding: 4px;
+	margin: 0 3px 0 0;
 
-    border-radius: 5px;
+	border-radius: 5px;
 
-    -moz-box-shadow:0px 2px 1px #BEC2C6;
-    -webkit-box-shadow:0px 2px 1px #BEC2C6;
-    box-shadow:0px 2px 1px #BEC2C6;
-    line-height: 1.8;
+	-moz-box-shadow:0px 2px 1px #BEC2C6;
+	-webkit-box-shadow:0px 2px 1px #BEC2C6;
+	box-shadow:0px 2px 1px #BEC2C6;
+	line-height: 1.8;
 }
 
 #main #content #list_simplepage .list_detail table tr {
-    border-bottom-width: 1px;
-    border-bottom-style: dotted;
-    border-bottom-color: #CCC;
-    margin-bottom: 4px;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: #CCC;
+	margin-bottom: 4px;
 }
 
 #main #content #list_simplepage .list_price {
-    padding:5px;
-    background:	-moz-linear-gradient(left, #ebf6fc, #fff);
-    background:	-webkit-gradient(linear, left top, right top, from(#ebf6fc), to(#fff));
-    background-color: #ebf6fc;
+	padding:5px;
+	background:	-moz-linear-gradient(left, #ebf6fc, #fff);
+	background:	-webkit-gradient(linear, left top, right top, from(#ebf6fc), to(#fff));
+	background-color: #ebf6fc;
 }
 
 #main #content #list_simplepage .list_price.rent {
-    background:	-moz-linear-gradient(left, #fdedf0, #fff);
-    background:	-webkit-gradient(linear, left top, right top, from(#fdedf0), to(#fff));
-    background-color: #fdedf0;
+	background:	-moz-linear-gradient(left, #fdedf0, #fff);
+	background:	-webkit-gradient(linear, left top, right top, from(#fdedf0), to(#fff));
+	background-color: #fdedf0;
 }
 
 
@@ -638,21 +638,21 @@ article.feature-image.small .entry-summary p a {
 
 
 #main #content #list_simplepage .list_detail .list_price tr {
-    border-bottom-width: 1px;
-    border-bottom-style: dotted;
-    border-bottom-color: #CAE7F4;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: #CAE7F4;
 }
 
 #main #content #list_simplepage .list_detail .list_address dd { display: block; }
 
 #list_simplepage .entry-excerpt{
-    padding-bottom: 10px;
-    padding-left: 5px;
+	padding-bottom: 10px;
+	padding-left: 5px;
 }
 
 #list_simplepage2 .entry-excerpt{
-    padding-bottom: 10px;
-    padding-left: 5px;
+	padding-bottom: 10px;
+	padding-left: 5px;
 }
 
 
@@ -660,167 +660,169 @@ article.feature-image.small .entry-summary p a {
 ---------------------------------------------------------------------- */
 
 #main #content #list_simplepage2{
-    margin:0;
-    padding:0;
-    width: 700px;
+	margin:0;
+	padding:0;
+	width: 700px;
 }
 
 #main #content #list_simplepage2 .list_detail table{
-    margin: 0px;
-    padding: 0px;
-    border:none;
+	margin: 0px;
+	padding: 0px;
+	border:none;
 }
 
 #main #container #content #list_simplepage2 .list_simple_box{
-    padding: 10px;
-    margin: 0 0 10px 0;
-    border: 1px solid #ccc;
-    background: #f8f8f8;
+	padding: 10px;
+	margin: 0 0 10px 0;
+	border: 1px solid #ccc;
+	background: #f8f8f8;
 }
 
 #main #container #content #list_simplepage2 .list_simple_box .list_detail {
-    width: 76%;
-    float: left;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    margin:0;
-    border-radius: 5px;
-    -moz-box-shadow:0px 2px 1px #BEC2C6;
-    -webkit-box-shadow:0px 2px 1px #BEC2C6;
-    box-shadow:0px 2px 1px #BEC2C6;
+	width: 76%;
+	float: left;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 5px;
+	margin:0;
+	border-radius: 5px;
+	-moz-box-shadow:0px 2px 1px #BEC2C6;
+	-webkit-box-shadow:0px 2px 1px #BEC2C6;
+	box-shadow:0px 2px 1px #BEC2C6;
 }
 
 #main #container #content #list_simplepage2 .list_detail h3{
-    font-size: 14px;
-    margin: 8px 0px;
-    padding: 0px 0px 0px 8px;
-    font-weight: bold;
-    color: #666;
+	font-size: 14px;
+	margin: 8px 0px;
+	padding: 0px 0px 0px 8px;
+	font-weight: bold;
+	color: #666;
 }
 
 #main #content #list_simplepage2 .list_detail table tr {
-    border-bottom-width: 1px;
-    border-bottom-style: solid;
-    border-bottom-color: #eee;
-    padding-top: 2px;
-    padding-bottom: 2px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #eee;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
 #main #content #list_simplepage2 .list_picsam {
-    float: left;
-    width:140px;
-    color: #000;
-    margin: 0px 4px 0px 0px;
+	float: left;
+	width:140px;
+	color: #000;
+	margin: 0px 4px 0px 0px;
 }
 
 #main #content #list_simplepage2 .list_picsam img {
-    /*	display: block;	*/
-    border: 1px solid #999;
-    background-color: #FFF;
-    /*	height: 130px;	*/
-    width: 130px;
-    margin: 0 0 4px 0;
-    padding: 1px;
+/*	display: block;	*/
+	border: 1px solid #999;
+	background-color: #FFF;
+/*	height: 130px;	*/
+	width: 130px;
+	margin: 0 0 4px 0;
+	padding: 1px;
 }
 
 #main #content #second_img {
-    padding: 10px 0;
+	padding: 10px 0;
 }
 
 #main #content #second_img img {
-    border: 1px solid #999;
-    background-color: #FFF;
-    width: 98px;
-    height:98px;
-    margin: 0 1px 0 0;
-    padding: 1px;
+	border: 1px solid #999;
+	background-color: #FFF;
+	width: 98px;
+	height:98px;
+	margin: 0 1px 0 0;
+	padding: 1px;
 }
 
 #main #content #list_simplepage2 .list_price {
-    background:	-moz-linear-gradient(left, #ebf6fc, #fff);
-    background:	-webkit-gradient(linear, left top, right top, from(#ebf6fc), to(#fff));
-    background-color: #ebf6fc;
-    line-height: 2;
-    margin: 0px;
-    padding: 0 0 4px 1em;
+	background:	-moz-linear-gradient(left, #ebf6fc, #fff);
+	background:	-webkit-gradient(linear, left top, right top, from(#ebf6fc), to(#fff));
+	background-color: #ebf6fc;
+	line-height: 2;
+	margin: 0px;
+	padding: 0 0 4px 1em;
 }
 #main #content #list_simplepage2 .list_price.rent {
-    background:	-moz-linear-gradient(left, #fdedf0, #fff);
-    background:	-webkit-gradient(linear, left top, right top, from(#fdedf0), to(#fff));
-    background-color: #fdedf0;
+	background:	-moz-linear-gradient(left, #fdedf0, #fff);
+	background:	-webkit-gradient(linear, left top, right top, from(#fdedf0), to(#fff));
+	background-color: #fdedf0;
 }
 
 #main #content #list_simplepage2 .list_detail table {
-    font-size:14px;
+	font-size:14px;
 }
 
 #main #content #list_simplepage2 .list_simple_box .list_detail #list_add th{
-    line-height: 1.4;
-    padding: 0.5em;
-    margin:0;
-    white-space: nowrap;
-    text-align: left;
-    color: #666;
-    font-weight: bold;
-    font-size:14px;
-    border-bottom:1px solid #EEEEEE;
+	line-height: 1.4;
+	padding: 0.5em;
+	margin:0;
+	white-space: nowrap;
+	text-align: left;
+	color: #666;
+	font-weight: bold;
+	font-size:14px;
+	border-bottom:1px solid #EEEEEE;
 }
 
 #main #content #list_simplepage2 .list_simple_box .list_detail #list_add td {
-    line-height: 1.4;
-    padding: 0.5em;
-    margin:0;
-    white-space: normal;
-    color: #555;
-    border-bottom:1px solid #EEEEEE;
+	line-height: 1.4;
+	padding: 0.5em;
+	margin:0;
+	white-space: normal;
+	color: #555;
+	border-bottom:1px solid #EEEEEE;
 }
 
 #main #content #list_simplepage2 .list_simple_box .list_detail #list_other th{
-    border-right: 1px dotted #CCC;
-    border-bottom:1px solid #EEEEEE;
-    line-height: 1.2;
-    padding: 0.5em;
-    margin:0;
-    white-space: nowrap;
-    text-align: left;
-    color: #444;
-    width: 20%;
+	border-right: 1px dotted #CCC;
+	border-bottom:1px solid #EEEEEE;
+	line-height: 1.2;
+	padding: 0.5em;
+	margin:0;
+	white-space: nowrap;
+	text-align: left;
+	color: #444;
+	width: 20%;
 }
 #main #content #list_simplepage2 .list_simple_box .list_detail #list_other th.th2{
-    border-left: 1px dotted #CCC;
+	border-left: 1px dotted #CCC;
 }
 
+
+
 #main #content #list_simplepage2 .list_simple_box .list_detail #list_other td {
-    line-height: 1.2;
-    padding: 0.5em;
-    margin:0;
-    white-space: normal;
-    width: 30%;
-    border-bottom:1px solid #EEEEEE;
+	line-height: 1.2;
+	padding: 0.5em;
+	margin:0;
+	white-space: normal;
+	width: 30%;
+	border-bottom:1px solid #EEEEEE;
 }
 
 #list_simplepage2 h2.entry-title{
-    font-weight: bold;
-    padding: 4px 0 3px 12px;
-    margin: 0px;
-    display: block;
-    background-color: #f8f8f8;
-    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
-    border-top: 3px solid #4a535d;
-    border-right: 1px solid #b7b7b7;
-    border-left: 1px solid #b7b7b7;
-    font-size: 21px;
+	font-weight: bold;
+	padding: 4px 0 3px 12px;
+	margin: 0px;
+	display: block;
+	background-color: #f8f8f8;
+	text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+	border-top: 3px solid #4a535d;
+	border-right: 1px solid #b7b7b7;
+	border-left: 1px solid #b7b7b7;
+	font-size: 21px;
 }
 
 #toiawasesaki{
-    display: block;
-    margin:0 0 20px ;
-    line-height: 1.2;
+	display: block;
+	margin:0 0 20px ;
+	line-height: 1.2;
 }
 #contact_form{
-    display: block;
-    margin:0 0 20px ;
+	display: block;
+	margin:0 0 20px ;
 }
 
 
@@ -828,20 +830,20 @@ article.feature-image.small .entry-summary p a {
 /* 担当者コメント entry-content */
 
 #main #content .entry-content p {
-    padding: 10px;
-    font-size: 12px;
-    line-height: 1.2;
-    margin: 0px;
+	padding: 10px;
+	font-size: 12px;
+	line-height: 1.2;
+	margin: 0px;
 }
 
 
 /* 表下部・現況優先但書 */
 
 .list_detail_bottom_info{
-    font-size: 10px;
-    width: 530px;
-    text-align: right;
-    float: right;
+	font-size: 10px;
+	width: 530px;
+	text-align: right;
+	float: right;
 }
 
 
@@ -854,36 +856,36 @@ article.feature-image.small .entry-summary p a {
 #syousai_box ul:after{ content : ''; display : block; clear : both; height:0; }
 
 #syousai_box ul.syousai-content li{
-    display: block;
-    width: 80px;
+	display: block;
+	width: 80px;
 
-    list-style-type: none;
+	list-style-type: none;
 
-    font-size: 12px;
-    line-height: 1;
-    float:left;
+	font-size: 12px;
+	line-height: 1;
+	float:left;
 
-    border: 1px solid #ccc;
+	border: 1px solid #ccc;
 
-    padding: 6px;
-    margin:0 5px 4px 0;
+	padding: 6px;
+	margin:0 5px 4px 0;
 
-    background: #f0f0f0;
-    background: -moz-linear-gradient(top, #ffffff 70%, #F7F7F7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(70%,#ffffff), color-stop(100%,#F7F7F7));
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#F7F7F7',GradientType=0 );
+	background: #f0f0f0;
+	background: -moz-linear-gradient(top, #ffffff 70%, #F7F7F7 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(70%,#ffffff), color-stop(100%,#F7F7F7));
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#F7F7F7',GradientType=0 );
 }
 
 #syousai_box ul.syousai-content li span{
-    font-size: 10px;
-    margin-top: 5px;
+	font-size: 10px;
+	margin-top: 5px;
 }
 
 #syousai_box ul.syousai-content li img{ padding-bottom: 5px; }
 
 #syousai_box ul.syousai-content li .box2image{
-    width:80px;
-    /*	height:80px;	*/
+	width:80px;
+/*	height:80px;	*/
 }
 
 
@@ -891,30 +893,30 @@ article.feature-image.small .entry-summary p a {
 ---------------------------------------------------------------------- */
 
 #content .grid-content {
-    padding-bottom: 20px;
+	padding-bottom: 20px;
 }
 
 #content .grid-content li {
-    display: block;
-    width: 150px;
-    margin: 2px;
-    padding: 2px;
-    font-size: 12px;
-    line-height: 1.4;
-    float:left;
-    list-style-type: none;
+	display: block;
+	width: 150px;
+	margin: 2px;
+	padding: 2px;
+	font-size: 12px;
+	line-height: 1.4;
+	float:left;
+	list-style-type: none;
 }
 
 #main #top_fbox #container #content table{
-    margin: 0;
-    padding: 0;
-    border: none;
+	margin: 0;
+	padding: 0;
+	border: none;
 }
 
 #main #top_fbox #container #content tr td{
-    margin: 0;
-    padding: 0;
-    border: none;
+	margin: 0;
+	padding: 0;
+	border: none;
 }
 
 
@@ -930,7 +932,7 @@ article.feature-image.small .entry-summary p a {
 
 /* キーワード検索 */
 .widget_fudo_search #s {
-    width: 77%;
+	width: 77%;
 }
 
 
@@ -940,145 +942,145 @@ article.feature-image.small .entry-summary p a {
 
 
 #container #content.jsearch{
-    padding: 0 0 30px 0;
-    font-size: 12px;
-    line-height: 2;
+	padding: 0 0 30px 0;
+	font-size: 12px;
+	line-height: 2;
 }
 
 /* カラム変更によるcontent余白調整 */
 
 .singular #container #content.jsearch{
-    width: 100%;
-    float: none;
+	width: 100%;
+	float: none;
 }
 
 .right-sidebar #container #content.jsearch {
-    margin: 0;
-    width: 690px;
-    float: right;
+	margin: 0;
+	width: 690px;
+	float: right;
 }
 
 .left-sidebar #container #content.jsearch{
-    width: 700px;
-    float: left;
+	width: 700px;
+	float: left;
 }
 
 /*  */
 
 #main #container #content.jsearch h3{
-    border-bottom: 1px dotted #CCC;
-    border-left: 4px solid #CCC;
-    padding: 5px 0px 5px 10px;
-    margin: 0px 0px 10px -10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    text-shadow : none;
+	border-bottom: 1px dotted #CCC;
+	border-left: 4px solid #CCC;
+	padding: 5px 0px 5px 10px;
+	margin: 0px 0px 10px -10px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #333;
+	text-shadow : none;
 }
 
 #container .jsearch h4{
-    border-left: 4px solid #CCC;
-    padding: 0px 0px 0px 6px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #505050;
-    margin: 15px 0px 5px -10px;
+	border-left: 4px solid #CCC;
+	padding: 0px 0px 0px 6px;
+	font-size: 13px;
+	font-weight: bold;
+	color: #505050;
+	margin: 15px 0px 5px -10px;
 }
 
 #container .jsearch h5{
-    margin: 10px 0px 0px -5px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #666;
+	margin: 10px 0px 0px -5px;
+	font-size: 13px;
+	font-weight: bold;
+	color: #666;
 }
 
 
 .jsearch p{
-    margin: 0;
-    padding: 0px 10px 10px 0px;
+	margin: 0;
+	padding: 0px 10px 10px 0px;
 }
 
 #container .jsearch ul{
-    margin: 0 0 10px;
-    padding: 0px;
-    overflow: hidden;
-    /zoom: 1;
+	margin: 0 0 10px;
+	padding: 0px;
+	overflow: hidden;
+	/zoom: 1;
 }
 
 .jsearch li{
-    margin: 0 1em 0 0;
-    padding: 0;
-    display: block;
-    float: left;
-    list-style-type: none;
+	margin: 0 1em 0 0;
+	padding: 0;
+	display: block;
+	float: left;
+	list-style-type: none;
 }
 
 .jsearch label {
-    margin-right: 5px;
-    color: #666;
+	margin-right: 5px;
+	color: #666;
 }
 
 #container .jsearch .submit input{
-    width: 160px;
-    border: 1px solid #298CBA;
-    padding: 3px 10px;
-    margin: 10px 10px 20px 0;
-    color: #FFFFFF;
-    font-weight: bold;
+	width: 160px;
+	border: 1px solid #298CBA;
+	padding: 3px 10px;
+	margin: 10px 10px 20px 0;
+	color: #FFFFFF;
+	font-weight: bold;
 
-    cursor: pointer;
+	cursor: pointer;
 
-    border-radius: 10px;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+	border-radius: 10px;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
 
-    background: #298CBA; /* old browsers */
-    background: -moz-linear-gradient(top, #0298CB 0%, #247CA4 50%, #206D93 100%); /* firefox */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0298CB), color-stop(50%, #247CA4), color-stop(100%, #206D93)); /* webkit */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0298CB', endColorstr='#206D93', GradientType=0 ); /* ie */
-    background: linear-gradient(top, #0298CB 0%, #247CA4 50%, #206D93 100%);
+	background: #298CBA; /* old browsers */
+	background: -moz-linear-gradient(top, #0298CB 0%, #247CA4 50%, #206D93 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0298CB), color-stop(50%, #247CA4), color-stop(100%, #206D93)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0298CB', endColorstr='#206D93', GradientType=0 ); /* ie */
+	background: linear-gradient(top, #0298CB 0%, #247CA4 50%, #206D93 100%);
 }
 
 
 /* 17= 店舗検索 固定ページ用  .jsearch 新
 ---------------------------------------------------------------------- */
 
-table.form_jsearch {
-    border: 1px solid #E5E5E5;
-    border-collapse: collapse;
-    /*	font-size: 87.6%; */
-    line-height: 18px;
-    margin-bottom: 10px;
-    width: 100%;
-}
-table.form_jsearch tr {
-    border: 0 none currentcolor;
-    font: inherit;
-    margin: 0;
-    padding: 0;
-}
-table.form_jsearch th {
-    background:  #F6F6F6;
-    border-bottom: 1px solid #E5E5E5;
-    font-weight: bold;
-    padding: 10px !important;
-    text-align: left;
-    width: 18%;
-    vertical-align: top;
-}
-table.form_jsearch td {
-    border-bottom: 1px solid #E5E5E5;
-    border-left: 1px solid #E5E5E5;
-    margin: 0;
-    padding: 10px !important;
-    width: 81%;
-}
+	table.form_jsearch {
+		border: 1px solid #E5E5E5;
+		border-collapse: collapse;
+	/*	font-size: 87.6%; */
+		line-height: 18px;
+		margin-bottom: 10px;
+		width: 100%;
+	}
+	table.form_jsearch tr {
+		border: 0 none currentcolor;
+		font: inherit;
+		margin: 0;
+		padding: 0;
+	}
+	table.form_jsearch th {
+		background:  #F6F6F6;
+		border-bottom: 1px solid #E5E5E5;
+		font-weight: bold;
+		padding: 10px !important;
+		text-align: left;
+		width: 18%;
+		vertical-align: top;
+	}
+	table.form_jsearch td {
+		border-bottom: 1px solid #E5E5E5;
+		border-left: 1px solid #E5E5E5;
+		margin: 0;
+		padding: 10px !important;
+		width: 81%;
+	}
 
-table.form_jsearch h5 {
-    margin: 10px 0 10px !important;
-}
-table.form_jsearch ul {
-    margin: 0 !important;
-}
+	table.form_jsearch h5 {
+		margin: 10px 0 10px !important;
+	}
+	table.form_jsearch ul {
+		margin: 0 !important;
+	}
 
 
 
@@ -1086,30 +1088,30 @@ table.form_jsearch ul {
 ---------------------------------------------------------------------- */
 
 #nendebcopy {
-    width: 990px;
-    margin: 0 auto;
-    padding: 5px 0px 0px;
-    overflow: hidden;
-    /zoom: 1;
-    font-size: 10px;
-    color: #666;
-    text-decoration: none;
-    font-family: Arial, Helvetica;
-    text-align: right;
+	width: 990px;
+	margin: 0 auto;
+	padding: 5px 0px 0px;
+	overflow: hidden;
+	/zoom: 1;
+	font-size: 10px;
+	color: #666;
+	text-decoration: none;
+	font-family: Arial, Helvetica;
+	text-align: right;
 
 }
 
 #nendebcopy a {
-    font-size: 10px;
-    color: #666;
-    text-decoration: none;
-    font-family: Arial, Helvetica;
-    float: right;
+	font-size: 10px;
+	color: #666;
+	text-decoration: none;
+	font-family: Arial, Helvetica;
+	float: right;
 }
 
 /* TwentyEleven1.2 */
 #branding {
-    z-index: 2 !important;
+	z-index: 2 !important;
 }
 
 /* */
@@ -1141,9 +1143,9 @@ time, mark, audio, video {
 ------------------------------------------------*/
 .clearfix { zoom:1; }
 .clearfix:after {
-    content: "";
-    display: block;
-    clear: both;
+	content: "";
+	display: block;
+	clear: both;
 }
 .clearLocal { clear: both; }
 
@@ -1151,15 +1153,15 @@ time, mark, audio, video {
 /* Common
 ------------------------------------------------*/
 * {
-    margin:  0;
-    padding: 0;
+	margin:  0;
+	padding: 0;
 }
 body {
     line-height:1;
-    background-color: #f2f2f2;
+	background: url(images/ui/bg_common.gif) repeat;
 }
 ul, ol {
-    list-style-type: none;
+	list-style-type: none;
 }
 
 article,aside,details,figcaption,figure,
@@ -1234,332 +1236,327 @@ hr {
 input, select {
     vertical-align:middle;
 }
-.invisible { visibility: hidden; }
+img { /* ドラッグできないように */
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-drag: none;
+	-khtml-user-drag: none;
+}
 
 /* Reseting タグのリセット
 ------------------------------*/
 ul, ol {
-    list-style-type: none;
+	list-style-type: none;
 }
 /* header
 ------------------------------*/
 #logo {
-    margin-left: 0.7em;
-    float: left;
-    width: 20%;
+	padding-left: 1.6em;
+	float: left;
+	width: 15%;
 }
-	#logo img {
-	    margin: 0;
-	}
+#logo img {
+	margin: 0;
+}
 #catchcopy {
-    float: left;
-    /*margin: 0.5em 0 1.3em 5%;*/
-    padding-left: 1.0em;
-    width: 40%;
-    color: #273;
-    font-size: 110%;
-    line-height: 46px;
-    font-weight: bold;
+	float: left;
+	margin: 0.5em 0 1.3em 5%;
+	width: 40%;
+	color: #273;
+	font-size: 110%;
+	font-weight: bold;
 }
 #topics {
-    float: right;
-    width: 20%;
-	margin: 0.5em 2% 0.5em 0;
-    font-size: 80%;
-}
-.ul_topics01 {
+	float: right;
+	width: 100%;
+	font-size: 80%;
+	color: #cbd;
 	text-align: right;
+	margin-right: 1em;
+}
+	#topics a {
+		color: #cbd;
+	}
+
+.ul_topics01 {
+	overflow: hidden;
+	margin-bottom: 1em;
 }
 	.ul_topics01 li {
-		display: inline;
-	    text-align: center;
-		color: #080;
+		float: left;
+		width: 30%;
+		line-height: 100%;
+		border-left: 2px solid #666;
+		text-align: center;
 	}
-		.ul_topics01 li a,
-		.ul_topics01 li a:visited {
-			color: #080;
-		}
 
-#branding #searchform #s {
-	height: auto;
-	line-height: 1.6;
-}
-
+	.ul_topics01 li:first-child {
+		border: none;
+	}
 
 /* ログインしてる時のスタイル */
 #topics_2 {
-    float: right;
-    font-size: 80%;
-	margin-right: 2%;
+	float: right;
+	font-size: 80%;
 }
 ul#dropdown {
-    margin:0;
-    padding:0;
-    list-style:none;
+	margin:0;
+	padding:0;
+	list-style:none;
 }
-ul#dropdown a {
-    min-width: 100px;
-    display:block;
-    text-decoration: none;
-    color: #000;
-}
-ul#dropdown a,
-ul#dropdown img {
-    float: left;
-}
-li.dropdown_item {
-    float: left;
-    height: 30px;
-    vertical-align: middle;
-    cursor: pointer;
-}
-li.dropdown_item > a > img {
-    border: 1px solid #ddd;
-    width: 30px!important;
-}
-li.dropdown_item > a > div {
-    margin-left: 30px;
-    padding: 7px 8px;
-}
-li.dropdown_item > ul {
-    position:absolute;
-	z-index: 10;
-    list-style:none;
-    margin:0;
-    margin-top: -1px;
-    width: 11%;
-}
-li.dropdown_item > ul > li > a {
-    margin: 0;
-    padding: 4px;
-    line-height: 30px;
-    background-color: #000;
-    color: #eee!important;
-    filter: alpha(opacity=70);
-    -moz-opacity: 0.7;
-    opacity: 0.7;
-}
-li.dropdown_item > ul > li > a:hover {
-    background-color: #111!important;
-    font-weight: bold!important;
-    color: #fff!important;
-    filter: alpha(opacity=100);
-    -moz-opacity: 1;
-    opacity: 1;
-}
+	ul#dropdown a {
+		min-width: 100px;
+		display:block;
+		text-decoration: none;
+		color: #000;
+	}
+	ul#dropdown a,
+	ul#dropdown img {
+		float: left;
+	}
+	li.dropdown_item {
+		float: left;
+		height: 30px;
+		vertical-align: middle;
+		cursor: pointer;
+	}
+	li.dropdown_item > a > img {
+		border: 1px solid #ddd;
+		width: 30px!important;
+	}
+	li.dropdown_item > a > div {
+		margin-left: 30px;
+		padding: 7px 8px;
+	}
+	li.dropdown_item > ul {
+		position:absolute;
+		list-style:none;
+		margin:0;
+		margin-top: -1px;
+		width: 11%;
+	}
+	li.dropdown_item > ul > li > a {
+		margin: 0;
+		padding: 4px;
+		line-height: 30px;
+		background-color: #000;
+		color: #eee!important;
+		filter: alpha(opacity=70);
+		-moz-opacity: 0.7;
+		opacity: 0.7;
+	}
+	li.dropdown_item > ul > li > a:hover {
+		background-color: #111!important;
+		font-weight: bold!important;
+		color: #fff!important;
+		filter: alpha(opacity=100);
+		-moz-opacity: 1;
+		opacity: 1;
+	}
 
 /* 検索バー */
 .searchBox01 {
-    width: 20em;
-    height: 2em;
-    border: 1px solid #999;
+	width: 20em;
+	height: 2em;
+	border: 1px solid #999;
 }
 .searchBtn01 {
-    display: inline-block;
-    padding: 0 1em;
-    height: 2.7em;
-    background-color: #999;
-    color: #fcfcfc;
-    line-height: 2.5em;
-    font-size: 85%;
-    text-align: center;
-}
-
-/* 404 NotFound */
-.error404 {
-	width: 85%;
-	margin: 0 auto;
-}
-	.error404 #main #searchform {
-		margin: 0 auto;
-		border: none;
-	}
-		.error404 #main #searchform input#s {
-			height: auto;
-			line-height: 1.6;
-		}
-
-.not-entry-header {
-	padding: 0.5em;
-	font-size: 150%;
-	font-weight: bold;
-}
-.nothingSorry {
-	padding: 0.5em;
+	display: inline-block;
+	padding: 0 1em;
+	height: 2.7em;
+	background-color: #999;
+	color: #fcfcfc;
+	line-height: 2.5em;
+	font-size: 85%;
+	text-align: center;
 }
 
 /* Rayout
 ------------------------------------------------*/
+
+header { /* id="header" と 要素のheaderがあります */
+	background: url(images/ui/bg_common_2.png) repeat;
+}
 #header {
-    width: 100%;
-    background-color: #fff;
-    height: 100px;
+	width: 1000px;
+	margin: 0 auto;
+	padding-top: 0.5em;
 }
-#header h1 {
-    padding: 0.7em 0.7em 0;
-    text-align: right;
-    font-size: 75%;
-    color: #707070;
-    line-height: 1.6;
-}
+	#header h1 {
+		width: 98%;
+		text-align: right;
+		font-size: 75%;
+		color: #707070;
+		line-height: 1.6;
+	}
+#logo, #catchcopy { padding-top: 1.5%; }
 .content {
-    width: 75%;
-    min-height: 200px;
-    float: left;
+	width: 75%;
+	min-height: 200px;
+	float: left;
 }
 #content-page {
-    background-color: #ffffff;
-    margin: 0 auto;
-    margin: 10px;
-    padding: 10px;
+	background-color: #ffffff;
+	margin: 0 auto;
+	margin: 10px;
+	padding: 10px;
 }
 #side_coupon {
-    width: 25%;
-    float: left;
-    /*	background-color: #efe; */
+	width: 25%;
+	float: left;
+/*	background-color: #efe; */
 }
 #wrapper {
-    margin: 0 auto;
-    background-image: url(images/ui/bg_common_02.png);
-    width: 80%;
-    line-height: 1.6;
-    font-size: 16px;
+	margin: 0 auto;
+	background-image: url(images/ui/bg_common_2.png);
+	width: 80%;
+	line-height: 1.6;
+	font-size: 16px;
 }
 #container {
-    background-color: #333333;
-    margin: 0 auto;
+	background-color: #333333;
+	margin: 0 auto;
 }
 
 /* デフォルトテーマの設定
  * template: content-page.php
- ------------------------------*/
+------------------------------*/
 .h1_default {
-    width: 95%;
-    margin: 23px 13px 13px;
-    padding-left: 0.5em;
-    border-left: 3px solid #162;
-    line-height: 100%;
-    color: #273;
-    font-size: 125%;
-    font-weight: bold;
+	width: 95%;
+	margin: 23px 13px 13px;
+	padding-left: 0.5em;
+	border-left: 3px solid #162;
+	line-height: 100%;
+	color: #273;
+	font-size: 125%;
+	font-weight: bold;
 }
 #content-page-default {
-    margin: 13px;
-    padding: 0.5em;
-    background-color: #f9f6f3;
-    color: #666;
-    font-size: small;
+	margin: 13px;
+	padding: 0.5em;
+	background-color: #f9f6f3;
+	color: #666;
+	font-size: small;
 }
 #content-page-default h3 {
-    color: #777;
-    font-weight: bold;
+	color: #777;
+	font-weight: bold;
 }
 #content-page-default p.privacy {
-    font-size: xx-small;
+	font-size: xx-small;
 }
 #content-page-default div#unyo dl {
 }
-#content-page-default div#unyo dl dt {
-    width: 100%;
-}
-#content-page-default div#unyo dl dd {
-    width: 100%;
-    padding-bottom: 1em;
-}
+	#content-page-default div#unyo dl dt {
+		width: 100%;
+	}
+	#content-page-default div#unyo dl dd {
+		width: 100%;
+		padding-bottom: 1em;
+	}
 #content-page-default ul.ul_queryVars03 li {
-    width: 100%;
+	width: 100%;
 }
 #content-page-default ul.ul_queryVars03 dl {
-    width: 20%;
-    float: left;
+	width: 20%;
+	float: left;
 }
 @media only screen and (max-width: 480px) {
-    #content-page-default ul.ul_queryVars03 dl {
-        width: 100%;
-        float: none;
-        clear: both;
-    }
+	#content-page-default ul.ul_queryVars03 dl {
+		width: 100%;
+		float: none;
+		clear: both;
+	}
 }
 
 
-/* gNavi
+
+/* Global Navi (廃止
+------------------------------------------------*/
+.ul_global_nav {
+	height: 21px;
+
+}
+	.ul_global_nav li {
+		width: 16.65%;
+		color: #515151;
+		list-style: none;
+		text-align: center;
+		line-height: 35px;
+		background: url(images/woodBtn_bg.png) repeat-x;
+		float: left;
+	}
+	.ul_global_nav li a {
+		width:  100%;
+		line-height: 35px;
+		text-decoration: none;
+		color: #515151;
+	}
+
+/* gNavi2
 ------------------------------*/
-#gNavi {
-    /*box-shadow: 0px 1px 6px #555 inset;*/
-    /*-webkit-box-shadow: 1px 1px 6px #555 inset;*/
-    /*-moz-box-shadow: 0px 1px 6px #555 inset;*/
-    background-image: url(images/ui/green.gif);
+#gNavi2 {
+	width: 40%;
+	margin-top: 3.1em;
+	float: right;
 }
-#gNavi li {
-    float: left;
-    width: 16.68%;
-    height: 3em;
-    border-bottom: 3px solid #f90;
-    line-height: 3em;
-    text-align: center;
-    font-weight: bold;
-    overflow: hidden;
-}
-#gNavi li:last-child {
-    width: 16.6%;
-}
-#gNavi li:hover {
-    filter:alpha(opacity=90);
-    -moz-opacity:    0.9;
-    -webkit-opacity: 0.9;
-    opacity:         0.9;
-}
-#gNavi li a {
-    display: block;
-    width: 100%;
-    border-left: 2px solid #eee;
-    text-decoration: none;
-    color: #eee!important;
-}
-#gNavi li:first-child a {
-    border-left: none;
-}
-#gNavi li a:visited {
-    color: #eee!important;
-}
+	#gNavi2 li {
+		float: left;
+		width: 16%;
+		border-right: 1px solid #ddd;
+		line-height: 105%;
+		text-align: center;
+		font-weight: bold;
+	}
+	#gNavi2 li:last-child {
+		width: 16%;
+		border: none;
+	}
+	#gNavi2 li a {
+		display: block;
+		color: #ddd;
+		width: 100%;
+		text-decoration: none;
+		font-family: DFKaiSho, "HG正楷書体-PRO", UnGungseo, "ＭＳ Ｐ明朝", "平成明朝", serif;
+	}
+	#gNavi2 li:hover {
+		filter:alpha(opacity=90);
+		-moz-opacity:    0.9;
+		-webkit-opacity: 0.9;
+		opacity:         0.9;
+	}
 
 
 /* BreadCrumbs
 ------------------------------------------------*/
 .breadcrumbs,
 .breadcrumbsAbout {
-    font-size: 12px;
-    color: #333;
-    line-height: 10px;
-    margin-left: 10px;
+	font-size: 12px;
+	color: #CCC;
+	line-height: 10px;
+	margin-left: 10px;
 }
-.breadcrumbs {
-    margin: 0.5em 13px !important;
-}
-.breadcrumbs a {
-    color: #333;
-}
-.breadcrumbsAbout {
-    color: #333;
-}
-.single .breadcrumbs,
-.single .breadcrumbsAbout,
-.single .breadcrumbs a {
-    color: #ccc;
-}
+	.breadcrumbs a {
+		color: #CCC !important;
+	}
+	.breadcrumbsAbout {
+		color: #333 !important;
+	}
 
 /* Page Description
 ------------------------------------------------*/
 .area_description {
-    font-size: 12px;
-    color: #777;
-    background-color: #f0f0f0;
-    border: 1px solid #444;
-    padding: 5px;
+	font-size: 12px;
+	color: #777;
+	background-color: #f0f0f0;
+	border: 1px solid #444;
+	padding: 5px;
 }
-.area_description > span {
-    color: #666;
-}
+	.area_description > span {
+		color: #666;
+	}
 
 
 /* Box Margin
@@ -1568,8 +1565,8 @@ li.dropdown_item > ul > li > a:hover {
 .area_description,
 .store_title,
 .store_food,
-.store_drink,
 .store_course,
+.store_drink,
 .campain_banner,
 .ul_tab_menu,
 .ul_tab_menu_2,
@@ -1580,131 +1577,153 @@ li.dropdown_item > ul > li > a:hover {
 .store_coupon,
 .side_coupon,
 .store_main {
-    margin: 13px;
+	margin: 13px;
 }
 
 /* footer
 ------------------------------*/
 #footer {
-    background-color: #666;
-    position: relative;
-    padding-top: 2em;
+	width: 100%;
+	background: url(images/ui/bg_common_2.png) repeat;
+	position: relative;
+	padding-top: 1em;
+	padding-bottom: 11em;
+	font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
 }
-#footer p {
-    position: absolute;
-    background: #333333 url(images/ui/arrow.png) no-repeat 1.5% center;
-    font-size: 80%;
-    color: #ffffff;
-    padding: 5px;
-    padding-left: 30px;
-    top: 0;
-    right: 1%;
-}
-#footer p a {
-    color: #dddddd;
-    text-decoration: none;
-}
-#footer address {
-    padding-bottom: 1em;
-    color: #fcfcfc;
-    text-align: center;
-    font-size: 60%;
-}
+	#footer p {
+		position: absolute;
+		background: #333333 url(images/ui/arrow.png) no-repeat 1.5% center;
+		font-size: 80%;
+		color: #ffffff;
+		padding: 5px;
+		padding-left: 30px;
+		top: 0;
+		right: 1%;
+	}
+	#footer p a {
+		color: #dddddd;
+		text-decoration: none;
+	}
+
+	#footer address {
+		padding-bottom: 1em;
+		color: #999966;
+		text-align: center;
+		font-size: 60%;
+	}
+	#footer ul {
+		width: 26em;
+		margin: 0 auto;
+		padding: 0 auto;
+		text-align: center;
+	}
+	#footer ul li:first-child {
+		border: none;
+	}
+	#footer ul li {
+		border-left: 1px solid #fff;
+		padding: 0 0.3em;
+		line-height: 95%;
+		float: left;
+	}
+	#footer ul li > a {
+		font-size: 10px;
+		color: #fff;
+	}
+
+
+/*トップページのフッター */
 .ul_queryVars02 {
-    margin: 0 0 1em 12.5%;
+	margin: 0 2.5% 1em;
+	font-family: DFKaiSho, "HG正楷書体-PRO", UnGungseo, "ＭＳ Ｐ明朝", "平成明朝", serif;
+	width: 98%;
 }
 .ul_queryVars02>li {
-    float: left;
-    width: 13%;
-    font-size: 84%;
-    margin-right: 2%;
-    color: #fcfcfc;
+	float: left;
+	width: 21.7%;
+	margin-right: 2%;
+	line-height: 2em;
+	color: #fcfcfc;
+	border-left: 2px solid #dddddd;
+	padding-left: 1%;
 }
 .ul_queryVars02 > li:nth-child(5) {
-    padding-left: 1em;
-    border-left: 1px solid #dddddd;
+	padding-left: 1em;
 }
 .ul_queryVars02>li dt {
-    padding-left: 5%;
-    margin: 0.5em 0 1em 0;
-    border-left: 4px solid #ddd;
+	margin: 0.5em 0 1em 0;
+}
+.ul_queryVars02>li>dl>dd>ul {
+	width: 50%;
+	float: left;
 }
 .ul_queryVars02>li li {
-    float: none;
-    width: 100%;
-    font-size: 70%;
+	float: none;
+	width: 80%;
+	font-size: 75%;
 }
 .ul_queryVars02>li li a,
 .ul_queryVars02>li li a:visited {
-    color: #ddd;
+	color: #ddd;
 }
 
 
 /* 店舗ヘッダ
 ------------------------------------------------*/
 .store_title {
-    background-color: #ffffff;
-    color: #666666;
+	background-color: #ffffff;
+	color: #666666;
 }
-.store_title p:first-child {
-    padding: 0.3em 0.7em;
-    font-size: 12px;
-    line-height: 150%;
-    background-color: #999999;
-    color: #ffffff;
-}
-.store_title p:nth-child(2) {
-    padding: 0.3em 0.7em;
-}
-.store_title h2 {
-    /*width: 50%;*/
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 170%;
-    padding: 0.2em 0.5em;
-    background-color: #ffffff;
-    /*float: left;*/
-}
-.store_title p.tel {
-    font-size: 18px;
-    font-weight: bold;
-    padding: 0.2em 0.5em;
-    /*width: 48%;*/
-    line-height: 170%;
-    text-align: right;
-    background-color: #ffffff;
-    float: left;
-}
-.store_title div.likeBtn > a {
-    width: 80px;
-    margin: 5px 5px 5px 2.5px;
-    text-align: center;
-    float: right;
-}
-.store_title div.favoBtn > a{
-    width: 155px;
-    margin: 5px 2.5px;
-    text-align: center;
-    float: right;
-}
+	.store_title p.excerpt {
+		padding-left: 7px;
+		font-size: 16px;
+		line-height: 150%;
+		background-color: #990000;
+		border-top: 1px solid #995c5c;
+		border-left: 1px solid #995c5c;
+		border-right: 1px solid #995c5c;
+		color: #ffffff;
+	}
+	.store_title p.rubi {
+		padding: 7px 0 0 7px;
+	}
+	.store_title h2 {
+		width: 50%;
+		font-size: 24px;
+		font-weight: bold;
+		line-height: 170%;
+		padding-left: 7px;
+		background-color: #ffffff;
+		float: left;
+	}
+	.store_title p.tel {
+		font-size: 24px;
+		font-weight: bold;
+		width: 48%;
+		line-height: 170%;
+		text-align: right;
+		background-color: #ffffff;
+		float: left;
+	}
+	.store_title div.likeBtn > a {
+		width: 80px;
+		margin: 5px 5px 5px 2.5px;
+		text-align: center;
+		float: right;
+	}
+	.store_title div.favoBtn > a{
+		width: 155px;
+		margin: 5px 2.5px;
+		text-align: center;
+		float: right;
+	}
 
 /* バナー
 ------------------------------------------------*/
 .campain_banner {
-    height: 50px;
-    color: #116655;
-    background-color: #CCCCCC;
-}
-
-/* カミングスーン
-------------------------------------------------*/
-.comingsoon {
-	margin: 13px;
 	height: 50px;
-	padding: 5px;
-	background: #fcecec;
-	color: #f00;
-	text-align: center;
+	color: #116655;
+	background-color: #CCCCCC;
 }
 
 
@@ -1713,7 +1732,7 @@ li.dropdown_item > ul > li > a:hover {
 .loginForm {
     margin: 8px;
     text-align: center;
-    background-color: #40AC5F;
+    background-color: #333;
     color: #efd;
 }
 .loginForm > dt,
@@ -1749,7 +1768,7 @@ li.dropdown_item > ul > li > a:hover {
     width:552px;
     left:50%;
     top:50%;
-    height: 400px;
+    height: 195px;
     text-align: center;
     border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -1769,15 +1788,15 @@ li.dropdown_item > ul > li > a:hover {
     -moz-opacity:0.70;
 }
 
-.close          { cursor: pointer; padding: 0.5em; }
+.close          { cursor: pointer; color: #bbb; }
 .modal          { width:680px; color: #555; }
 .modal p        { font-size:12px; text-align: right; line-height: 8px; }
 .modal p.signup { text-align: right; }
 .modal h1       { font-weight:bold; font-size: 30px; }
 .modal .loginImg     { text-align: center; }
 .modal .loginImg img { width: 100%; border-radius: 2.5px; -webkit-border-radius: 2.5px; -moz-border-radius: 2.5px; }
-.modalBody { padding: 10px; }
-p.loginCheck { text-align: right; margin-right: 8px;}
+.modalBody { padding: 10px; background-color: #333;}
+p.loginCheck { text-align: right; margin-right: 8px; color: #666; }
 
 
 /* ログイン後の表示 */
@@ -1787,1815 +1806,1682 @@ p.loginCheck { text-align: right; margin-right: 8px;}
     width: 30px!important;
 }
 
-/* いいね、お気に入り後の右上通知領域
-------------------------------------------------*/
-#notification {
-	position: fixed;
-	display: none;
-	z-index: 1000;
-	left: 68.4%;
-	top: 10px;
-	padding: 0 4%;
-	line-height: 4em;
-	color: #ffffff;
-	background-color: #523;
-	-webkit-border-radius: 4px;
-	   -moz-border-radius: 4px;
-	        border-radius: 4px;
-}
 
 
 /* 検索結果ページ
 ------------------------------------------------*/
-.page-title {
-	margin-left: 2.5%;
+h1.page-title span {
+	font-size: x-large;
+	font-weight:bold;
 }
-	h1.page-title span {
-	    font-size: x-large;
-	    font-weight:bold;
-	}
 
 #conents {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 div.bottom-space {
-    min-height: 10em;
+	min-height: 10em;
+}
+#post-0,
+#list_simplepage {
+	margin-left: 15px;
 }
 .entry-content input#s.field,
 #list_simplepage input#s.field {
-    background-color: rgba(80, 210, 255, 0.1);
-    height: 36px;
+	background-color: rgba(80, 210, 255, 0.1);
+	height: 36px;
 }
 /* タブメニュー 1
 ------------------------------------------------*/
 .ul_tab_menu {
 }
-.ul_tab_menu li {
-    width: 14%;
-    font-size: small;
-    line-height: 36px;
-    list-style: none;
-    text-align: center;
-    border: 1px solid #777777;
-    white-space: nowrap;
-    float: left;
-}
-/* jQuery使うなら消してね */
-.ul_tab_menu li a {
-    display: block;
-    width: 100%;
-    line-height: 36px;
-    color: #666666;
-    text-decoration: none;
-}
-.ul_tab_menu li.tab_active a {
-    color: #dddddd;
-}
+	.ul_tab_menu li {
+		width: 14%;
+		font-size: small;
+		line-height: 36px;
+		list-style: none;
+		text-align: center;
+		border: 1px solid #777777;
+		white-space: nowrap;
+		float: left;
+	}
+	/* jQuery使うなら消してね */
+	.ul_tab_menu li a {
+		display: block;
+		width: 100%;
+		line-height: 36px;
+		color: #666666;
+		text-decoration: none;
+	}
+	.ul_tab_menu li.tab_active a {
+		color: #dddddd;
+	}
 
 /* タブメニュー 2
 ------------------------------------------------*/
 .ul_tab_menu_2 {
 }
-.ul_tab_menu_2 li {
-    width: 10%;
-    font-size: small;
-    line-height: 27px;
-    list-style: none;
-    text-align: center;
-    border: 1px solid #777777;
-    white-space: nowrap;
-    float: left;
-}
-/* jQuery使うなら消してね */
-.ul_tab_menu_2 li a {
-    display: block;
-    width: 100%;
-    color: #666666;
-    text-decoration: none;
-}
-.ul_tab_menu_2 li.tab_active a {
-    color: #dddddd;
-}
+	.ul_tab_menu_2 li {
+		width: 10%;
+		font-size: small;
+		line-height: 27px;
+		list-style: none;
+		text-align: center;
+		border: 1px solid #777777;
+		white-space: nowrap;
+		float: left;
+	}
+	/* jQuery使うなら消してね */
+	.ul_tab_menu_2 li a {
+		display: block;
+		width: 100%;
+		color: #666666;
+		text-decoration: none;
+	}
+	.ul_tab_menu_2 li.tab_active a {
+		color: #dddddd;
+	}
 
 /* 店舗メイン
 ------------------------------------------------*/
 .store_main {
-    padding: 18px 3px 5px;
-    background-color: #ffffff;
+	padding: 18px 3px 5px;
+	background-color: #ffffff;
 }
-.store_main .left{
-    float: left;
-    width: 54.5%;
-	margin-left: 1%;
-}
-.hr_01 {
-    margin:  0;
-    padding: 0;
-    border-color: #515151;
-    border-style: solid;
-}
-/* 還元率 */
-.store_main .left dl {
-    padding: 10px;
-}
-.store_main .left dt,
-.store_main .left dd {
-    float: left;
-}
-.store_main .left dt {
-    width: 68%;
-    font-size: 20px;
-}
-.store_main .left dd {
-    font-size: 38px;
-    font-weight: bold;
-    color: #fe000b;
-}
+	.store_main .left{
+		width: 35%;
+		float: left;
+	}
+		.hr_01 {
+			margin:  0;
+			padding: 0;
+			border-color: #515151;
+			border-style: solid;
+		}
+		/* 還元率 */
+		.store_main .left dl {
+			padding: 10px;
+		}
+		.store_main .left dt,
+		.store_main .left dd {
+			float: left;
+		}
+		.store_main .left dt {
+			width: 68%;
+			font-size: 20px;
+		}
+		.store_main .left dd {
+			font-size: 38px;
+			font-weight: bold;
+			color: #333;
+		}
 
-.store_main .right {
-    float: right;
-    width: 43.5%;
-	margin-right: 1%;
-}
-/* ギャラリー */
-.store_main .right ul {
-    margin-left: 5px;
-}
-.store_main .right ul li {
-    width: 18.8%;
-    margin: 2px;
-    list-style: none;
-    float: left;
-}
-.store_main .right ul li img {
-    width: 100%;
-}
-.store_main .right img {
-    width: 98%;
-    margin: 0 7px;
-}
-.store_main .right p {
-	width: 95%;
-	margin: 1.5em auto 0;
-    font-size: 80%;
-}
+	.store_main .right {
+		width: 65%;
+		float: right;
+	}
+		/* ギャラリー */
+		.store_main .right ul {
+			margin-left: 8px;
+		}
+		.store_main .right img {
+			width: 98%;
+			margin: 0 7px;
+		}
+		.store_main .right ul li {
+			width: 18.8%;
+			margin: 2px;
+			list-style: none;
+			float: left;
+		}
+		.store_main .right ul li img {
+			width: 100%;
+		}
+		.store_main .right p {
+			font-size: 12px;
+			padding: 7px;
+		}
 
-.galleria-container {
-	max-width: 320px;
-	min-height: 370px;
-	margin: 0 auto;
-}
-.galleria-info {
-    display: none;
-}
-
-#pager {
-    text-align: center;
-}
-#pager a,
-#pager span {
-    display: inline-block;
-    background: #666;
-    padding: 0.2em 0.6em;
-    margin: 5px 1%;
-    border: 1px solid #000;
-    border-radius: 6px;
-    color: #eee;
-}
-#pager span {
-    background: #333;
-}
+	ul#gallery {
+		margin: 0 5px;
+		background-color: #000;
+		-webkit-border-radius: 8px;
+		   -moz-border-radius: 8px;
+		        border-radius: 8px;
+	}
+	.galleria-container {
+		width:  340px !important;
+		height: 370px !important;
+		margin: 0 auto;
+	 }
+	.galleria-info {
+		display: none;
+	}
 
 /* 店舗メインコンテンツ
 ------------------------------------------------*/
 .main_content {
-    background-color: #ffffff;
+	background-color: #ffffff;
 }
+	h3.bar { color: #f5f3f4; text-align: center; position: relative; }
+	h3.bar >  img { width: 100%; position: relative; }
+	h3.bar > span { width: 100%; position: relative; bottom: 2.5em;
+								 -webkit-text-shadow: 0 -1px 1px #200;
+								    -moz-text-shadow: 0 -1px 1px #200;
+								         text-shadow: 0 -1px 1px #200; }
+
 /* block_01 */
 .block_01 {
-    padding: 15px 0;
 }
-.block_01 h3 {
-    line-height: 30px;
-    margin: 7px 10px 12px;
-    color: #515151;
-}
-.block_01 img {
-    width: 100%;
-}
-.block_01 div {
-    width: 30%;
-}
-.block_01 div:nth-child(2) {
-    margin: 0 1.5% 0 2%;
-    float: left;
-}
-.block_01 div:nth-child(3) {
-    margin: 0 1.5% 0;
-    float: left;
-}
-.block_01 div:nth-child(4) {
-    margin: 0 1.5% 0;
-    float: left;
-}
-.block_01 div p {
-    font-size: 12px;
-}
+	.block_01 img {
+		width: 100%;
+	}
+	.block_01 div {
+		float:left;
+		font-size: 12px;
+		width: 30%;
+		margin: 0 1.6% 1em;
+	}
+	.block_01 > div > p {
+		font-size: 13px;
+		color: #666666;
+	}
+
 
 /* block_02 */
 .block_02 {
-    padding: 15px 0;
-    font-size: 12px;
-    color: #555555;
+	padding: 10px 0;
+	margin-top: -3em;
+	font-size: 12px;
+	color: #555555;
 }
-.block_02 .block_02_1,   /*上*/
-.block_02 .block_02_2 {  /*下*/
-    float: left;
-    padding: 2%;
-	width: 96%;
-}
-.block_02 .block_02_1 > div,
-.block_02 .block_02_1 > p,
-.block_02 .block_02_2 > div > div,
-.block_02 .block_02_2 > div > p { float: left; }
-
-.block_02 .block_02_1 > div,
-.block_02 .block_02_1 > p {
-    width: 47%;
-}
-.block_02 .block_02_1 > div {
-    text-align: center;
-}
-	.block_02 .block_02_1 > div > img {
-	    width: 100%;
+	.block_02 .block_02_1,   /*上*/
+	.block_02 .block_02_2 {  /*下*/
+		width: 97%;
+		padding: 10px;
+		float: left;
 	}
-.block_02 .block_02_1 > p.mainTitle {
-    padding-bottom: 0.5em;
-    margin-left: 2%;
-    text-align: center;
-    font-size: 130%;
-    font-weight: bold;
-}
-.block_02 .block_02_1 > p.mainText {
-    width: 48%;
-    padding: 1%;
-    margin-left: 2%;
-    min-height: 168px;
-}
-.block_02 .block_02_2 > div {
-    width: 50%;
-    float: left;
-}
-	.block_02 .block_02_2 > div > div {
+	.block_02 .block_02_1 > div,
+	.block_02 .block_02_1 > p,
+	.block_02 .block_02_2 > div > div,
+	.block_02 .block_02_2 > div > p { float: left; }
+
+	.block_02 .block_02_1 > div,
+	.block_02 .block_02_1 > p {
+		width: 47%;
+	}
+	.block_02 .block_02_2 > div {
+		width: 50%;
+		float: left;
+	}
+	.block_02 .block_02_2 > div > p {
+		width: 50%;
+		padding: 0 5px;
+	}
+	.block_02 .block_02_2 div > img {
 		max-width: 150px;
 	}
-		.block_02 .block_02_2 > div > div img {
-			width: 100%;
-		}
-	.block_02 .block_02_2 > div > p {
-	    width: 50%;
-	    padding: 0 5px;
-	}
 
-/* 小さい方の画像 */
-.block_02 .block_02_1 img:nth-child(2),
-.block_02 .block_02_2 img:nth-child(3) {
-    float: left;
-}
-
-/* クーポン 1, 2, 5
-------------------------------------------------*/
-.div_coupon_01,
-.div_coupon_02,
-.div_coupon_05 {
-    position: relative;
-    margin-top: 24px;
-    padding-bottom: 5px;
-}
-.div_coupon_01 {
-    background-color: #ffeddf;
-}
-.div_coupon_02 {
-    background-color: #f0dbea;
-}
-.div_coupon_05 {
-    background-color: #cfc;
-    border-bottom: 1px solid transparent;
-}
-	.div_coupon_01 h4,
-	.div_coupon_02 h4,
-	.div_coupon_05 h4 {
-		font-size: 125%;
+	.block_02 .block_02_1 > div {
+		text-align: center;
 	}
-		.div_coupon_01 h4>img,
-		.div_coupon_02 h4>img,
-		.div_coupon_05 h4>img {
-		    width: 65%;
-		    position: absolute;
-		    top: -1.4em;
-		}
-	.div_coupon_01 p,
-	.div_coupon_02 p,
-	.div_coupon_05 p {
-	    padding: 7px;
-	    color: #868686;
+	.block_02 .block_02_1 > div > img {
+		width: 100%;
 	}
-	.div_coupon_01 h4+p,
-	.div_coupon_02 h4+p,
-	.div_coupon_05 h4+p {
-		float: left;
-		width: 56%;
-	    padding-top: 2.5em;
-	}
-	.div_coupon_01 p+div,
-	.div_coupon_02 p+div,
-	.div_coupon_05 p+div {
-		float: left;
-		width: 40%;
-	    padding-top: 2.5em;
-	    text-align: center;
-	}
-	.div_coupon_01 p:last-child,
-	.div_coupon_02 p:last-child,
-	.div_coupon_05 p:last-child {
-		clear: left;
+	.block_02 .block_02_1 > p.mainTitle {
+		padding-bottom: 0.5em;
+		margin-left: 2%;
+		text-align: center;
 		font-size: 130%;
-	    font-weight: bold;
-	    color: #fe000b;
+		font-weight: bold;
 	}
-	.div_coupon_05 p:last-child {
-	    line-height: 1.3;
-		font-weight: normal;
+	.block_02 .block_02_1 > p.mainText {
+		width: 48%;
+		padding: 1%;
+		margin-left: 2%!important;
+		min-height: 168px;
+		/* ドロップシャドウ */
+		box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4) inset;
+		-moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4) inset;
+		-webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4) inset;
+		-o-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4) inset;
+		-ms-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4) inset;
+		/* 角丸 */
+		border-radius: 4px;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		-o-border-radius: 4px;
+		-ms-border-radius: 4px;
 	}
 
-div.space {
-    height: 10px;
+	/* 小さい方の画像 */
+	.block_02 .block_02_1 img:nth-child(2),
+	.block_02 .block_02_2 img:nth-child(3) {
+		float: left;
+	}
+
+/* クーポン 1, 2
+------------------------------------------------*/
+.div_coupon_01 {
+	min-height: 250px;
+	background-color: #fff1d7 ;
+	position: relative;
+	margin-top: 24px;
+	padding-bottom: 5px;
 }
-/* クーポン 3 タイムセールクーポン, 4 お試しクーポン
+	div.space {
+		height: 10px;
+	}
+	.div_coupon_01 > p.gothic_pair {
+		text-align: center;
+	}
+.gothic_pair img {
+	width: 85%;
+}
+	.p_yutai {
+		width: 86%;
+		margin: 0 auto;
+		font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+		font-size: 14px!important;
+		color: #555!important;
+	}
+	.div_coupon_01 > p:nth-child(2),
+	.div_coupon_02 > p:nth-child(2) {
+		margin-top: -3em;
+	}
+	.div_coupon_02 > p:nth-child(3),
+	.div_coupon_01 > p:nth-child(3) {
+		margin-top: 0.5em;
+	}
+	.div_coupon_01 h4,
+	.div_coupon_02 h4 {
+		font-size: 23px;
+		padding: 1px;
+	/*	background-color: #fb6938; */
+		color: #ffffff;
+	}
+	.div_coupon_01 h4 > img,
+	.div_coupon_02 h4 > img {
+		width: 100%;
+		position: absolute;
+		top: -1.2em;
+	}
+	.div_coupon_01 p:nth-child(2),
+	.div_coupon_02 p:nth-child(2) {
+		margin-top: 1.5em;
+		/*padding: 7px;*/
+		color: #868686;
+	}
+	.div_coupon_01 p:nth-child(3),
+	.div_coupon_02 p:nth-child(3) {
+		font-size: 24px;
+		font-weight: bold;
+		padding-left: 7px;
+		color: #fe000b;
+	}
+	.div_coupon_01 div,
+	.div_coupon_02 div {
+		margin: 15px 0;
+		text-align: center;
+		position: relative;
+	}
+
+.div_coupon_02 {
+	background-color: #cc99cc;
+	position: relative;
+	margin-top: 24px;
+	padding-bottom: 5px;
+}
+
+/* クーポン 3, 4
 ------------------------------------------------*/
 .div_coupon_03,
 .div_coupon_04 {
-    background-color: #ffffff;
+	text-align: center;
+	background-color: #ffffff;
 }
-.div_coupon_03 h4,
-.div_coupon_04 h4 {
-    float: left;
-    clear: none;
-    padding-left: 33px;
-    line-height: 29px;
-    font-size: 12px;
-    background-repeat: no-repeat;
-    background-position: 5px 50%;
-}
-.div_coupon_03 h4 {
-    color: #fb6938;
-    background-image: url('images/ui/clock_01.png');
-}
-.div_coupon_04 h4 {
-    color: #cb3398;
-    background-image: url('images/ui/heart_01.png');
-}
-.div_coupon_03 h4 img,
-.div_coupon_04 h4 img {
-    width: 1em;
-}
-.div_coupon_03 .genre,
-.div_coupon_04 .genre {
-    font-size: 60%;
-    color: #555555;
-    padding: 0 0.7em 0.5em;
-    text-align: right;
-}
-.div_couon_03 a,
-.div_coupon_04 a {
-    display: block;
-    text-align: center;
-}
-.div_coupon_03 img,
-.div_coupon_04 img {
-    width: 100%;
-}
-.div_coupon_03 p.discount_store_name,
-.div_coupon_04 p.discount_store_name {
-    text-align: left;
-    padding: 5px;
-}
-.div_coupon_03 p:last-child,
-.div_coupon_04 p:last-child {
-    font-size: 10px;
-    padding: 5px;
-    text-align: right;
-    clear: both;
-}
-/* UI素材くるまでの措置 */
-.div_coupon_03 .discount,
-.div_coupon_04 .discount {
-    width: 30%;
-    float: left;
-}
-.div_coupon_03 .store_name,
-.div_coupon_04 .store_name {
-    padding: 0.7em 0.7em 0;
-    font-size: 12px;
-    font-weight: bold;
-    color: #515151;
-    text-align: left;
-    text-indent: 4px;
-}
-.div_coupon_03 .store_name a,
-.div_coupon_04 .store_name a {
-    text-align: left;
-    color: #cb3398;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    -o-text-overflow: ellipsis;
-    overflow: hidden;
-}
-.div_coupon_03 .store_name span {
-    background-color: #fb6938;
-    display: block;
-    width: 5px;
-    height: 1.3em;
-    float: left;
-}
-.div_coupon_04 .store_name span {
-    background-color: #cb3398;
-    display: block;
-    width: 5px;
-    height: 1.3em;
-    float: left;
-}
+	.div_coupon_03 h4 {
+		font-size: 14px;
+		padding: 7px;
+		color: #990000;
+		float: left;
+	}
+	.div_coupon_03 h4 > a,
+	.div_coupon_04 h4 > a {
+		line-height: 98%;
+		padding-left: 0.5em;
+		border-left: 3px solid #990000;
+	}
+		.div_coupon_03 h4 > a { color: #990000!important; }
+		.div_coupon_03 h4 > a:link { color: #990000!important; }
+		.div_coupon_03 h4 > a:visited { color: #990000!important; }
+		.div_coupon_04 h4 > a { color: #990000!important; }
+		.div_coupon_04 h4 > a:link { color: #990000!important; }
+		.div_coupon_04 h4 > a:visited { color: #990000!important; }
+
+	.div_coupon_04 h4 {
+		font-size: 14px;
+		padding: 7px;
+		color: #cb3398;
+		float: left;
+	}
+	.div_coupon_03 p:nth-child(2),
+	.div_coupon_04 p:nth-child(2) {
+		font-size: 9px;
+		color: #555555;
+		padding: 5px;
+	}
+	.div_coupon_03 h4 img,
+	.div_coupon_04 h4 img {
+		width: 14px;
+	}
+	.div_coupon_03 img,
+	.div_coupon_04 img {
+		width: 98%;
+	}
+	.div_coupon_03 p.discount_store_name,
+	.div_coupon_04 p.discount_store_name {
+		text-align: left;
+		padding: 5px;
+		background-image: url();
+	}
+	.div_coupon_03 p:last-child,
+	.div_coupon_04 p:last-child {
+		font-size: 14px;
+		color: #515151;
+		margin: 40px 5px 10px;
+		padding: 5px 0;
+		text-align: left;
+	}
+	/* UI素材くるまでの措置 */
+	.div_coupon_03 .discount {
+		width: 40%;
+		height: 21px;
+		font-size: 21px;
+		color: #ffffff;
+		float: left;
+	}
+	.div_coupon_04 .discount {
+		width: 40%;
+		height: 21px;
+		font-size: 21px;
+		color: #ffffff;
+		float: left;
+	}
+	.div_coupon_03 .store_name,
+	.div_coupon_04 .store_name {
+		width: 49%;
+		margin: 5px;
+		font-size: 16px;
+		font-weight: bold;
+		color: #515151;
+		text-align: left;
+		float: left;
+	}
 
 
 /* 店舗詳細
 ------------------------------------------------*/
-.store_title_kana {
-    font-size: 12px;
-    padding: 7px 0 0 7px;
-}
 .store_detail {
-    background-color: #ffffff;
-    padding-bottom: 20px;
+	background-color: #ffffff;
+	padding-bottom: 20px;
 }
-.store_detail h3 {
-    margin: 15px;
-    padding-top: 15px;
-    color: #515151;
-}
-.store_detail table {
-    margin: 5px 15px 0;
-    border-collapse: collapse;
-}
-.store_detail table td, th{
-    font-size: 12px;
-    line-height: 16px;
-    padding: 5px;
-    border:  1px solid #e7e7e5;
-}
-.store_detail table th {
-    width: 30%;
-    font-weight: normal;
-    text-align: left;
-    color: #515151;
-    background-color: #f3f2ee;
-}
-.store_detail table td {
-    background-color: #ffffff;
-}
-.store_detail table td span {
-    margin-left: 20px;
-    font-size: 9px;
-}
-.store_detail .table_01 {
-    width: 95%;
-    margin: 5px 2.5% 0;
-}
-.store_detail .table_02 {
-    width: 45%;
-    margin: 5px 5% 0 2.5%;
-}
-.store_detail .table_03 {
-    width: 45%;
-    margin: 5px 2.5% 3px 0;
-}
+	.store_detail h3 {
+		margin: 15px;
+		padding-top: 15px;
+		color: #515151;
+	}
+	.store_detail table {
+		margin: 5px 15px 0;
+		border-collapse: collapse;
+	}
+	.store_detail table td, th{
+		font-size: 12px;
+		line-height: 16px;
+		padding: 5px;
+		border:  1px solid #e7e7e5;
+	}
+	.store_detail table th {
+		width: 30%;
+		font-weight: normal;
+		text-align: left;
+		color: #515151;
+		background-color: #f3f2ee;
+	}
+	.store_detail table td {
+		background-color: #ffffff;
+	}
+		.store_detail table td span {
+			margin-left: 20px;
+			font-size: 9px;
+		}
+	.store_detail table.table_01 {
+		margin: 5px 15px 0;
+	}
+	.store_detail table.table_02 {
+		width: 300px;
+		margin: 5px 3px 0 15px;
+	}
+	.store_detail table.table_03 {
+		margin: 5px 3px 3px;
+	}
 
-.store_detail table.table_02,
-.store_detail table.table_03 {
-    float: left;
-}
+	.store_detail table.table_02,
+	.store_detail table.table_03 {
+		width: 47%;
+		float: left;
+	}
 
-.store_coupon h5,
-.getcoupon {
-    position: relative;
-    display: block;
-    font-size: 16px;
-    font-weight: bold;
-    color: #006a36;
-    text-align: left;
-    text-shadow: 0 -1px 1px rgba(0, 30, 10, 0.4), 1px 1px 0 rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.2em;
-    border: none;
-    box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    border-radius: NaNpx;
-    text-decoration: none;
-    padding: 5px 0 4px 35px;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #ababab), color-stop(0.34, #e5e5e5), color-stop(0.01, #fff));
-    background: -webkit-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
-    background: -moz-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
-    background: -o-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
-    background: -ms-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
-    background: linear-gradient(to bottom, #fff 1%, #e5e5e5 34%, #ababab 100%);
-    margin-bottom: -10px;
-}
-.store_coupon h5 + img {
-    margin-bottom: -31px;
-    position: relative;
-    bottom: 37px;
-    left: 5px;
-    line-height:0;
-}
+	.store_coupon h5,
+	.getcoupon {
+		position: relative;
+		display: block;
+		font-size: 16px;
+		font-weight: bold;
+		color: #321c09;
+		text-align: left;
+		text-shadow: 0 -1px 1px rgba(0, 30, 10, 0.4), 1px 1px 0 rgba(255, 255, 255, 0.5);
+		letter-spacing: 0.2em;
+		border: none;
+		box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+		border-radius: NaNpx;
+		text-decoration: none;
+		padding: 5px 0 4px 35px;
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #ababab), color-stop(0.34, #e5e5e5), color-stop(0.01, #fff));
+		background: -webkit-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
+		background: -moz-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
+		background: -o-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
+		background: -ms-linear-gradient(top, #fff 1%, #e5e5e5 34%, #ababab 100%);
+		background: linear-gradient(to bottom, #fff 1%, #e5e5e5 34%, #ababab 100%);
+		margin-bottom: -10px;
+	}
+	.store_coupon h5 + img {
+		margin-bottom: -31px;
+		position: relative;
+		bottom: 37px;
+		left: 5px;
+		line-height:0;
+	}
 
 .couponList01 {
-    background-color: #333;
+	background-color: #333;
 }
-.couponList01>li {
-    margin-bottom: 1em;
-}
+	.couponList01>li {
+		margin-bottom: 1em;
+	}
 
 .dl_couponDesc01 {
-    width: 100%;
-    margin-bottom: 1em;
-    background-color: #fff;
+	width: 100%;
+	margin-bottom: 1em;
+	background-color: #fff;
 }
-.dl_couponDesc01 .nomalCoupon {
-    font-size: 24px !important;
-    font-weight: bold;
-    color: #ee0000;
-    float: left;
-}
-.dl_couponDesc01 .nomalCoupon > span {
-    font-size: 16px;
-    color: #777;
-}
-.dl_couponDesc01 dt {
-    float: left;
-    padding: 1%;
-    width: 30%;
-}
-.dl_couponDesc01 dt img {
-    width: 45%;
-}
-.dl_couponDesc01 dt img.smartPhoneOnly {
-    display: none;
-}
-.dl_couponDesc01 dd.center {
-    width: 50.7%;
-    float: left;
-}
-.dl_couponDesc01 dd.right {
-    width: 15%;
-    padding: 1%;
-    border-left: 2px dashed #ccc;
-    float: left;
-}
-.dl_couponDesc01 dd.right > .a_btn_coupon_01 {
-    padding: 22.4% 18.7%;
-}
-.dl_couponDesc01 dd.right.noborder {
-    border: none;
-}
-.dl_couponDesc01 dd ul li.li_couponInfo {
-    background-color: #FFFFCD;
-    border: 2px solid #C9CCB7;
-    color: #EB0A12;
-    padding: 5px 10%;
-    font-weight: bolder;
-    text-align: center;
-    letter-spacing: 0.1em;
-    font-size: small;
-    border-radius: 7px;
-    -webkit-border-radius: 7px;
-    -moz-border-radius: 7px;
-}
-.dl_couponDesc01 dd li {
-    margin-bottom: 0.5em;
-    color: #666;
-    font-size: 75%;
-}
-.dl_couponDesc01 dd li:first-child {
-    font-size: 70%;
-}
-.dl_couponDesc01 dd li.left {
-    float: left;
-    margin-top: 11px;
-    /*width: 88px;*/
-}
-.dl_couponDesc01 dd li.right {
-    float: left;
-    line-height: 1.8;
-    color: #e00;
-}
-.dl_couponDesc01 dd li.right strong {
-    font-size: 300%;
-    font-weight: bold;
-    font-style: normal;
-}
-.dl_couponDesc01 dd li em {
-    font-size: 155%;
-    color: #e00;
-    line-height: 1.2;
-    font-weight: bold;
-	font-style: normal;
-}
-.dl_couponDesc01 dd li.li_couponBtn {
-    float: right;
-    margin: 10px 0;
-}
-.dl_couponDesc01 dd li.li_couponBtnSmartPhone {
-    display: none;
-}
-.dl_couponDesc01 .center .left p+p {
-	padding-right: 1em;
-	text-align: right;
-}
+	.dl_couponDesc01 .nomalCoupon {
+		font-size: 24px !important;
+		font-weight: bold;
+		color: #ee0000;
+		float: left;
+	}
+	.dl_couponDesc01 .nomalCoupon > span {
+		font-size: 16px;
+		color: #777;
+	}
+	.dl_couponDesc01 dt {
+		float: left;
+		padding: 1%;
+		margin-right: 2%;
+		width: 30%;
+	}
+	.dl_couponDesc01 dt div > img {
+		float: left;
+	}
+	.dl_couponDesc01 dt div > img + img {
+		padding-left: 3%;
+	}
+	.dl_couponDesc01 dt.yutai_notice {
+		clear: both;
+		max-width: 100%;
+		width: 100%;
+		padding: 0;
+	}
+		.dl_couponDesc01 dt.yutai_notice > img {
+			width: 100%;
+		}
+
+	.dl_couponDesc01 .concierge {
+		max-width: 100%;
+		width: 100%;
+		font-size: 20px;
+		font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+	}
+		.dl_couponDesc01 dl.concierge > dt {
+			max-width: 50%;
+			width: 50%;
+			margin: 0;
+			padding: 0;
+			text-align: right;
+			float: left;
+		}
+		.dl_couponDesc01 dl.concierge > dd.tel {
+			max-width: 50%;
+			/*width: 50%;*/
+			margin: 0;
+			padding: 0;
+			text-align: left;
+			float: left;
+			color: #990000;
+		}
+		.dl_couponDesc01 dl.concierge dd.notice {
+			font-size: 12px;
+			max-width: 100%;
+			width: 97%;
+			margin-bottom: 1em;
+			text-align: center;;
+		}
+
+	.dl_couponDesc01 dt img.smartPhoneOnly {
+		display: none;
+	}
+	.dl_couponDesc01 dd {
+		width: 64%;
+		margin: 1%;
+		float: left;
+	}
+		.dl_couponDesc01 dd ul li.li_couponInfo {
+			background-color: #FFFFCD;
+			border: 2px solid #C9CCB7;
+			color: #EB0A12;
+			padding: 5px 10%;
+			font-weight: bolder;
+			text-align: center;
+			letter-spacing: 0.1em;
+			font-size: small;
+			border-radius: 7px;
+			-webkit-border-radius: 7px;
+			-moz-border-radius: 7px;
+		}
+		.dl_couponDesc01 dd li {
+			margin-bottom: 0.5em;
+			color: #666;
+			font-size: 75%;
+		}
+		.dl_couponDesc01 dd li:first-child {
+			font-size: 70%;
+		}
+		.dl_couponDesc01 dd li.left {
+			float: left;
+			margin-top: 11px;
+			width: 88px;
+		}
+		.dl_couponDesc01 dd li.right {
+			float: left;
+			color: #e00;
+		}
+			.dl_couponDesc01 dd li.right em {
+				font-size: 170%;
+				font-weight: bold;
+				font-style: normal;
+			}
+			.dl_couponDesc01 dd li span {
+				font-size: 150%;
+				color: #e00;
+				line-height: 100%;
+				font-weight: bold;
+			}
+			.dl_couponDesc01 dd li.li_couponBtn {
+				float: right;
+				margin: 10px 0;
+			}
+			.dl_couponDesc01 dd li.li_couponBtnSmartPhone {
+				display: none;
+			}
 
 /* 店舗メインコンテンツ ※ foodに限らず
 ------------------------------------------------*/
 
 /* フード＆内装 */
-.store_food,
-.store_course {
-    padding-top: 5px;
-    background-color: #ffffff;
-    min-height: 100px;
+.store_food {
+	background-color: #ffffff;
+	min-height: 100px;
 }
-.store_food hr {
-    margin: 15px 0;
-}
-.store_course h3,
-.store_food h3 {
-    margin: 1.5%;
-    padding-left: 5px;
-    color: #515151;
-    border-left: 3px solid #999999;
-    font-weight: bold;
-}
-.store_course h3 {
-    margin-left: 0;
-}
-.store_food .store_food_row img {
-    width: 100%;
-}
-.store_food .store_food_row h4 {
-    font-size: 15px;
-    line-height: 28px;
-    margin: 3px;
-    color: #515151;
-    font-weight: bold;
-}
-.store_food .store_food_row p {
-    font-size: 13px;
-    color: #515151;
-    margin: 3px;
-}
-.store_food .store_food_row p:last-child {
-    text-align: right;
-    line-height: 20px;
-}
-.store_food .store_food_row div {
-    width: 30%;
-    padding: 1.5%;
-    float: left;
-}
-.store_food .store_food_row div:first-child {
-    padding-left: 2%;
-}
+	.store_food hr {
+		margin: 15px 0;
+	}
+	.store_food a {
+		font-size: 11px;
+		float: right;
+	}
+	/*
+	.store_food h3 {
+		margin: 15px;
+		padding-left: 5px;
+		color: #515151;
+		border-left: 3px solid #999999;
+	}
+	*/
+	.store_food .store_food_row {
+	}
+	.store_food .store_food_row img {
+		/* max-width: 98%; */
+		width: 100%;
+	}
+	.store_food .store_food_row h4 {
+		font-size: 12px;
+		line-height: 28px;
+		margin: 3px;
+		color: #515151;
+	}
+	.store_food .store_food_row p {
+		font-size: 13px;
+		color: #515151;
+		margin: 3px;
+	}
+	.store_food .store_food_row p:last-child {
+		text-align: right;
+		line-height: 20px;
+	}
+	.store_food .store_food_row div {
+		width: 31%;
+		padding: 7px;
+		float: left;
+	}
+span.food_head_color { color: #cc9900; }
 
 
 /* Google Map */
 #map {
-    background-color: #fff;
-    width: 100%;
-    /*height: 100%;*/
-    height: 450px;
+	background-color: #fff;
+	width: 100%;
+	height: 100%;
 }
 
-#map > p {
-    padding-left: 10px;
-    color: #777;
-	font-size: 80%;
-}
-#map h3.subtitlebar {
-    padding: 5px 10px;
-}
-#map h3.subtitlebar p {
-    margin: 5px;
-    padding-left: 4px;
-    line-height: 100%;
-    font-size: 18px;
-    color: #777;
-    border-left: 4px #777 solid;
-}
+	#map > p {
+		padding-left: 10px;
+		color: #777;
+	}
+	#map h3.subtitlebar {
+		padding: 5px 10px;
+	}
+	#map h3.subtitlebar p {
+		margin: 5px;
+		padding-left: 4px;
+		line-height: 100%;
+		font-size: 18px;
+		color: #777;
+		border-left: 4px #777 solid;
+	}
 
+
+/* フードリスト */
+.store_foodlist {
+	background-color: #ffffff;
+	font-size: small;
+	min-height: 100px;
+}
+	.store_foodlist h4 {
+		text-align: center;
+	}
+	.store_foodlist dl {
+		padding: 10px;
+	}
+	.store_foodlist dl dt,
+	.store_foodlist dl dd {
+		width: 98%;
+		line-height: 28px;
+	}
+	.store_foodlist dl dt p {
+		padding-left: 2em;
+		color: #999999;
+	}
+	.store_foodlist dl dt:before {
+		content: "|  ";
+		font-size: 17px;
+		font-weight: 800;
+		padding-left: 5px;
+		color: #cbcbcb;
+
+	}
+	.store_foodlist dl dd {
+		text-align: right;
+		border-bottom: 1px dotted #bbbbbb;
+	}
 
 /* ドリンク */
 .store_drink {
-    padding: 5px;
-    background-color: #ffffff;
-    min-height: 100px;
-}
-.store_drink p,
-.store_drink a {
-    color: #3876b3;
-    text-align: right;
-}
-.store_drink h3 {
-    /*
-    margin:  5px;
-    padding: 5px;
-    font-size: 16px;
-    border: 1px solid #dedddb;
-    background-color: #f3f2ee;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -o-border-radius: 4px;
-    -ms-border-radius: 4px;
-     */
-margin: 1.5%;
-padding-left: 5px;
-color: #515151;
-border-left: 3px solid #999999;
-font-weight: bold;
-    }
-    /*
-    .store_drink h3 div {
-    padding-left: 5px;
-    border-left: 3px solid #f8c584;
-    }
-     */
-.store_drink dl {
-    padding: 10px;
-}
-.store_drink dl dt,
-.store_drink dl dd {
-    width: 98%;
-    line-height: 28px;
-    color: #333;
-}
-.store_drink dl dt {
-    padding-left: 5px;
-}
-.store_drink dl dt span {
-	display: block;
-    padding-left: 5%;
-    color: #999999;
-    font-size: 80%;
+	background-color: #ffffff;
+	min-height: 100px;
 }
 /*
-.store_drink dl dt:before {
-content: "|  ";
-font-size: 17px;
-font-weight: 800;
-padding-left: 5px;
-color: #cbcbcb;
+	.store_drink p,
+	.store_drink a {
+		font-size: 14px;
+		color: #3876b3;
+		text-align: right;
+	}
+	.store_drink h3 {
+		margin:  5px;
+		padding: 5px;
+		font-size: 16px;
+		border: 1px solid #dedddb;
+		background-color: #f3f2ee;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		-o-border-radius: 4px;
+		-ms-border-radius: 4px;
+	}
+*/
+	.store_drink h3 div {
+		padding-left: 5px;
+		border-left: 3px solid #f8c584;
+	}
+	.store_drink dl {
+		padding: 10px;
+	}
+	.store_drink dl dt,
+	.store_drink dl dd {
+		width: 98%;
+		line-height: 28px;
+	}
+	.store_drink dl dt span {
+		color: #999999;
+	}
+	.store_drink dl dt:before {
+		content: "|  ";
+		font-size: 17px;
+		font-weight: 800;
+		padding-left: 5px;
+		color: #cbcbcb;
 
-}
- */
-.store_drink dl dd {
-    text-align: right;
-    border-bottom: 1px dotted #bbbbbb;
-}
+	}
+	.store_drink dl dd {
+		text-align: right;
+		border-bottom: 1px dotted #bbbbbb;
+	}
 
-/* コース */
+/* コース
+ ------------------------------------------*/
+.store_course {
+	background-color: #ffffff;
+	min-height: 100px;
+}
 .store_course>ul {
-    margin: auto 2%;
+	background-color: #fff;
 }
 .store_course .left {
-    float: left;
-    width: 42%;
-}
-.store_course .left>li:first-child {
-    margin-bottom: 1.5em;
-}
-.store_course .left>li:first-child img {
-    width: 100%;
-}
-.store_course span {
-    display: inline-block;
-    padding-left: 2%;
-    width: 58%;
-}
-.store_course span+span {
-    width: 40%;
-    padding-left: 0;
-    text-align: center;
-}
-.store_course .right {
 	float: left;
-	margin-left: 3%;
-	width: 55%;
+	width: 41%;
+	padding-left: 1%;
 }
-.store_course .right dt {
-    margin-bottom: 0.5em;
-    text-align: center;
+	.store_course .left>li:first-child {
+		margin-bottom: 1.5em;
+	}
+	.store_course .left > li > img {
+		width: 100%;
+	}
+	.store_course > ul > li > p > a,
+	.store_course .left > li > span {
+		font-size: 12px;
+		color: rgb(112, 112, 112);
+	}
+	.store_course span {
+		display: inline-block;
+		padding-left: 2%;
+		width: 58%;
+	}
+	.store_course span+span {
+		width: 40%;
+		padding-left: 0;
+		text-align: center;
+	}
+.store_course .right {
+    float: left;
+    width: 56%;
+	min-height: 100px;
+    padding-right: 1%;
+	padding-left: 1%;
 }
-.store_course .right dd {
-    padding-left: 1%;
-    font-size: 80%;
+	.store_course .right dt {
+		margin-bottom: 0.5em;
+		text-align: center;
+	}
+	.store_course .right dd {
+		font-size: 13px;
+		color: #707070;
+		padding-left: 1%;
+	}
+
+.dl_course {
+	margin: 0.5em 0;
 }
-.to_pagetop {
-    margin-right: 5%;
-    text-align: right;
-    font-size: 12px;
+	.dl_course > dt {
+		width: 60%!important;
+		float: left;
+		background-color: #624f41;
+		line-height: 210%;
+		padding-left: 2%;
+		padding-bottom: 0.3em;
+		color: #fff;
+	}
+	.dl_course > dd {
+		display: block;
+		width: 38%!important;
+		float: left;
+		background-color: #cdc0b1;
+		line-height: 210%;
+		text-align: center;
+		padding-bottom: 0.3em;
+		color: #624f41;
+	}
+.dt_courseHead{
+	background-color: #ede9d8;
 }
 
 /* 新井さんが作ったトップのCSS
-------------------------------------------*/
+ ------------------------------------------*/
 #contentsTitle {
-    width: 95%;
-    margin-left: 2.5%;
-    color: #273;
-    font-size: 125%;
-    font-weight: bold;
+	width: 95%;
+	margin-left: 2.5%;
+	color: #273;
+	font-size: 125%;
+	font-weight: bold;
 }
 
 .dl_queryVars01 {
-    padding: 0.5em;
-    margin: 0 2% 1.5em 2%;
-    /*	height: 1.5em; */
-    background-color: #fcfcfc;
-    line-height: 1.5em;
-    border: 1px solid #aaa;
-    font-size: 90%;
-    box-shadow: 1px 1px 7px #555;
-    -moz-box-shadow: 1px 1px 7px #555;
-    -webkit-box-shadow: 1px 1px 7px #555;
+	padding: 0.5em;
+	margin: 0 2% 1.5em 2%;
+/*	height: 1.5em; */
+	background-color: #fcfcfc;
+	line-height: 1.5em;
+	border: 1px solid #aaa;
+	font-size: 90%;
+	box-shadow: 1px 1px 7px #555;
+	-moz-box-shadow: 1px 1px 7px #555;
+	-webkit-box-shadow: 1px 1px 7px #555;
 }
-.dl_queryVars01 dt {
-    float: left;
-    width: 15%;
-}
-.dl_queryVars01 dd {
-    float: left;
-}
-.dl_queryVars01 li {
-    display: inline-block;
-    padding: 0 1%;
-    height: 1.3em;
-    border-right: 1px solid #aaa;
-    line-height: 1.4;
-    text-align: center;
-    font-size: 85%;
-}
-.dl_queryVars01 li#detailSearch {
-    cursor: pointer;
-}
+	.dl_queryVars01 dt {
+		float: left;
+		width: 15%;
+	}
+	.dl_queryVars01 > dd > ul {
+		padding-bottom: 0.3em;
+		border-bottom: 2px solid #cc0000;
+	}
+	.dl_queryVars01 dd {
+		/*float: left;*/
+	}
+	.dl_queryVars01 li {
+		display: inline-block;
+		padding: 0 1%;
+		height: 1.3em;
+		border-right: 1px solid #aaa;
+		line-height: 1.4;
+		text-align: center;
+		font-size: 85%;
+	}
+	.dl_queryVars01 li#detailSearch {
+		cursor: pointer;
+	}
 #ekpSearchForm {
-    display: none;
+	display: none;
 }
 
 .ul_queryVars01 {
-    margin-bottom: 8px;
+	margin-bottom: 8px;
 }
-.ul_queryVars01 > li > .style_timesales {
-    color: #eee!important;
-    font-weight: bold;
-    background: url(images/ui/clock_02.png) no-repeat 0.6em 0.4em;
-}
-.ul_queryVars01 > li > .style_trials {
-    color: #eee!important;
-    font-weight: bold;
-    background: url(images/ui/heart_02.png) no-repeat 1.6em 0.4em;
-}
-.ul_queryVars01 > li > .style_commons {
-    color: #eee!important;
-    font-weight: bold;
-    background: url(images/ui/card_02.png) no-repeat 1.7em 0.4em;
-}
-/*
-.ul_queryVars01 > li > .style_musou {
-color: #eee!important;
-font-weight: bold;
-background: url(images/ui/flag_03.png) no-repeat 1.8em center;
-}
- */
-.ul_queryVars01 > li > .style_point {
-    color: #eee!important;
-    font-weight: bold;
-    background: url(images/ui/point_02.png) no-repeat 1.8em 0.4em;
-}
-.ul_queryVars01 li {
-    display: inline-block;
-    background: url(images/ui/green.gif) repeat-x;
-    width: 20%;
-    height: 3em;
-    margin-left: 2%;
-    border: 2px solid #f90;
-    border-radius: 5px;
-    /*box-shadow: -1px -1px 7px #555 inset;*/
-    line-height: 3em;
-    text-align: center;
-}
-.ul_queryVars01 li:first-child {
-    margin-left: 6%;
-}
-.ul_queryVars01 li a {
-    display: block;
-    width: 85%;
-    padding-left: 15%;
-}
+	.ul_queryVars01 > li > .style_timesales {
+		color: #f70!important;
+		font-weight: bold;
+		background: url(images/ui/clock.png) no-repeat 0.6em center;
+	}
+	.ul_queryVars01 > li > .style_trials {
+		color: #e0c!important;
+		font-weight: bold;
+		background: url(images/ui/hert.png) no-repeat 1.6em center;
+	}
+	.ul_queryVars01 > li > .style_commons {
+		color: #080!important;
+		font-weight: bold;
+		background: url(images/ui/card.png) no-repeat 1.7em center;
+	}
+	.ul_queryVars01 > li > .style_musou {
+		color: #555!important;
+		font-weight: bold;
+		background: url(images/ui/flag.png) no-repeat 1.8em center;
+	}
+	.ul_queryVars01 li {
+		display: inline-block;
+		background: url(images/ui/woodBtn_bg.png) repeat-x;
+		width: 20%;
+		height: 3em;
+		margin-left: 2%;
+		border-radius: 5px;
+		box-shadow: -1px -1px 7px #555 inset;
+		line-height: 3em;
+		text-align: center;
+	}
+	.ul_queryVars01 li:first-child {
+		margin-left: 6%;
+	}
+		.ul_queryVars01 li a {
+			display: block;
+			width: 85%;
+			padding-left: 15%;
+		}
 
 .ul_entryList01 {
-    width: 100%;
-    margin: 0 auto;
+	width: 100%;
+	margin: 0 auto;
 }
-.ul_entryList01>li {
-    float: left;
-    margin: 0 0 3% 3%;
-    /*padding-top: 0.4em;*/
-    width: 45%;
-    background-color: #fcfcfc;
-    box-shadow: 1px 1px 7px #555;
-    -moz-box-shadow: 1px 1px 7px #555;
-    -webkit-box-shadow: 1px 1px 7px #555;
-}
-.ul_entryList01>li img {
-    width: 100%;
-}
-.ul_entryList01 .summry {
-    width: 65%;
-}
-
-.clip_image01 {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 240px;
-}
-.clip_image01 img {
-    position: absolute;
-    top: -90px;
-    left: 0;
-    clip: rect(90px auto 320px auto);
-}
+	.ul_entryList01>li {
+		float: left;
+		margin: 0 0 3% 3%;
+		padding-top: 0.4em;
+		width: 45%;
+		background-color: #fff;
+		background-image: url(images/ui/gothic_3.png), url(images/ui/gothic_4.png);
+		background-repeat: no-repeat, no-repeat;
+		background-position: top right, bottom left;
+		box-shadow: 1px 1px 7px #555;
+		-moz-box-shadow: 1px 1px 7px #555;
+		-webkit-box-shadow: 1px 1px 7px #555;
+	}
+	.ul_entryList01>li img {
+		width: 100%;
+	}
+		.clip_image01 {
+			position: relative;
+			display: block;
+			width: 100%;
+			height: 240px;
+		}
+			.clip_image01 img {
+				position: absolute;
+				top: -90px;
+				left: 0;
+				clip: rect(90px auto 320px auto);
+			}
 
 .ul_entryList02 {
-    width: 100%;
-    margin: 0 auto;
+	width: 100%;
+	margin: 0 auto;
 }
-/*.ul_entryList02 h3 {
-padding: 0.7em 0.7em 0;
-}*/
-h3.trials,
-h3.commons,
-h3.timesales {
-    padding: 0.7em 0.7em 0;
-}
-.ul_entryList01 h3 span,
-.ul_entryList02 h3 span {
-    display: block;
-    width: 5px;
-    height: 1.3em;
-    float: left;
-    margin-right: 4px;
-}
-.ul_entryList01 h3.trials span,
-.ul_entryList02 h3.trials span {
-    background-color: #cb3398;
-}
-.ul_entryList01 h3.timesales span,
-.ul_entryList02 h3.timesales span {
-    background-color: #f70;
-}
-h3.trials a,
-h3.timesales a,
-h3.commons a {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    -o-text-overflow: ellipsis;
-    overflow: hidden;
-    display: block;
-}
-.ul_entryList01 h3.trials a,
-.ul_entryList02 h3.trials a {
-    color: #cb3398;
-}
-.ul_entryList01 h3.timesales a,
-.ul_entryList02 h3.timesales a {
-    color: #f70;
-}
-.ul_entryList02 h3.commons span {
-    background-color: #080;
-}
-.ul_entryList02 h3.commons a {
-    color: #080;
-}
-.ul_entryList01 .genre,
-.ul_entryList02 .genre {
-    padding: 0 0.7em 5px;
-    font-size: 12px;
-    text-align: right;
-}
-.ul_entryList02>li {
-    float: left;
-    margin: 0 0 2.5% 2.5%;
-    padding: 0 inherit 0.5em;
-    width: 30%;
-    /*height: 470px;*/
-    background-color: #fcfcfc;
-    box-shadow: 1px 1px 7px #555;
-    -moz-box-shadow: 1px 1px 7px #555;
-    -webkit-box-shadow: 1px 1px 7px #555;
-}
-.ul_entryList02>li>div {
-    height: 98.8%;
-    overflow-y: hidden;
-}
-.ul_entryList02 .ul_entryListDesc01 li+li+li a {
-    color: #00f;
-}
+	.ul_entryList02>li {
+		float: left;
+		margin: 0 0 2.5% 2.5%;
+		padding-top: 0.4em;
+		width: 30%;
+		height: 308px;
+		background-color: #fcfcfc;
+		box-shadow: 1px 1px 7px #555;
+		-moz-box-shadow: 1px 1px 7px #555;
+		-webkit-box-shadow: 1px 1px 7px #555;
+	}
 
 .p_entryTitle01 {
-    padding-left: 2.5em;
-    /*height: 1.6em;*/
-    line-height: 1.6em;
+	margin-left: 0.5em;
+	padding-left: 0.4em;
+	height: 1.6em;
+	line-height: 1.6em;
+	font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+	font-size: x-large;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis;
+	overflow: hidden;
+	display: block;
 }
-.p_entryTitle01+p {
-    line-height: 1.4;
-}
-.p_entryTitle01+p span {
-    margin-left: 2%;
-    color: #666;
-    font-size: 65%;
-}
+	.p_entryTitle01+p {
+		line-height: 1.4;
+	}
+	.p_entryTitle01+p span {
+		margin-left: 2%;
+		color: #666;
+		font-size: 65%;
+		float: right;
+	}
 
 .ul_entryListDesc01>li:first-child {
-    margin: 0 auto;
-    width: 100%;
+	margin: 0 auto;
 }
 .ul_entryListDesc01 li+li {
-    float: left;
+	float: left;
+	width: 38%;
 }
 .ul_entryListDesc01 li+li+li {
-    float: left;
-    overflow: hidden;
-    width: 48%;
-    font-size: 80%;
-}
-.ul_entryListDesc01 li+li h3 {
-    color: #666;
-    font-weight: bold;
-    font-style: normal;
-    font-size: 100%;
-}
-.ul_entryListDesc01 li+li em {
-    color: #666;
-    font-weight: bold;
-    font-style: normal;
-    font-size: 80%;
-}
-.ul_entryListDesc01 li img {
-    width: 100%;
-}
-.ul_entryListDesc01 .discount img {
-    display: block;
-}
-.ul_entryListDesc01 .discount em {
-    padding: 0.7em;
-}
-.cpn_description {
-    width: 96% !important;
-    height: auto !important;
-    padding: 5px;
-    text-align: right;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	-o-text-overflow: ellipsis;
+	float: left;
 	overflow: hidden;
-	display: block;
+	margin-left: 2%;
+	width: 56%;
+/*	height: 100px; */
+	font-size: 80%;
+	font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
 }
-.cpn_description_2 {
-    width: 96% !important;
-    height: 16px !important;
-    padding: 4px;
-    text-align: left;
-	font-size: 12px;
+	.ul_entryListDesc01 li+li h3 {
+		color: #666;
+		font-weight: bold;
+		font-style: normal;
+		font-size: 110%;
+	}
+	.ul_entryListDesc01 li+li em {
+		color: #666;
+		font-weight: bold;
+		font-style: normal;
+		font-size: 80%;
+		font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+		margin-left: 4px;
+	}
+	.ul_entryListDesc01 li img {
+		width: 100%;
+	}
+
+.p_entryTitle02 {
 	text-overflow: ellipsis;
-	white-space: nowrap;
-	-o-text-overflow: ellipsis;
 	overflow: hidden;
-	display: block;
+	white-space: nowrap;
+	margin-left: 0.5em;
+	height: 1.6em;
+	line-height: 1.6em;
+	font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+	font-size: medium;
 }
-.style_timesales {
-    color: #f70!important;
-    font-weight: bold;
-    background: url(images/ui/clock_01.png) no-repeat 2% center;
+	.p_entryTitle02+p span {
+		margin-left: 2%;
+		color: #666;
+		font-size: 65%;
+		float: right;
+	}
+
+.style_nomalYutai {
+	color: #cc0000!important;
+	font-weight: bold;
+	border-left: 3px solid #cc0000;
 }
-.p_entryTitle01.style_trials {
-    color: #cb3398;
-    line-height: 49px;
-    font-size:12px;
-    padding-left: 33px;
-    background: url(images/ui/heart_01.png) no-repeat 5px 50%;
-}
-.p_entryTitle01.style_timesales {
-    color: #cb3398;
-    line-height: 49px;
-    font-size:12px;
-    padding-left: 33px;
-    background: url(images/ui/clock_01.png) no-repeat 5px 50%;
-}
-.p_entryTitle01.style_commons {
-    color: #080;
-    line-height: 49px;
-    font-size:12px;
-    padding-left: 33px;
-    background: url(images/ui/card_01.png) no-repeat 5px 50%;
-}
-.ul_entryList01 .p_entryTitle01.style_trials,
-.ul_entryList01 .p_entryTitle01.style_timesales {
-    font-size:15px;
-    font-weight: bold;
-}
-/*.style_commons {
-    color: #080!important;
-    font-weight: bold;
-    background: url(images/ui/card_01.png) no-repeat 2% center;
-}*/
-.style_musou {
-    color: #555!important;
-    font-weight: bold;
-    background: url(images/ui/flag_01.png) no-repeat 2% center;
-}
-.style_black {
-    background: #666;
-    color:#eee;
-}
-.style_silver {
-    background: #ccc;
-    color: #555;
+.style_specialYutai {
+	color: #663300!important;
+	font-weight: bold;
+	border-left: 4px solid #663300;
+	padding-left: 0.4em;
 }
 
 /* 検索結果ページレイアウト
 ------------------------------------------------*/
 .ul_searchList01 {
-    width: 100%;
-    margin: 0 auto;
+	width: 100%;
+	margin: 0 auto;
 }
-.ul_searchList01>li {
-    float: left;
-    width: 30%;
-    margin: 0 0 2.5% 2.5%;
-    background-color: #fcfcfc;
-    box-shadow: 1px 1px 7px #555;
-    -moz-box-shadow: 1px 1px 7px #555;
-    -webkit-box-shadow: 1px 1px 7px #555;
-}
-.ul_searchList01>li h3 {
-    border-bottom: 1px dotted #CCC;
-    font-size: 18px;
-    border-left: 3px solid #666;
-    margin: 0px 0px 15px;
-    padding: 0px 0px 0px 10px;
-    text-shadow: 1px 1px 0px #eee;
-    font-weight: normal;
-}
-.ul_searchList01>li #imgmain img {
-    max-width: 98%;
-}
-.p_searchTitle01 span {
-    float: right;
-    margin-right: 7%;
-    color: #666;
-}
-.p_searchTitle01 > p {
-    font-size: 12px;
-    color: red;
-}
+	.ul_searchList01>li {
+		float: left;
+		width: 30%;
+		margin: 0 0 2.5% 2.5%;
+		background-color: #fcfcfc;
+		box-shadow: 1px 1px 7px #555;
+		-moz-box-shadow: 1px 1px 7px #555;
+		-webkit-box-shadow: 1px 1px 7px #555;
+	}
+		.ul_searchList01>li h3 {
+			border-bottom: 1px dotted #CCC;
+			font-size: 18px;
+			border-left: 3px solid #666;
+			margin: 0px 0px 15px;
+			padding: 0px 0px 0px 10px;
+			text-shadow: 1px 1px 0px #eee;
+			font-weight: normal;
+		}
+		.ul_searchList01>li #imgmain img {
+			max-width: 98%;
+		}
+		.p_searchTitle01 span {
+			float: right;
+			margin-right: 7%;
+			color: #666;
+		}
+		.p_searchTitle01 > p {
+			font-size: 12px;
+			color: red;
+		}
 
 /* 以下のクーポンを取得しました！
 ------------------------------------------------*/
 .getcoupon {
-    width: 60%;
-    margin: 1em auto 0;
-    border: 1px solid #333;
-    line-height: 2em;
+	width: 60%;
+	margin: 1em auto 0;
+	border: 1px solid #333;
+	line-height: 2em;
 }
 .getcoupon+img {
-    margin-bottom: -31px;
-    position: absolute;
-    top: 0;
-    left: 18.5%;
-    line-height:0;
+	margin-bottom: -31px;
+	position: absolute;
+	top: 0;
+	left: 18.5%;
+	line-height:0;
 }
 #couponInfo {
-    background-color: #f9f6f3;
-    width: 60%;
-    margin: 0 auto;
-    padding: 1em;
-    border: 2px solid #fff;
-    text-align: center;
+	background-color: #f9f6f3;
+	width: 60%;
+	margin: 0 auto;
+	padding: 1em;
+	border: 2px solid #fff;
+	text-align: center;
 }
-#couponInfo img {
-    width: 50%;
-}
+	#couponInfo img {
+		width: 50%;
+	}
 .shop-name {
-    height: 3em;
-    line-height: 3em;
-    font-weight: bold;
+	height: 3em;
+	line-height: 3em;
+	font-weight: bold;
 }
 .coupon-title {
-    color: #f00;
-    font-size: 150%;
-    font-weight: bold;
+	color: #f00;
+	font-size: 150%;
+	font-weight: bold;
 }
 .backto {
-    width: 60%;
-    margin: 2em auto 0;
-    text-align: center;
+	width: 60%;
+	margin: 2em auto 0;
+	text-align: center;
 }
 /* ボタン系
 ------------------------------------------------*/
 .a_btn_coupon_01 {
-    font-size:16px;
-    font-weight:normal;
-    -moz-border-radius:4px;
-    -webkit-border-radius:4px;
-    border-radius:4px;
-    border:1px solid #74b807;
-    padding:9px 18px;
-    text-decoration:none;
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #66cc66), color-stop(100%, #66cc66) );
-    background:-moz-linear-gradient( center top, #66cc66 5%, #66cc66 100% );
-    background:-ms-linear-gradient( top, #66cc66 5%, #66cc66 100% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#66cc66', endColorstr='#66cc66');
-    background-color:#66cc66;
-    color:#ffffff !important;
-    display:inline-block;
-    text-shadow:0px 1px 3px #348f37;
-    -webkit-box-shadow:inset 0px 0px 0px 3px #c3e8c4;
-    -moz-box-shadow:inset 0px 0px 0px 3px #c3e8c4;
-    box-shadow:inset 0px 0px 0px 3px #c3e8c4;
+	display: inline-block;
+	font-size: 16px;
+	font-weight: bold;
+	color: #f0e8fc !important;
+	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 230, 230, 0.5);
+	letter-spacing: 0;
+	border: none;
+	box-shadow: inset 0 -1px 1px rgba(115, 38, 38, 0.9), inset 0 1px 0 rgba(115, 38, 38, 0.9);
+	border-radius: 5px;
+	text-decoration: none;
+	line-height: 220%;
+	padding: 0 25px 1px;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+	background-color: #933;
+
 }.a_btn_coupon_01:hover {
-    text-decoration: none;
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #66cc66), color-stop(100%, #66cc66) );
-    background:-moz-linear-gradient( center top, #66cc66 5%, #66cc66 100% );
-    background:-ms-linear-gradient( top, #66cc66 5%, #66cc66 100% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#66cc66', endColorstr='#66cc66');
-    background-color:#66cc66;
+	background-color: #b45;
+	text-decoration: none;
+
 }.a_btn_coupon_01:active {
-    position:relative;
-    top:1px;
+	position:relative;
+	text-decoration: none;
+	top:1px;
 }
 
 /* 黄色いボタン */
 .ui-btn-up-h {
-    border: 1px solid #cccccc /*{a-bup-border}*/;
-    background: #F3C116 /*{a-bup-background-color}*/;
-    font-weight: bold;
-    color: #2F3E46 /*{a-bup-color}*/;
-    text-shadow: 0 /*{a-bup-shadow-x}*/ 1px /*{a-bup-shadow-y}*/ 0 /*{a-bup-shadow-radius}*/ #ffffff /*{a-bup-shadow-color}*/;
-    background-image: -webkit-gradient(linear, left top, left bottom, from( #fee486 /*{a-bup-background-start}*/), to( #f3c116 /*{a-bup-background-end}*/)); /* Saf4+, Chrome */
-    background-image: -webkit-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
-    background-image:    -moz-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* FF3.6 */
-    background-image:     -ms-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* IE10 */
-    background-image:      -o-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* Opera 11.10+ */
-    background-image:         linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/);
-    /*
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#fee486', endcolorstr='#f3c116'));
-    -ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#fee486', endcolorstr='#f3c116')";
-    zoom: 1;
-     */
+	border: 1px solid #cccccc /*{a-bup-border}*/;
+	background: #F3C116 /*{a-bup-background-color}*/;
+	font-weight: bold;
+	color: #2F3E46 /*{a-bup-color}*/;
+	text-shadow: 0 /*{a-bup-shadow-x}*/ 1px /*{a-bup-shadow-y}*/ 0 /*{a-bup-shadow-radius}*/ #ffffff /*{a-bup-shadow-color}*/;
+	background-image: -webkit-gradient(linear, left top, left bottom, from( #fee486 /*{a-bup-background-start}*/), to( #f3c116 /*{a-bup-background-end}*/)); /* Saf4+, Chrome */
+	background-image: -webkit-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
+	background-image:    -moz-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* FF3.6 */
+	background-image:     -ms-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* IE10 */
+	background-image:      -o-linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/); /* Opera 11.10+ */
+	background-image:         linear-gradient( #fee486 /*{a-bup-background-start}*/, #f3c116 /*{a-bup-background-end}*/);
+	/*
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#fee486', endcolorstr='#f3c116'));
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#fee486', endcolorstr='#f3c116')";
+	zoom: 1;
+	*/
 }
 .ui-btn-up-h:visited,
 .ui-btn-up-h a.ui-link-inherit {
-    color: #2F3E46 /*{a-bup-color}*/;
+	color: #2F3E46 /*{a-bup-color}*/;
 }
 /*.ui-btn-hover-h {*/
 .ui-btn-up-h:hover {
-    border: 1px solid #bbbbbb /*{a-bhover-border}*/;
-    background: #F3C116 /*{a-bhover-background-color}*/;
-    font-weight: bold;
-    color: #2F3E46 /*{a-bhover-color}*/;
-    text-shadow: 0 /*{a-bhover-shadow-x}*/ 1px /*{a-bhover-shadow-y}*/ 0 /*{a-bhover-shadow-radius}*/ #ffffff /*{a-bhover-shadow-color}*/;
-    background-image: -webkit-gradient(linear, left top, left bottom, from( #f3c116 /*{a-bhover-background-start}*/), to( #fee486 /*{a-bhover-background-end}*/)); /* Saf4+, Chrome */
-    background-image: -webkit-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* Chrome 10+, Saf5.1+ */
-    background-image:    -moz-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* FF3.6 */
-    background-image:     -ms-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* IE10 */
-    background-image:      -o-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* Opera 11.10+ */
-    background-image:         linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/);
-    /*
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#f3c116', endcolorstr='#fee486'));
-    -ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#f3c116', endcolorstr='#fee486')";
-    zoom: 1;
-     */
+	border: 1px solid #bbbbbb /*{a-bhover-border}*/;
+	background: #F3C116 /*{a-bhover-background-color}*/;
+	font-weight: bold;
+	color: #2F3E46 /*{a-bhover-color}*/;
+	text-shadow: 0 /*{a-bhover-shadow-x}*/ 1px /*{a-bhover-shadow-y}*/ 0 /*{a-bhover-shadow-radius}*/ #ffffff /*{a-bhover-shadow-color}*/;
+	background-image: -webkit-gradient(linear, left top, left bottom, from( #f3c116 /*{a-bhover-background-start}*/), to( #fee486 /*{a-bhover-background-end}*/)); /* Saf4+, Chrome */
+	background-image: -webkit-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* Chrome 10+, Saf5.1+ */
+	background-image:    -moz-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* FF3.6 */
+	background-image:     -ms-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* IE10 */
+	background-image:      -o-linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/); /* Opera 11.10+ */
+	background-image:         linear-gradient( #f3c116 /*{a-bhover-background-start}*/, #fee486 /*{a-bhover-background-end}*/);
+	/*
+	filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#f3c116', endcolorstr='#fee486'));
+	-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=0,startcolorstr='#f3c116', endcolorstr='#fee486')";
+	zoom: 1;
+	*/
 }
 .ui-btn-up-h:visited,
 .ui-btn-up-h:hover,
 .ui-btn-up-h a.ui-link-inherit {
-    color: #2F3E46 /*{a-bhover-color}*/;
+	color: #2F3E46 /*{a-bhover-color}*/;
 }
 .ui-btn-down-h {
-    border: 1px solid #bbbbbb /*{a-bdown-border}*/;
-    background: #F3C116 /*{a-bdown-background-color}*/;
-    font-weight: bold;
-    color: #FFFFFF /*{a-bdown-color}*/;
-    text-shadow: 0 /*{a-bdown-shadow-x}*/ 1px /*{a-bdown-shadow-y}*/ 0 /*{a-bdown-shadow-radius}*/ #262626 /*{a-bdown-shadow-color}*/;
+	border: 1px solid #bbbbbb /*{a-bdown-border}*/;
+	background: #F3C116 /*{a-bdown-background-color}*/;
+	font-weight: bold;
+	color: #FFFFFF /*{a-bdown-color}*/;
+	text-shadow: 0 /*{a-bdown-shadow-x}*/ 1px /*{a-bdown-shadow-y}*/ 0 /*{a-bdown-shadow-radius}*/ #262626 /*{a-bdown-shadow-color}*/;
 }
 .ui-btn-down-h:visited,
 .ui-btn-down-h:hover,
 .ui-btn-down-h a.ui-link-inherit {
-    color: #FFFFFF /*{a-bdown-color}*/;
-    cursor: pointer;
-    text-decoration: none;
+	color: #FFFFFF /*{a-bdown-color}*/;
+	cursor: pointer;
+	text-decoration: none;
 }
 .ui-btn-up-h,
 .ui-btn-up-h:hover,
 .ui-btn-up-h:visited {
-    font-family: Helvetica, Arial, sans-serif /*{global-font-family}*/;
-    cursor: pointer!important;
-    text-decoration: none;
+	font-family: Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	cursor: pointer!important;
+	text-decoration: none;
 }
 
 .theme-h-btn.ui-btn-up-h:active{
-    background:#F3C116;
-    border: 1px solid #F3C116;
+	background:#F3C116;
+	border: 1px solid #F3C116;
 }
 .ui-btn-corner-all {
-    -moz-border-radius:  0.4em  /*{global-radii-buttons}*/;
-    -webkit-border-radius:  0.4em  /*{global-radii-buttons}*/;
-    border-radius:  0.4em  /*{global-radii-buttons}*/;
+	-moz-border-radius:  0.4em  /*{global-radii-buttons}*/;
+	-webkit-border-radius:  0.4em  /*{global-radii-buttons}*/;
+	border-radius:  0.4em  /*{global-radii-buttons}*/;
 }
 /* 無効ボタン */
 .ui-btn-up-h.like_done,
 .ui-btn-up-h.like_done,
 .ui-btn-up-h.favo_done,
 .ui-btn-up-h.favo_done {
-    background: rgb(247, 168, 0);
-    border: 1px solid #F3C116;
-    color: #2F3E46;
-    cursor: default!important;
-    text-decoration: none;
-}/*----- End 黄色いボタン -----*/
+	background:#F3C116;
+	border: 1px solid #F3C116;
+	color: #2F3E46;
+	cursor: default!important;
+	text-decoration: none;
+}
 
-/* 白いログインボタン */
-#login_btn {
-    font-size:16px;
-    font-family:Arial;
-    font-weight:bold;
-    -moz-border-radius:4px;
-    -webkit-border-radius:4px;
-    border-radius:4px;
-    border:1px solid #dcdcdc;
-    padding:6px 18px;
-    text-decoration:none;
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #ffffff), color-stop(100%, #f6f6f6) );
-    background:-moz-linear-gradient( center top, #ffffff 5%, #f6f6f6 100% );
-    background:-ms-linear-gradient( top, #ffffff 5%, #f6f6f6 100% );
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f6f6f6');
-    background-color:#ffffff;
-    color:#666666;
-    display:inline-block;
-    text-shadow:1px 1px 1px #ffffff;
-    -webkit-box-shadow:inset 1px 1px 0px 1px #ffffff;
-    -moz-box-shadow:inset 1px 1px 0px 1px #ffffff;
-    box-shadow:inset 1px 1px 0px 1px #ffffff;
-}#login_btn:hover {
-    background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #f6f6f6), color-stop(100%, #ffffff) )!important;
-    background:-moz-linear-gradient( center top, #f6f6f6 5%, #ffffff 100% )!important;
-    background:-ms-linear-gradient( top, #f6f6f6 5%, #ffffff 100% )!important;
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#ffffff')!important;
-    background-color:#f6f6f6!important;
-}#login_btn:active {
-    position:relative!important;
-    top:1px!important;
-}/*----- End 白いログインボタン -----*/
 
+/*----- End 黄色いボタン -----*/
+
+/* Silver Btn */
+.btn_silver {
+	font-size:16px;
+	font-family:Arial;
+	font-weight:normal;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	border:1px solid #dcdcdc;
+	padding:7px 18px!important;
+	text-decoration:none;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #f9f9f9), color-stop(100%, #e9e9e9) );
+	background:-moz-linear-gradient( center top, #f9f9f9 5%, #e9e9e9 100% );
+	background:-ms-linear-gradient( top, #f9f9f9 5%, #e9e9e9 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9');
+	background-color:#f9f9f9;
+	color:#666666;
+	display:inline-block;
+	text-shadow:1px 1px 0px #ffffff;
+ 	-webkit-box-shadow:inset 1px 1px 0px 0px #ffffff;
+ 	-moz-box-shadow:inset 1px 1px 0px 0px #ffffff;
+ 	box-shadow:inset 1px 1px 0px 0px #ffffff;
+}.btn_silver:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(5%, #e9e9e9), color-stop(100%, #f9f9f9) );
+	background:-moz-linear-gradient( center top, #e9e9e9 5%, #f9f9f9 100% );
+	background:-ms-linear-gradient( top, #e9e9e9 5%, #f9f9f9 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9e9e9', endColorstr='#f9f9f9');
+	background-color:#e9e9e9;
+}.btn_silver:active {
+	position:relative;
+	top:1px;
+}
 
 /* グラデーション設定
 ================================================*/
 
 /* シルバー系 */
+.silver,
 .ul_tab_menu li,
 .ul_tab_menu_2 li {
-    color:#666666;
-    /*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
-    border-bottom:1px solid #CCCCCC;
-    background: #CCCCCC;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #CCCCCC), color-stop(0.00, #F2F2F2));
-    background: -webkit-linear-gradient(#F2F2F2, #CCCCCC);
-    background: -moz-linear-gradient(#F2F2F2, #CCCCCC);
-    background: -o-linear-gradient(#F2F2F2, #CCCCCC);
-    background: -ms-linear-gradient(#F2F2F2, #CCCCCC);
-    background: linear-gradient(#F2F2F2, #CCCCCC);
-    -pie-background: linear-gradient(#F2F2F2, #CCCCCC);
-    position: relative;
-    behavior: url("PIE.htc");
+	color:#666666;
+/*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
+	border-bottom:1px solid #CCCCCC;
+	background: #CCCCCC;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #CCCCCC), color-stop(0.00, #F2F2F2));
+	background: -webkit-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -moz-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -o-linear-gradient(#F2F2F2, #CCCCCC);
+	background: -ms-linear-gradient(#F2F2F2, #CCCCCC);
+	background: linear-gradient(#F2F2F2, #CCCCCC);
+	-pie-background: linear-gradient(#F2F2F2, #CCCCCC);
+	position: relative;
+	behavior: url("http://mktg.ekupo.jp/gf/wp-content/themes/ekpt/PIE.htc");
 }
 /* ブラック系 */
+.black,
 li.tab_active {
-    color:#DDDDDD;
-    /*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
-    border-bottom:1px solid #333333;
-    background: #333333;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #333333), color-stop(0.00, #777777));
-    background: -webkit-linear-gradient(#777777, #333333);
-    background: -moz-linear-gradient(#777777, #333333);
-    background: -o-linear-gradient(#777777, #333333);
-    background: -ms-linear-gradient(#777777, #333333);
-    background: linear-gradient(#777777, #333333);
-    -pie-background: linear-gradient(#777777, #333333);
-    position: relative;
-    behavior: url("PIE.htc");
+	color:#DDDDDD;
+/*	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(255, 255, 255, 0.5); */
+	border-bottom:1px solid #333333;
+	background: #333333;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1.00, #333333), color-stop(0.00, #777777));
+	background: -webkit-linear-gradient(#777777, #333333);
+	background: -moz-linear-gradient(#777777, #333333);
+	background: -o-linear-gradient(#777777, #333333);
+	background: -ms-linear-gradient(#777777, #333333);
+	background: linear-gradient(#777777, #333333);
+	-pie-background: linear-gradient(#777777, #333333);
+	position: relative;
+	behavior: url("http://mktg.ekupo.jp/gf/wp-content/themes/ekpt/PIE.htc");
 }
 
 
 /* ekupo_index media query
 ------------------------------------------*/
 @media only screen and (max-width: 480px) {
+	#header { padding-bottom: 1.5em; }
+	#branding #searchform { top: 45px!important; right: 5px!important; }
+	#logo { float: none; padding: 2.5em 0 0 2%; width: 30%; }
+	#catchcopy { position: absolute; top: 0; left: 0; float: none; margin: 1.3em 0 0 10px; width: 40%; font-size: 80%; }
+	#topics { float: none; position: absolute; top: 20px; right: 0; width: 55%; }
+	#contentsTitle { font-size: 100%; }
+	#gNavi { background-image: none; padding-left: 0; box-shadow: none; }
+		#gNavi li { background-image: url(images/ui/woodBtn_bg.png); margin-bottom: 0.5em; width: 32.5%; height: 2.5em; line-height: 2.5em;
+			box-shadow: -1px -3px 4px #555 inset; -moz-box-shadow: -1px -3px 4px #555 inset; -webkit-box-shadow: -1px -3px 4px #555 inset;
+			border-radius: 3px; }
+		#gNavi li:last-child { width: 32%; }
+	#footer p { left: 2%; right: 0; height: 1.8em; line-height: 2.2; font-size: 60%; }
 
-    #branding #searchform { top: 3.5em; right: 2%; }
-    #logo { padding: 0; margin: 1em 0 0 2%; width: 35%; }
-	#catchcopy { display: none; }
-    #topics { width: 40%; }
-    #contentsTitle { font-size: 100%; }
-    #gNavi { background-image: none; padding-left: 0; box-shadow: none; }
-    #gNavi li,
-    #gNavi li:last-child { background-image: url(images/ui/green.gif); margin-bottom: 3px; height: 3.5em; line-height: 3.5em; font-size: 60%; font-weight: normal;
-        /*box-shadow: -1px -3px 4px #aaa inset; -moz-box-shadow: -1px -3px 4px #aaa inset; -webkit-box-shadow: -1px -3px 4px #aaa inset;*/
-    /*border-radius: 3px;*/ }
-        #gNavi li > a { border-width: 1px; }
-        #footer p { left: 0; height: 1.8em; line-height: 2.2; font-size: 60%; }
+	.breadcrumbs { margin: 5px!important; }
+	.dl_queryVars01 { margin: 0 auto 1em auto; width: 95%; }
+		.dl_queryVars01 dt { float: none; width: auto; font-size: 90%; }
+		.dl_queryVars01 dd { float: none; width: auto; font-size: 115%; }
 
-        .breadcrumbs { margin: 5px!important; }
-        .dl_queryVars01 { margin: 0 auto 1em auto; width: 95%; }
-        .dl_queryVars01 dt { float: none; width: auto; font-size: 90%; }
-        .dl_queryVars01 dd { float: none; width: auto; font-size: 115%; }
+	.ul_queryVars01 { width: 100%; font-size: 80%; }
+		.ul_queryVars01 li { margin-bottom: 0.5em; width: 46%; }
+		.ul_queryVars01 li:first-child { margin-left: 2%; }
+		.ul_queryVars01 img { width: 100%; }
 
-        .ul_queryVars01 { width: 100%; font-size: 80%; }
-        .ul_queryVars01 li { margin-bottom: 0.5em; width: 46%; }
-        .ul_queryVars01 li:first-child { margin-left: 2%; }
-        .ul_queryVars01 img { width: 100%; }
+	.ul_entryList01>li { float: none; width: 96%; margin: 0 auto 1.5em; }
 
-        .clip_image01 { height: 190px; }
-        .clip_image01 img { top: -60px; clip: rect(60px auto 250px auto); }
+	.clip_image01 { height: 190px; }
+	.clip_image01 img { top: -60px; clip: rect(60px auto 250px auto); }
 
-        .ul_entryList01>li { float: none; width: 96%; margin: 0 auto 1.5em; }
-        .ul_entryList01 .ul_entryListDesc01>li+li img { width: 50%; }
+	.ul_entryListDesc01>li+li,
+	.ul_entryListDesc01>li+li+li { float: none; margin: 0 auto; width: 92%; }
+		.ul_entryListDesc01>li+li+li h3 { font-size: 125%; }
+		.ul_entryListDesc01>li+li img { width: 80%; }
+	.ul_entryListDesc01>li:first-child { width: 92%; margin: auto auto 0.5em auto; }
 
+	.ul_entryList02>li { width: 46.5%; }
+	.ul_entryList02 .p_entryTitle01 { padding-left: 2.5em; font-size: 85%; }
+		.ul_entryList02 .p_entryTitle01+p { margin-left: 2%; line-height: 1.4; }
 
-        .ul_entryListDesc01>li+li,
-        .ul_entryListDesc01>li+li+li { float: none; margin: 0 auto; width: 92%; }
-        .ul_entryListDesc01>li+li+li h3 { font-size: 125%; }
-        .ul_entryListDesc01>li:first-child { width: 100%; margin: auto auto 0.5em auto; }
+	.ul_queryVars02 { width: 97%; margin-left: 3%; }
+	.ul_queryVars02>li { float: none; width: 100%; }
+	.ul_queryVars02>li dt { margin-bottom: 0; }
+	.ul_queryVars02>li dd { float: none; width: 100%; }
+	.ul_queryVars02>li li { display: inline-block; width: auto; }
+	.ul_queryVars02>li:last-child { padding-left: 0; border: none; }
 
-        .ul_entryList02>li { width: 95%; height: 100%; float: none; }
-        .ul_entryListDesc01 li img { width: 40%; }
-        .ul_entryList02 .ul_entryListDesc01>li+li img { width: 80%; }
-        .ul_entryList02 .p_entryTitle01 { padding-left: 2.5em; font-size: 85%; }
-        .ul_entryList02 .p_entryTitle01+p { margin-left: 2%; line-height: 1.4; }
+	.getcoupon { width: 80%; }
+		.getcoupon+img { left: 7.5%; }
+	#couponInfo { width: 80%; }
+	#couponInfo img { width: 80%; }
 
-        .ul_queryVars02 { width: 97%; margin-left: 3%; }
-        .ul_queryVars02>li { float: none; width: 100%; }
-        .ul_queryVars02>li dt { margin-bottom: 0; }
-        .ul_queryVars02>li dd { float: none; width: 100%; }
-        .ul_queryVars02>li li { display: inline-block; width: auto; padding: 0 1em; border-left: 1px solid #ddd; }
-        .ul_queryVars02>li:last-child { padding-left: 0; border: none; }
-
-        .getcoupon { width: 80%; }
-        .getcoupon+img { left: 7.5%; }
-        #couponInfo { width: 80%; }
-        #couponInfo img { width: 80%; }
-
-        /* 1 カラムに */
-        .content {
-            width: 100%;
-        }
-        #side_coupon {
-            width: 100%;
-        }
-        .store_main .left {
-            width: 100%;
-			margin: 2em 0 0 0;
-        }
-        .store_main .left div.space {
-			height: 25px;
-        }
-        .store_main .right {
-            width: 100%
-        }
-        .div_coupon_01,
-        .div_coupon_02,
-        .div_coupon_05 {
-            margin: 1.5%;
-        }
-        .div_coupon_01 h4 > img,
-        .div_coupon_02 h4 > img,
-        .div_coupon_05 h4 > img {
-            position: absolute;
-            width: 65%;
-            top: -1.4em;
-        }
-        .div_coupon_03,
-        .div_coupon_04 {
-            width: 45.5%;
-            height: 370px;
-            margin: 0;
-            padding:1px;
-            float: left;
-        }
-        .div_coupon_03 p:last-child,
-        .div_coupon_04 p:last-child,
-        .div_coupon_03 .store_name a,
-        .div_coupon_04 .store_name a {
-            font-size: 80%;
-        }
-        .div_coupon_01 h4,
-        .div_coupon_02 h4 {
-            font-weight: bold;
-        }
-        .div_coupon_01 p:nth-child(2),
-        .div_coupon_02 p:nth-child(2) {
-            padding: 2em 7px 7px 7px;
-            color: #868686;
-        }
-        .div_coupon_01 p:nth-child(3),
-        .div_coupon_02 p:nth-child(3) {
-            font-weight: bold;
-            padding-left: 7px;
-            color: #fe000b;
-            font-size: 125%;
-        }
-
-        /* 店舗詳細テーブル */
-        .store_detail table.table_02,
-        .store_detail table.table_01,
-        .store_detail .table_03 {
-            margin: 5px 2% 0;
-        }
-        .store_detail table.table_03,
-        .store_detail table.table_02 {
-			float: none;
-            width: 96%;
-        }
-        /* 店舗説明レイアウト */
-        .block_02 .block_02_2 > div,
-        .block_02 .block_02_1 > div,
-        .block_02 .block_02_1 > p {
-            width: 100%;
-            margin-bottom: 1em;
-        }
-        .block_02 .block_02_1 > p.mainText {
-            width: 98%;
-            padding: 1%;
-            margin-left: 0;
-            min-height: 100px;
-        }
-        .block_02 .block_02_2 > div > p {
-            /*max-height: 150px;*/
-            width: 50%;
-            padding: 0 2%;
-        }
-
-        .block_02 .block_02_2 > div > div {
-            width: 39.7%;
-        }
-        .block_02 .block_02_2 > div > div > img {
-            width: 100%;
-        }
-        /* 検索結果 */
-        .ul_searchList01>li {
-            width: 94.5%;
-            background-color: #fcfcfc;
-            box-shadow: 1px 1px 7px #555;
-            -moz-box-shadow: 1px 1px 7px #555;
-            -webkit-box-shadow: 1px 1px 7px #555;
-        }
-        /* クーポン */
-        .store_coupon h5 {
-            letter-spacing: 0;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-        .dl_couponDesc01 dt {
-            display: block;
-            max-width: 100%;
-            width: 98%;
-            border: none;
-            text-align:center;
-        }
-        .dl_couponDesc01 dt div {
-            width: 100%;
-        }
-        .dl_couponDesc01 > dt div img:first-child {
-            display: block;
-            width: 33.5%;
-            float: left;
-            margin-left: 11%;
-        }
-        .dl_couponDesc01 > dt img.smartPhoneOnly {
-            display:block;
-            margin-left: 11%;
-            margin-right: 11%;
-            width: 33.5%;
-            float: left;
-        }
-        .dl_couponDesc01 dd {
-            width: 100%;
-        }
-        .dl_couponDesc01 dd ul {
-            padding: 4%;
-        }
-        .dl_couponDesc01 dd ul li {
-            font-size: 60%;
-        }
-        .dl_couponDesc01 dd ul li.nomalCoupon {
-            font-size:110%!important;
-        }
-        .dl_couponDesc01 dd ul li.nomalCoupon > span {
-            font-size: x-small;
-            color: #777!important;
-        }
-        .dl_couponDesc01 dd ul li.left,
-        .dl_couponDesc01 dd ul li.right {
-            float: none;
-            width: 100%;
-            line-height: 1.2;
-        }
-        .dl_couponDesc01 .center li.left p+p {
-			text-align: left;
+	/* 1 カラムに */
+	.content {
+		width: 100%;
+	}
+	#side_coupon {
+		width: 100%;
+		margin: 10px;
+	}
+	.store_main .left {
+		width: 100%
+	}
+	.store_main .left div.space {
+		display: none;
+	}
+	.store_main .right {
+		width: 100%
+	}
+	.div_coupon_01 {
+		background-color: #ffcc99 ;
+	}
+	.div_coupon_02 {
+		background-color: #cc99cc;
+	}
+	.div_coupon_01, .div_coupon_02 {
+		width: 47%;
+		margin: 1.5%;
+		float: left;
+	}
+		.div_coupon_01 h4 > img,
+		.div_coupon_02 h4 > img {
+			position: absolute;
+			width: 100%;
+			top: -0.8em!important;
 		}
-        .dl_couponDesc01 dd.center,
-        .dl_couponDesc01 dd.right {
-            float: none;
-            width: 100%;
-            line-height: 1.3;
-        }
-        .dl_couponDesc01 dd.center ul {
-            padding-bottom: 0;
-        }
-        .dl_couponDesc01 dd.right {
-            text-align: center;
-        }
-        .dl_couponDesc01 dd.right .a_btn_coupon_01 {
-            padding: 2.4% 18.7%;
-        }
-        .dl_couponDesc01 dd li.li_couponBtn {
-            display: none;
-        }
-        .dl_couponDesc01 dd li.li_couponBtnSmartPhone {
-            display: block;
-            text-align: center;
-            border-top: 3px dashed #d7d7d7;
-        }
-        .ul_tab_menu li {
-            width: 15%;
-            font-size: xx-small;
-            font-weight: bold;
-            padding: 0 1%;
-            line-height: 20px!important;
-            border: 1px solid #777777;
-        }
-        .ul_tab_menu li:nth-child(2) {
-            font-size: 7px;
-        }
-        /* jQuery使うなら消してね */
-        .ul_tab_menu li a {
-            display: block;
-            width: 100%;
-            line-height: 36px;
-            color: #666666;
-            text-decoration: none;
-        }
-        .ul_tab_menu li.tab_active a {
-            color: #dddddd;
-        }
-        .store_title p.tel,
-        .store_title h2 {
-            width: 97%;
-            text-align: left;
-            float: none;
-        }
-        .store_title div.likeBtn > a,
-        .store_title div.favoBtn > a {
-            float: left;
-        }
-        .galleria-container {
-            width:  100% !important;
-            height: 380px !important;
-        }
-        .ul_tab_menu_2 li {
-            font-size: xx-small;
-            font-weight: bold;
-            width: 20%!important;
-        }
-        #topics_2 {
-            float: right;
-            font-size: 80%;
-        }
-        .modal     { width: 100%; }
-        .modalBody { max-width: 90%; height: 340px; margin-left: -48%!important; }
-        .modalBody #login_btn { }
-        .loginForm > dt { font-size: 11px; white-space: nowrap; overflow: hidden; }
-        .loginForm > dd > input {
-            width: 220%;
-        }
-        .ul_entryList02>li>div {
-            height: 98.8%;
-            overflow-y: hidden;
-        }
-        .store_drink dl dt span {
-            padding-left: 6%;
-        }
-        .store_course .right dd {
-            overflow: hidden;
-            /*max-height: 13em;*/
-            padding-left: 3.5%;
-        }
-        .store_course li img {
-            width: 100%;
-        }
-        .store_course li+li {
-            width: 100%;
-        }
-        .store_course li+li span {
-            display: block;
-            width: 98%;
-            padding-left: 2%;
-        }
+	.div_coupon_03, .div_coupon_04 {
+		width: 45.5%;
+		height: 370px;
+		margin: 3px;
+		padding:1px;
+		float: left;
+	}
+		.div_coupon_03, .div_coupon_04 {
+			margin: 0;
+		}
+		.div_coupon_01 h4,
+		.div_coupon_02 h4 {
+			font-weight: bold;
+		}
+		.div_coupon_01 p:nth-child(2),
+		.div_coupon_02 p:nth-child(2) {
+			padding-top: 2em;
+			color: #868686;
+		}
+		.div_coupon_01 p:nth-child(3),
+		.div_coupon_02 p:nth-child(3) {
+			font-weight: bold;
+			padding-left: 7px;
+			color: #fe000b;
+			font-size: 125%;
+		}
 
-        .div_coupon_03, .div_coupon_04 {
-            clear: both;
-            height: auto;
-            margin: 0 13px;
-            width: auto;
-        }
-        .div_coupon_03 > a img, .div_coupon_04 > a img {
-        }
-        .div_coupon_03 > a,
-        .div_coupon_04 > a {
-            width: 60%;
-            float: left;
-        }
-        .div_coupon_03 .discount_store_name,
-        .div_coupon_04 .discount_store_name {
-            float: left;
-            width: 40%;
-        }
-        .div_coupon_03 .discount_store_name .discount,
-        .div_coupon_04 .discount_store_name .discount {
-            float: none;
-            clear: both;
-        }
-        .div_coupon_03 .discount,
-        .div_coupon_04 .discount {
-            width: 80%;
-        }
-        .div_coupon_03 p:last-child,
-        .div_coupon_04 p:last-child {
-            float: left;
-            width: 35%;
-            clear: none;
-            text-align: left;
-            text-indent: 0.1em;
-        }
-        .div_coupon_03 .store_name a,
-        .div_coupon_04 .store_name a {
-            font-size: 12px;
-        }
+	.bar img {
+		height: 2em;
+	}
+	.bar span {
+		line-height: 2;
+	}
+
+
+	/* 店舗詳細テーブル */
+	.store_detail table.table_02,
+	.store_detail table.table_01,
+	.store_detail .table_03 {
+		margin: 5px 2% 0;
+	}
+	.store_detail table.table_03,
+	.store_detail table.table_02 {
+		width: 96%;
+	}
+	/* 店舗説明レイアウト */
+	.block_02 .block_02_2 > div,
+	.block_02 .block_02_1 > div,
+	.block_02 .block_02_1 > p {
+		width: 100%;
+	}
+	.block_02 .block_02_1 > p.mainText {
+		width: 98%;
+		padding: 1%;
+		margin-left: 0;
+		min-height: 100px;
+	}
+	.block_02 .block_02_2 > div > p {
+		max-height: 150px;
+		width: 50%;
+		padding: 0 2%;
+	}
+
+	.block_02 .block_02_2 > div > div {
+		width: 39.7%;
+	}
+	.block_02 .block_02_2 > div > div > img {
+		width: 100%;
+	}
+	/* 検索結果 */
+	.ul_searchList01>li {
+		width: 94.5%;
+		background-color: #fcfcfc;
+		box-shadow: 1px 1px 7px #555;
+		-moz-box-shadow: 1px 1px 7px #555;
+		-webkit-box-shadow: 1px 1px 7px #555;
+	}
+	/* クーポン */
+	.store_coupon h5 {
+		letter-spacing: 0;
+		font-size: 14px;
+		margin-top: 20px;
+	}
+	.dl_couponDesc01 dl {
+	}
+	.dl_couponDesc01 dt {
+		display: block;
+		max-width: 100%;
+		width: 98%;
+		border: none;
+		text-align:center;
+	}
+	.dl_couponDesc01 dt div {
+		width: 100%;
+	}
+		.dl_couponDesc01 > dt div img:first-child {
+			display: block;
+			width: 33.5%;
+			float: left;
+			margin-left: 11%;
+		}
+		.dl_couponDesc01 > dt img.smartPhoneOnly {
+			display:block;
+			margin-left: 11%;
+			margin-right: 11%;
+			width: 33.5%;
+			float: left;
+		}
+	.dl_couponDesc01 dd {
+		width: 99%;
+	}
+	.dl_couponDesc01 dd ul {
+		padding: 4%;
+	}
+		.dl_couponDesc01 dd ul li {
+			font-size: 70%;
+		}
+		.dl_couponDesc01 dd ul li.nomalCoupon {
+			font-size:110%!important;
+		}
+		.dl_couponDesc01 dd ul li.nomalCoupon > span {
+			font-size: x-small;
+			color: #777!important;
+		}
+		.dl_couponDesc01 dd ul li.left,
+		.dl_couponDesc01 dd ul li.right {
+			float: none;
+			width: 100%;
+		}
+		.dl_couponDesc01 dd li.li_couponBtn {
+			display: none;
+		}
+		.dl_couponDesc01 dd li.li_couponBtnSmartPhone {
+			display: block;
+			text-align: center;
+			border-top: 3px dashed #d7d7d7;
+			padding-top: 15px;
+		}
+		.dl_couponDesc01 dt.yutai_notice > img {
+			width: 100%;
+			height: 2em;
+		}
+
+
+	.ul_tab_menu li {
+		width: 15%;
+		font-size: xx-small;
+		font-weight: bold;
+		padding: 0 1%;
+		line-height: 20px!important;
+		border: 1px solid #777777;
+	}
+	.ul_tab_menu li:nth-child(2) {
+		font-size: 7px;
+	}
+	/* jQuery使うなら消してね */
+	.ul_tab_menu li a {
+		display: block;
+		width: 100%;
+		line-height: 36px;
+		color: #666666;
+		text-decoration: none;
+	}
+	.ul_tab_menu li.tab_active a {
+		color: #dddddd;
+	}
+	.store_title p.tel,
+	.store_title h2 {
+		width: 97%;
+		text-align: left;
+		float: none;
+	}
+	.store_title div.likeBtn > a,
+	.store_title div.favoBtn > a {
+		float: left;
+	}
+	.galleria-container {
+		width:  100% !important;
+		height: 380px !important;
+	 }
+	.ul_tab_menu_2 li {
+		font-size: xx-small;
+		font-weight: bold;
+		width: 20%!important;
+	}
+	.modalBody {
+		text-align: center;
+		color: #555;
+		background: url(images/ui/bg_common_02.png) repeat;
+	}
+		.modalBody > .close {
+			color: #999;
+			text-align: center;
+		}
+	#topics_2 {
+		float: right;
+		font-size: 80%;
+		margin-top: -56px;
+	}
+
 
 }
 
-    /* タブレットサイズ */
-    @media only screen and (min-width: 481px) and (max-width: 1024px) {
+@media only screen and (min-width: 481px) and (max-width: 1024px) {
+	#header { padding-bottom: 0.5em; }
+	#branding #searchform { top: 40px!important; right: 5px!important; }
+	#logo { float: none; padding: 1em 0 0 2%; width: 30%; }
+	#catchcopy { position: absolute; top: 0; left: 0; float: none; margin: 0.3em 0 0 10px; font-size: 80%; }
+	#topics { float: none; position: absolute; top: 20px; right: 0; width: 55%; }
 
-        .ul_queryVars01 { width: 100%; font-size: 80%; }
-        .ul_queryVars01 li { width: 22%; }
-        .ul_queryVars01 li:first-child { margin-left: 2%; }
-        .ul_queryVars01 img { width: 100%; }
+	.ul_queryVars01 { width: 100%; font-size: 80%; }
+		.ul_queryVars01 li { width: 22%; }
+		.ul_queryVars01 li:first-child { margin-left: 2%; }
+		.ul_queryVars01 img { width: 100%; }
 
-        .clip_image01 { height: 240px; }
-        .clip_image01 img { top: -60px; clip: rect(60px auto 280px auto); }
+	.clip_image01 { height: 240px; }
+	.clip_image01 img { top: -60px; clip: rect(60px auto 280px auto); }
 
-        .div_coupon_01>h4+p,
-        .div_coupon_02>h4+p { margin-top: 1.5em!important; }
-        .div_coupon_01>h4+p+p,
-        .div_coupon_02>h4+p+p { font-size: 125%!important; }
-    }
-    @media only screen and (min-width: 481px) and (max-width: 768px) {
-
-		#catchcopy { display: none; }
-		#logo { width: 30%; margin: 2% 0 0 3%; }
-		#topics { width: 30%; }
-
-        .ul_queryVars01 { width: 100%; font-size: 65%!important;}
-        .ul_queryVars01 > li { width: 22%; padding: 0.5% 0;}
-        .ul_queryVars01 > li > a { background-size: 13% auto!important;}
-
-        .ul_queryVars01 > li > .style_timesales { font-size: 80%!important;}
-        .ul_queryVars01 > li > .style_trials { font-size: 90%!important;}
-
-        .modal     { width: 481px; }
-        .modalBody { width: 380px; }
-
-    }
+	.div_coupon_01>h4+p,
+	.div_coupon_02>h4+p { margin-top: 1.5em!important; }
+	.div_coupon_01>h4+p+p,
+	.div_coupon_02>h4+p+p { font-size: 125%!important; }
+	.div_coupon_01>h4 img,
+	.div_coupon_02>h4 img { top: -0.8em!important; }
+}

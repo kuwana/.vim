@@ -3232,6 +3232,16 @@ function init_sessions() {
 }
 add_action('init', 'init_sessions');
 
+
+function ekpt_get_the_excerpt( $deprecated = '' ) {
+
+	$post = get_post();
+
+	return $post->post_excerpt;
+}
+add_filter('get_the_excerpt', 'ekpt_get_the_excerpt');
+
+
 // リダイレクト指定
 function ekpt_redirect_fix(){
 	// if ( WP_DEBUG ) echo 'Caled' ;
@@ -3310,7 +3320,7 @@ function ekpt_get_json( $urldef = '', $param = array(),  $base_url = '' ) {
 function ekpt_pager( $idname, $countRe, $perPage = 0, $viewPageMenuWidth = 0, $offsetKey = '' ) {
 	// 現在のページ情報を取得
 	parse_str(parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], PHP_URL_QUERY), $qry);
-	preg_match('/([a-z]+\.html)/', $_SERVER['REQUEST_URI'], $matches);
+	preg_match('/([-a-z]+\.html)/', $_SERVER['REQUEST_URI'], $matches);
 	$match = isset($matches[1]) ? $matches[1] : '';
 	$PHP_SELF = get_bloginfo('url').'/'.$match;
 	$other_param = $startMore = $endMore = '';
@@ -3585,8 +3595,7 @@ function successed_get_coupon($atts = array()) {
 		return $html;
 	}
 	$param = array('mem_id' => $mem_id, 'rtc_id' => $rtc_id);
-	//$sendurl = EKPTDEF_GFAPI;
-	$sendurl = 'http://ekptgfapi-testing.smartec.co.jp/';
+	$sendurl = EKPTDEF_GFAPI;
 	$retdatas = ekpt_get_json('RtCoupon/SendForMem', $param, $sendurl);
 	if ( $retdatas['status_code'] === 400 ) {
 		$html .= '<div class="backto"><a href="'.$refere.'" class="a_btn_coupon_01">店舗詳細ページへ戻る</a></div>';
@@ -3601,7 +3610,7 @@ function successed_get_coupon($atts = array()) {
 	$mainimg = substr(get_post_meta($postid, 'fudoimg1', true), 0, -4);
 	$q2 = $wpdb->prepare("SELECT DISTINCT ID FROM $wpdb->posts WHERE post_title = %s AND post_type = 'attachment' LIMIT 1", $mainimg);
 	$attachid = $wpdb->get_var($q2);
-	$imgsrcs = wp_get_attachment_image_src($attachid, 'thumbnail');
+	$imgsrcs = wp_get_attachment_image_src($attachid, 'original');
 	$src = $imgsrcs[0];
 	// get coupon type.
 	$ctype_arr = array('10' => 'otameshi', '20' => 'timesale');
@@ -3656,7 +3665,6 @@ function check_vote($mem_id, $shop_id, $action_type) {
 		$param = array('FromMemId' => $mem_id, 'ToMemId' => $shop_id, 'MessageText' => 'from exca');
 		$sendurl = EKPTDEF_HOME ;
 		$arrdata = ekpt_get_json('/Api/becomeFriend', $param, $sendurl);
-var_dump($arrdata);
 		if ($arrdata['status'] === 'success') {
 			$vdata['seq_no'] = 0;
 		} else if ($arrdata['response'] == 'Both IDs are already friend.') {
@@ -3729,3 +3737,4 @@ function get_shop_images($path, $slug) {
 
 	return $list;
 }
+

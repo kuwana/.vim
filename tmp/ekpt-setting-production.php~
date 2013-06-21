@@ -1,27 +1,16 @@
 <?php
 
-// 本来
-define ('EKPTDEF_HOME', 'http://town.ekupo.jp/') ;
-// ベータ時 
-// define ('EKPTDEF_HOME', 'http://cms04.ekupo.jp/') ;
-// 本来
-define ('EKPTDEF_HOMEAPICHECKTOKEN', 'http://town.ekupo.jp/Api/checkToken') ;
-// ベータ時 
-// define ('EKPTDEF_HOMEAPICHECKTOKEN', 'http://cms04.ekupo.jp/Api/checkToken') ;
+/**
+ * ekpt-setting-production.php
+ *
+ * 本番環境( http://shopinfo.ekupo.jp )用設定ファイル
+ */
+
+define ('EKPTDEF_HOME', 'http://town.ekupo.jp/') ;   // 基本 sslなし
+define ('EKPTDEF_HOMEAPICHECKTOKEN', 'https://town.ekupo.jp/Api/checkToken') ; // トークンチェックAPI sslあり
 define ('EKPTDEF_GFHOME', '/') ;
-define ('EKPTDEF_LOGIN', 'https://town.ekupo.jp/') ;
+define ('EKPTDEF_LOGIN', 'https://town.ekupo.jp/') ; // ログイン用 sslあり
 define ('EKPTDEF_API', '/api/ekpt/') ;
-define ('EKPTDEF_TRADEAPI', '/api/ekpttrade/') ;
-//define ('EKPTDEF_GFAPI', 'http://ekptgfapi04.ekupo.jp/') ;
-define ('EKPTDEF_GFAPI', 'http://mktg.ekupo.jp/gfapi');
-define ('EKPTDEF_USER', 1) ;
-define ('EKPTDEF_IMAGEHOME', 'wp-content/uploads/ekpt/itemimages/') ;
-define ('EKPTDEF_ICONHOME', 'wp-content/themes/ekpt/images/icons1209/') ;
-define ('EKPTDEF_CCHOME', 'http://mktg.ekupo.jp/cc/') ;
-define ('EKPTDEF_GUIDEHOME', 'http://tutorial.ekupo.jp/guide/') ;
-define ('EKPTDEF_HOMEITEM_MSG01', 'ガチャを引いてGET力を強化しよう！！！') ;
-define ('EKPTDEF_GIFT_LINK', 'http://tutorial.ekupo.jp/guide/') ;
-define ('EKPTDEF_CC_HOME', 'http://mktg.ekupo.jp/cc/') ;
+define ('EKPTDEF_GFAPI', 'http://mktg.ekupo.jp/gfapi/');
+define ('EKPTDEF_USER', 1) ;                         // mem_idが不正の場合に使われる
 define ('EKPTDEF_TOWN_IMG_CACHE', 'http://town.ekupo.jp/cache' );
-define ('EKPTDEF_COUPON_GUIDE', 'http://tutorial.ekupo.jp/campaign/opening/couponlist.php');
-// http://mktg.ekupo.jp/gfapi

@@ -11,22 +11,35 @@ status_header( 200 );
 ?>
 
 <?php
-// カスタムフィールドにパスワード保護
-if ( post_password_required( $post_id ) ) : // TO endif; ?>
 
-<form method="post" action="<?php bloginfo('url'); ?>/wp-login.php?action=postpass">
-<p>このページはパスワードで保護されています。下記フォームにパスワードを入力して下さい。</p>
-<p><label for="pwbox-531">パスワード:<br/>
-<input type="password" size="20" id="pwbox-531" name="post_password"/></label><br/>
-<input type="submit" value="Submit" name="送信"/></p>
-</form>
+global $post, $wpdb;
+
+// カスタムフィールドにパスワード保護
+
+$accessIP = $_SERVER['REMOTE_ADDR'];
+$allowIP   = '221.189.3.45';
+$localhost1 = '127.0.0.1';
+$localhost2 = '::1';// for Mac
+
+if ( $accessIP == $allowIP || $accessIP == $localhost1 || $accessIP == $localhost2 ) // GSとローカルは許可
+	goto allow;
+
+if ( post_password_required( $post->ID ) ) : // TO endif; ?>
+
+	<form method="post" action="<?php bloginfo('url'); ?>/wp-login.php?action=postpass">
+		<p>このページはパスワードで保護されています。下記フォームにパスワードを入力して下さい。</p>
+		<p><label for="pwbox-531">パスワード:<br/>
+		<input type="password" size="20" id="pwbox-531" name="post_password"/></label><br/>
+		<input type="submit" value="送信" name="Submit"/></p>
+	</form>
 
 <?php else :
 
+allow:
 
 get_header();
-the_post();
-global $wpdb;
+//the_post();
+
 $uri = ($_SERVER['REQUEST_URI']);
 $post_id = $post->ID;
 $post_id_array = get_post($post_id);
@@ -1294,7 +1307,7 @@ global $like_done, $favo_done;
 				<th>電話</th>
 				<td>
 					<?php $tel = get_post_meta($post_id, 'tochisetsudomaguchi2', true); ?>
-					<a href="<?php echo str_replace('-', '', $tel); ?>"><?php echo $tel; ?></a>
+					<a href="tel:<?php echo str_replace('-', '', $tel); ?>"><?php echo $tel; ?></a>
 				</td>
 			</tr>
 			<tr>
