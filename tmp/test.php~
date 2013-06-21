@@ -1,7 +1,0 @@
-<?php
-
-$a = 'special';
-$b = 0;
-
-if (empty($b)) echo 'OK';
-

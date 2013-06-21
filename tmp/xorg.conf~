@@ -1,6 +1,0 @@
-Section "InputClass"
-	Identifier "enable synaptics SHMConfig"
-	MatchIsTouchpad "on"
-	MatchDevicePath "/dev/input/event*"
-	Option "SHMConfig" "on"
-EndSection

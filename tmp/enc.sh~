@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ls | xargs nkf -w --overwrite && find . -iname "*.xml" -exec sed -i 's/shift_jis/utf-8/g' {} \;

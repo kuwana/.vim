@@ -1,8 +1,0 @@
-#!/bin/bash
-
-while read i
-do
-	sed 's/\///g' | sed 's/^\.//g'
-done
-
-exit 0
