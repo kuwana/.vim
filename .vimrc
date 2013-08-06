@@ -319,6 +319,7 @@ function PHPLint()
 endfunction
 
 autocmd FileType php :nmap ,l :call PHPLint()
+autocmd FileType php :set dictionary=~/.vim/dict/vim-dict-wordpress/*.dict
 
 " PHP以外でも折りたたむ
 augroup vimrc
