@@ -19,3 +19,9 @@ if !exists('*PreviewOpenBrace')
 		let s:last_pos   = l:pos
 	endfunction
 endif
+
+" タブ幅の設定
+set noexpandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4

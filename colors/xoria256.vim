@@ -40,7 +40,7 @@ let g:colors_name = "xoria256"
 "hi Normal	cterm=none	ctermfg=252	ctermbg=234	gui=none	guifg=#d0d0d0	guibg=#202020
 hi Normal	cterm=none	ctermfg=252	ctermbg=none	gui=none	guifg=#d0d0d0	guibg=#202020
 
-hi Cursor	cterm=none	ctermfg=none	ctermbg=214	gui=none	guifg=none	guibg=#ffaf00
+"hi Cursor	cterm=none	ctermfg=none	ctermbg=214	gui=none	guifg=none	guibg=#ffaf00
 hi CursorColumn	cterm=none			ctermbg=238	gui=none			guibg=#444444
 hi CursorLine	cterm=none			ctermbg=238	gui=none			guibg=#444444
 hi lCursor	cterm=none	ctermfg=0	ctermbg=40	gui=none	guifg=#000000	guibg=#00df00
@@ -87,7 +87,7 @@ hi Directory	cterm=none	ctermfg=39	ctermbg=none	gui=none	guifg=#00afff	guibg=bg
 "hi LineNr	cterm=none	ctermfg=248			gui=none	guifg=#a8a8a8
 hi LineNr	cterm=none	ctermfg=248	ctermbg=237	gui=none	guifg=#a8a8a8
 "hi NonText	cterm=bold	ctermfg=248	ctermbg=none	gui=bold	guifg=#a8a8a8	guibg=bg
-hi NonText	cterm=bold	ctermfg=248	ctermbg=none	gui=bold	guifg=#a8a8a8	guibg=none
+"hi NonText	cterm=bold	ctermfg=248	ctermbg=none	gui=bold	guifg=#a8a8a8	guibg=none
 "hi SpecialKey	cterm=none	ctermfg=77	ctermbg=none	gui=none	guifg=#5fdf5f	guibg=bg
 hi SpecialKey	cterm=none	ctermfg=241	ctermbg=none	gui=none	guifg=#5fdf5f	guibg=bg
 hi Title	cterm=none	ctermfg=0	ctermbg=184	gui=none	guifg=#000000	guibg=#dfdf00
@@ -157,7 +157,7 @@ if v:version >= 700
   hi Pmenu      cterm=none	ctermfg=0	ctermbg=246	gui=none	guifg=#000000	guibg=#949494
   hi PmenuSel   cterm=none	ctermfg=0	ctermbg=243	gui=none	guifg=#000000	guibg=#767676
   hi PmenuSbar  cterm=none	ctermfg=fg	ctermbg=243	gui=none	guifg=fg	guibg=#767676
-  hi PmenuThumb cterm=none	ctermfg=none	ctermbg=252	gui=none	guifg=none	guibg=#d0d0d0
+  "hi PmenuThumb cterm=none	ctermfg=none	ctermbg=252	gui=none	guifg=none	guibg=#d0d0d0
   
   "  if has("spell")
   "  	hi SpellBad	guisp=#ee2c2c	gui=undercurl

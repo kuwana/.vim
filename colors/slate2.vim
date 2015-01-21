@@ -60,7 +60,9 @@ hi SpecialKey guibg=bg guifg=#444852 gui=none
 hi Title guibg=bg guifg=#e7e7e7 gui=bold
 hi WarningMsg guibg=bg guifg=#ee2c2c gui=bold
 
-hi Comment guibg=bg guifg=#bbbb87 gui=none
+hi Number guibg=bg guifg=#f0b65f gui=none
+hi Boolean guibg=bg guifg=#f0b65f gui=none
+hi Comment guibg=bg guifg=#888b77 gui=none
 hi Constant guibg=bg guifg=#8fe779 gui=none
 hi Error guibg=bg guifg=#ee2c2c gui=none
 hi Identifier guibg=bg guifg=#7ee0ce gui=none
