@@ -3,7 +3,7 @@
 " An example for a Japanese version gvimrc file.
 " 日本語版のデフォルトGUI設定ファイル(gvimrc) - Vim7用試作
 "
-" Last Change: 10-Sep-2012.
+" Last Change: 19-Feb-2015.
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 "
 " 解説:
@@ -97,7 +97,8 @@ if has('win32')
     set ambiwidth=auto
   endif
 elseif has('mac')
-  set guifont=Osaka－等幅:h14
+  " set guifont=Osaka－等幅:h14
+  set guifont=Ricty_discord:h13
 elseif has('xfontset')
   " UNIX用 (xfontsetを使用)
   "set guifontset=a14,r14,k14
@@ -105,7 +106,6 @@ endif
 
 "linux用
 "set guifont=Ricty\ 12
-set guifont=UbuntuMono\ 11.5
 
 "---------------------------------------------------------------------------
 " ウインドウに関する設定:
@@ -172,17 +172,13 @@ endif
 set guioptions-=m 
 set guioptions-=T 
 
-
-
 "---------------------------------------------------------------------------
-" その他、見栄えに関する設定:
-"
-" 検索文字列をハイライトしない(_vimrcではなく_gvimrcで設定する必要がある)
-"set nohlsearch
+" ポップアップメニューの色
+hi Pmenu  guibg=#f5f5dc	guifg=#000000
+hi PmenuSel guibg=#443333 guifg=#ffb038
+hi PmenuSbar  guibg=#aaaaaa
+hi PmenuThumb guifg=#443333
 
-"Esc連打でハイライト解除：
-set hlsearch
-nmap <Esc><Esc> :nohlsearch<CR><Esc>
 "---------------------------------------------------------------------------
 " 印刷に関する設定:
 "

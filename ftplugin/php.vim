@@ -1,3 +1,24 @@
+"---------------------------------------------------------------------------
+" FileType PHP の設定
+"---------------------------------------------------------------------------
+
+" タブ幅の設定
+set noexpandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+
+"---------------------------------------------------------------------------
+" vimデフォルトのPHP設定
+let php_noShortTags = 1
+
+"---------------------------------------------------------------------------
+" phpcomplete-extended
+autocmd  FileType  php setlocal omnifunc=phpcomplete_extended#CompletePHP
+let g:phpcomplete_index_composer_command = "composer"
+
+
+"---------------------------------------------------------------------------
 " ブロックの先頭を Preview Window で表示
 nnoremap <buffer> <silent> ( :<C-U>call PreviewOpenBrace()<CR>
 
@@ -19,9 +40,3 @@ if !exists('*PreviewOpenBrace')
 		let s:last_pos   = l:pos
 	endfunction
 endif
-
-" タブ幅の設定
-set noexpandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
