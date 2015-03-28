@@ -3,7 +3,7 @@
 "---------------------------------------------------------------------------
 
 " タブ幅の設定
-set noexpandtab
+set expandtab
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4

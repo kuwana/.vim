@@ -45,7 +45,7 @@ else
     hi WildMenu guibg=#e7e7e7 guifg=#000000 gui=bold
 endif
 
-hi Directory guibg=bg guifg=#1e90ff gui=none
+hi Directory guibg=bg guifg=#b1c6f5 gui=none
 hi ErrorMsg guibg=#ee2c2c guifg=#ffffff gui=bold
 hi DiffAdd guibg=#008b00 guifg=fg gui=none
 hi DiffChange guibg=#00008b guifg=fg gui=none

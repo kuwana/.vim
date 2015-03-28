@@ -3,7 +3,7 @@
 " An example for a Japanese version vimrc file.
 " 日本語版のデフォルト設定ファイル(vimrc) - Vim7用試作
 "
-" Last Change: 01-Mar-2015.
+" Last Change: 28-Mar-2015.
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 "
 "   :help vimrc
@@ -243,6 +243,10 @@ if !has('gui_running') && has('xterm_clipboard')
 endif
 
 "---------------------------------------------------------------------------
+" SQLのシンタックスをMySQLに
+let g:sql_type_default = 'mysql'
+
+"---------------------------------------------------------------------------
 " プラットホーム依存の特別な設定
 
 " WinではPATHに$VIMが含まれていないときにexeを見つけ出せないので修正
@@ -288,9 +292,6 @@ let g:ref_phpmanual_path = '/Users/takuya/Documents/php-chunked-xhtml/'
 " C-cでESCと同じ動きに
 inoremap <C-c> <ESC>
 
-" <TAB>: completion. TABで補完
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-
 "---------------------------------------------------------------------------
 "XML/HTMLの閉じタグ自動補完
 augroup MyXML
@@ -313,6 +314,10 @@ nnoremap <silent> ,irb :VimShellInteractive irb<CR>
 vmap <silent> ,ss :VimShellSendString<CR>
 " 選択中に,ss: 非同期で開いたインタプリタに選択行を評価させる
 nnoremap <silent> ,ss <S-v>:VimShellSendString<CR>
+" 非同期で実行
+let g:VimShell_EnableInteractive = 1
+" 体感速度向上？
+let g:vimshell_interactive_update_time = 0
 
 "---------------------------------------------------------------------------
 "vimデフォルトのエクスプローラをvimfilerで置き換える
@@ -378,6 +383,11 @@ let g:apex_deployment_error_log="gvim-deployment-error.log"
 "---------------------------------------------------------------------------
 " taglist.vim
 nnoremap <silent> <Space>tl :Tlist<CR>
+
+"---------------------------------------------------------------------------
+" CtrlP cache clear
+nnoremap <silent> ,cp :CtrlPClearAllCaches<CR>
+
 
 "---------------------------------------------------------------------------
 " SrcExpl
@@ -446,10 +456,11 @@ nnoremap <Space>ag :<C-u>Ag
 
 "--------------------------------------------
 " neocomplete
+"
 let g:acp_enableAtStartup = 0
 let g:neocomplete#enable_at_startup = 1                     " スタート時に有効
 let g:neocomplete#enable_smart_case = 1
-let g:neocomplete#max_list = 10                             " リスト最大表示数
+let g:neocomplete#max_list = 12                             " リスト最大表示数
 let g:neocomplete#max_keyword_width = 50                    " 最大列数
 let g:neocomplete#auto_completion_start_length = 3          " 起動までの文字数
 let g:neocomplete#use_vimproc = 1                           " vimprocを使用して非同期キャッシュする
@@ -458,12 +469,50 @@ let g:neocomplete#sources#buffer#max_keyword_width = 50
 let g:neocomplete#sources#tags#cache_limit_size = 30000000
 let g:neocomplete#enable_fuzzy_completion = 1
 let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
-let g:neocomplete#enable_auto_close_preview = 0
 set completeopt-=preview                                    " プレビューウィンドウ非表示
+
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 
 " Enable omni completion.
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+  return neocomplete#smart_close_popup() . "\<CR>"
+endfunction
 
+" <TAB>: completion. TABで補完
+"inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
+
+"--------------------------------------------
+" neosnippet
+
+" スニペット置き場
+let g:neosnippet#snippets_directory = '~/.vim/snippets,~/.vim/bundle/neosnippet-snippets/neosnippets'
+
+" Plugin key-mappings.
+imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+" SuperTab like snippets behavior.
+"imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
+imap <expr><TAB> pumvisible() ? "\<C-n>" : neosnippet#jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+
+
+" For snippet_complete marker.
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
+
+
+
+"--------------------------------------------
 " Copyright (C) 2011 KaoriYa/MURAOKA Taro
