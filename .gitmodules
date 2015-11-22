@@ -28,3 +28,24 @@
 [submodule "bundle/nerdtree"]
 	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
+[submodule "bundle/caw.vim"]
+	path = bundle/caw.vim
+	url = https://github.com/tyru/caw.vim.git
+[submodule "bundle/vim-coffee-script"]
+	path = bundle/vim-coffee-script
+	url = https://github.com/kchmck/vim-coffee-script.git
+[submodule "bundle/vim-easy-align"]
+	path = bundle/vim-easy-align
+	url = https://github.com/junegunn/vim-easy-align.git
+[submodule "bundle/vim-webdevicons"]
+	path = bundle/vim-webdevicons
+	url = https://github.com/ryanoasis/vim-webdevicons
+[submodule "bundle/unite-tag"]
+	path = bundle/unite-tag
+	url = https://github.com/tsukkee/unite-tag.git
+[submodule "bundle/auto-ctags.vim"]
+	path = bundle/auto-ctags.vim
+	url = https://github.com/soramugi/auto-ctags.vim.git
+[submodule "bundle/dash.vim"]
+	path = bundle/dash.vim
+	url = https://github.com/rizzatti/dash.vim.git

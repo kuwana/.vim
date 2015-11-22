@@ -3,7 +3,7 @@
 " An example for a Japanese version vimrc file.
 " 日本語版のデフォルト設定ファイル(vimrc) - Vim7用試作
 "
-" Last Change: 28-Mar-2015.
+" Last Change: 19-Nov-2015.
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 "
 "   :help vimrc
@@ -196,6 +196,8 @@ set autoread
 inoremap {<Enter> {}<Left><CR><ESC><S-o>
 inoremap [<Enter> []<Left><CR><ESC><S-o>
 inoremap (<Enter> ()<Left><CR><ESC><S-o>
+set timeout timeoutlen=1000 ttimeoutlen=75
+
 
 "---------------------------------------------------------------------------
 " ファイル名に大文字小文字の区別がないシステム用の設定:
@@ -205,6 +207,9 @@ if filereadable($VIM . '/vimrc') && filereadable($VIM . '/ViMrC')
   " tagsファイルの重複防止
   set tags=./tags,tags
 endif
+
+" Ctags 生成オプション
+let g:auto_ctags_tags_args = '-R'
 
 "---------------------------------------------------------------------------
 " コンソールでのカラー表示のための設定(暫定的にUNIX専用)
@@ -224,7 +229,8 @@ endif
 
 " コンソール版色の設定
 set t_Co=256
-colorscheme xoria256
+" colorscheme xoria256
+colorscheme molokai
 
 "---------------------------------------------------------------------------
 " 補完ポップアップの背景色変更(コンソール版Vim用)
@@ -281,7 +287,13 @@ filetype plugin indent on
 
 "---------------------------------------------------------------------------
 "emmet-vim
-let g:user_emmet_leader_key='<C-M>'
+"let g:user_emmet_leader_key='<C-M>'
+let g:user_emmet_mode='n'    "only enable normal mode functions.
+
+"---------------------------------------------------------------------------
+" caw.vim
+nmap <C-_> <Plug>(caw:i:toggle)
+vmap <C-_> <Plug>(caw:i:toggle)
 
 "---------------------------------------------------------------------------
 "phpmanualのパス
@@ -301,6 +313,10 @@ augroup MyXML
   autocmd Filetype html inoremap <buffer> </ </<C-x><C-o>
   autocmd Filetype eruby inoremap <buffer> </ </<C-x><C-o>
 augroup END
+
+"---------------------------------------------------------------------------
+"NERDTree
+nnoremap <silent> ,t :NERDTreeToggle<CR>
 
 "---------------------------------------------------------------------------
 "Vimshellのキーバインド
@@ -418,8 +434,8 @@ let g:unite_source_file_mru_filename_format = ''
 nnoremap <silent> [unite]f :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
 "バッファ一覧
 nnoremap <silent> [unite]b :<C-u>Unite buffer<CR>
-"Everything検索
-nnoremap <silent> [unite]e :<C-u>Unite everything<CR>
+"タグジャンプ
+nnoremap <silent> [unite]e :<C-u>Unite tag<CR>
 "レジスタ一覧
 nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=register register<CR>
 "最近使用したファイル一覧
@@ -449,6 +465,10 @@ inoremap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
 nnoremap <silent> <buffer> <expr> <C-o> unite#do_action('open')
 inoremap <silent> <buffer> <expr> <C-o> unite#do_action('open')
 endfunction"}}}
+
+"---------------------------------------------------------------------------
+" javascriptファイルでjsxシンタックスを読み込む
+let g:jsx_ext_required = 0
 
 "---------------------------------------------------------------------------
 " Agコマンド
@@ -512,7 +532,14 @@ if has('conceal')
   set conceallevel=2 concealcursor=i
 endif
 
+"--------------------------------------------
+" vim-easy-align
 
+" Start interactive EasyAlign in visual mode (e.g. vip<Enter>)
+vmap <Enter> <Plug>(EasyAlign)
+
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 "--------------------------------------------
 " Copyright (C) 2011 KaoriYa/MURAOKA Taro
