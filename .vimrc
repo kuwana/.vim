@@ -3,7 +3,7 @@
 " An example for a Japanese version vimrc file.
 " 日本語版のデフォルト設定ファイル(vimrc) - Vim7用試作
 "
-" Last Change: 19-Nov-2015.
+" Last Change: 12-Jan-2016.
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 "
 "   :help vimrc
@@ -192,6 +192,9 @@ set undodir=~/.vim/tmp
 " 開いてるファイルを外部プログラムから変更があった際自動リロード
 set autoread
 
+" 全角文字をちゃんと表示
+set ambiwidth=double
+
 " 括弧の補完
 inoremap {<Enter> {}<Left><CR><ESC><S-o>
 inoremap [<Enter> []<Left><CR><ESC><S-o>
@@ -281,6 +284,17 @@ syntax on
 filetype plugin indent on
 
 "---------------------------------------------------------------------------
+"syntastic設定
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+"---------------------------------------------------------------------------
 "vim-ref
 " let $PATH = $PATH . ';C:\Program Files (x86)\Lynx for Win32'
 " let g:ref_alc_encoding = 'SHIFT-JIS'
@@ -364,8 +378,18 @@ if !exists("g:quickrun_config")
 \       "runner" : "vimproc",
 \       "runner/vimproc/updatetime" : 10,
 \   },
+\   'objc': {
+\     'command': 'cc',
+\     'exec': ['%c %s -o %s:p:r -framework Foundation', '%s:p:r %a', 'rm -f %s:p:r'],
+\     'tempfile': '{tempname()}.m',
+\   },
 \}
 endif
+
+" for quickrun.vim
+let g:quickrun_config = {
+  \ }
+
 
 "分割で開く方向
 set splitbelow "下に開く

@@ -1,4 +1,5 @@
 " タブ幅の設定
+set autoindent
 set expandtab
 set tabstop=2
 set softtabstop=2

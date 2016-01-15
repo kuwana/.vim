@@ -49,3 +49,6 @@
 [submodule "bundle/dash.vim"]
 	path = bundle/dash.vim
 	url = https://github.com/rizzatti/dash.vim.git
+[submodule "bundle/syntastic"]
+	path = bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
