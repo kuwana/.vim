@@ -52,3 +52,39 @@
 [submodule "bundle/syntastic"]
 	path = bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
+[submodule "bundle/editorconfig-vim"]
+	path = bundle/editorconfig-vim
+	url = https://github.com/editorconfig/editorconfig-vim.git
+[submodule "bundle/vim-go"]
+	path = bundle/vim-go
+	url = https://github.com/fatih/vim-go.git
+[submodule "bundle/vim-wakatime"]
+	path = bundle/vim-wakatime
+	url = git://github.com/wakatime/vim-wakatime.git
+[submodule "bundle/vim-go-extra"]
+	path = bundle/vim-go-extra
+	url = https://github.com/vim-jp/vim-go-extra.git
+[submodule "bundle/vdebug"]
+	path = bundle/vdebug
+	url = https://github.com/joonty/vdebug.git
+[submodule "bundle/codic-vim"]
+	path = bundle/codic-vim
+	url = https://github.com/koron/codic-vim.git
+[submodule "bundle/unite-codic.vim"]
+	path = bundle/unite-codic.vim
+	url = https://github.com/rhysd/unite-codic.vim.git
+[submodule "bundle/vim-codic"]
+	path = bundle/vim-codic
+	url = https://github.com/yasuharu519/vim-codic.git
+[submodule "bundle/vim-vue"]
+	path = bundle/vim-vue
+	url = https://github.com/posva/vim-vue.git
+[submodule "bundle/asyncrun.vim"]
+	path = bundle/asyncrun.vim
+	url = https://github.com/skywind3000/asyncrun.vim.git
+[submodule "bundle/vim-conflicted"]
+	path = bundle/vim-conflicted
+	url = https://github.com/christoomey/vim-conflicted.git
+[submodule "bundle/vim-prettier"]
+	path = bundle/vim-prettier
+	url = https://github.com/prettier/vim-prettier

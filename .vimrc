@@ -183,6 +183,9 @@ set visualbell t_vb=
 " バックアップファイルの出力先
 set backupdir=~/.vim/tmp
 
+" バックアップしないファイル
+set backupskip=/tmp/*,/private/tmp/*
+
 " スワップファイルの出力先
 set directory=~/.vim/tmp
 
@@ -216,24 +219,24 @@ let g:auto_ctags_tags_args = '-R'
 
 "---------------------------------------------------------------------------
 " コンソールでのカラー表示のための設定(暫定的にUNIX専用)
-if has('unix') && !has('gui_running')
-  let uname = system('uname')
-  if uname =~? "linux"
-    set term=builtin_linux
-  elseif uname =~? "freebsd"
-    set term=builtin_cons25
-  elseif uname =~? "Darwin"
-    set term=builtin_xterm
-  else
-    set term=builtin_xterm
-  endif
-  unlet uname
-endif
+" if has('unix') && !has('gui_running')
+"   let uname = system('uname')
+"   if uname =~? "linux"
+"     set term=builtin_linux
+"   elseif uname =~? "freebsd"
+"     set term=builtin_cons25
+"   elseif uname =~? "Darwin"
+"     set term=builtin_xterm
+"   else
+"     set term=builtin_xterm
+"   endif
+"   unlet uname
+" endif
 
 " コンソール版色の設定
 set t_Co=256
 " colorscheme xoria256
-colorscheme molokai
+colorscheme atom-dark-256
 
 "---------------------------------------------------------------------------
 " 補完ポップアップの背景色変更(コンソール版Vim用)
@@ -293,6 +296,8 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
 
 "---------------------------------------------------------------------------
 "vim-ref
@@ -386,10 +391,6 @@ if !exists("g:quickrun_config")
 \}
 endif
 
-" for quickrun.vim
-let g:quickrun_config = {
-  \ }
-
 
 "分割で開く方向
 set splitbelow "下に開く
@@ -425,9 +426,14 @@ let g:apex_deployment_error_log="gvim-deployment-error.log"
 nnoremap <silent> <Space>tl :Tlist<CR>
 
 "---------------------------------------------------------------------------
-" CtrlP cache clear
+" CtrlP
 nnoremap <silent> ,cp :CtrlPClearAllCaches<CR>
+let g:ctrlp_custom_ignore = 'node_modules$\|DS_Store$\|\.git$'
 
+
+"---------------------------------------------------------------------------
+" Codic アクセストークン
+let g:vim_codic_access_token = "AJw34yzV2Y5wbF6VHdkIINFMHSCuZqKRFo"
 
 "---------------------------------------------------------------------------
 " SrcExpl
@@ -470,6 +476,8 @@ nnoremap <silent> [unite]o :<C-u>Unite outline<CR>
 nnoremap <silent> [unite]c :<C-u>Unite bookmark<CR>
 "ブックマークに追加
 nnoremap <silent> [unite]a :<C-u>UniteBookmarkAdd<CR>
+"Unite Codic で英訳
+nnoremap <silent> [unite]t :<C-u>Unite codic<CR>
 "uniteを開いている間のキーマッピング
 autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()"{{{
@@ -519,6 +527,12 @@ set completeopt-=preview                                    " プレビューウ
 inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
 
+" golang
+autocmd FileType go autocmd BufWritePre <buffer> Fmt
+let g:go_fmt_command = "goimports"
+set rtp+=$GOROOT/misc/vim
+exe "set rtp+=".globpath($GOPATH, "src/github.com/nsf/gocode/vim")
+
 " Enable omni completion.
 autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
@@ -540,9 +554,9 @@ inoremap <expr><S-TAB>  pumvisible() ? "\<C-p>" : "\<S-TAB>"
 let g:neosnippet#snippets_directory = '~/.vim/snippets,~/.vim/bundle/neosnippet-snippets/neosnippets'
 
 " Plugin key-mappings.
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-xmap <C-k>     <Plug>(neosnippet_expand_target)
+imap <C-f>     <Plug>(neosnippet_expand_or_jump)
+smap <C-f>     <Plug>(neosnippet_expand_or_jump)
+xmap <C-f>     <Plug>(neosnippet_expand_target)
 
 " SuperTab like snippets behavior.
 "imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-n>" : "\<TAB>"
@@ -564,6 +578,13 @@ vmap <Enter> <Plug>(EasyAlign)
 
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
+
+"--------------------------------------------
+" vdebug
+let g:vdebug_options = {
+  \ 'port' : 9001
+\ }
+
 
 "--------------------------------------------
 " Copyright (C) 2011 KaoriYa/MURAOKA Taro
